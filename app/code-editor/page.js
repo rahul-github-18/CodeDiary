@@ -490,10 +490,16 @@ function CodeEditorContent() {
 
       const isInputEOFError = errText && (
         errText.includes("NoSuchElementException") ||
+        errText.includes("NumberFormatException") ||
+        errText.includes("Cannot parse null") ||
+        errText.includes("NullPointerException") ||
+        errText.includes("null string") ||
         errText.includes("EOFError") ||
         errText.includes("Scanner") ||
+        errText.includes("readLine") ||
         errText.includes("cin") ||
-        errText.includes("end of file")
+        errText.includes("end of file") ||
+        errText.includes("EOF")
       );
 
       if (isInputEOFError) {
