@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Layout from '@/components/Layout';
 import { todoService, taskService, questionService } from '@/lib/api';
+import { getTopicUrl } from '@/lib/slug';
 
 const getDisplayDifficulty = (difficulty) => {
   if (!difficulty) return 'Easy';
@@ -82,6 +83,12 @@ function TodoDetailContent() {
       setTopic(topicDetail);
       setQuestions(topicDetail.questions || []);
       setUserTasks(tasks || []);
+      if (topicDetail && topicDetail.title) {
+        const cleanUrl = getTopicUrl(topicDetail);
+        if (cleanUrl && cleanUrl !== `/todo/${topicId}`) {
+          router.replace(cleanUrl);
+        }
+      }
     } catch (err) {
       console.error(err);
       setError('Could not retrieve topic details.');

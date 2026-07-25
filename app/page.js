@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense, useMemo, useCallback } from 'reac
 import { useRouter, useSearchParams } from 'next/navigation';
 import Layout from '@/components/Layout';
 import { todoService, userService, taskService, questionService, userQueryService, adminQueryService, adminSubmissionService, noteService } from '@/lib/api';
+import { getTopicUrl } from '@/lib/slug';
 
 const getDisplayDifficulty = (difficulty) => {
   if (!difficulty) return 'Easy';
@@ -289,7 +290,7 @@ function DashboardContent({ searchQuery }) {
     if (topics && topics.length > 0) {
       const maxVisible = Math.max(visibleCurriculumCount, visibleAdminCount);
       topics.slice(0, maxVisible).forEach(topic => {
-        router.prefetch(`/todo/${topic.id}`);
+        router.prefetch(getTopicUrl(topic));
       });
     }
   }, [topics, visibleCurriculumCount, visibleAdminCount, router]);
@@ -1500,7 +1501,7 @@ function DashboardContent({ searchQuery }) {
                         {getDisplayDifficulty(topic.difficulty)}
                       </span>
                     </div>
-                    <h4 className="card-title" onClick={() => router.push(`/todo/${topic.id}`)}>
+                    <h4 className="card-title" onClick={() => router.push(getTopicUrl(topic))}>
                       {topic.title}
                     </h4>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '8px 0 0 0' }}>
@@ -1533,7 +1534,7 @@ function DashboardContent({ searchQuery }) {
                         </button>
                       </div>
                     </div>
-                    <button className="btn btn-primary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => router.push(`/todo/${topic.id}`)}>
+                    <button className="btn btn-primary" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => router.push(getTopicUrl(topic))}>
                       Manage Content
                     </button>
                   </div>
@@ -1982,7 +1983,7 @@ function DashboardContent({ searchQuery }) {
                   <div 
                     key={group.id} 
                     className="card" 
-                    onClick={() => router.push(`/todo/${group.id}`)}
+                    onClick={() => router.push(getTopicUrl(group))}
                     style={{ 
                       display: 'flex', 
                       flexDirection: 'column', 
@@ -2045,7 +2046,7 @@ function DashboardContent({ searchQuery }) {
                       </div>
                       <span 
                         style={{ fontSize: '0.75rem', color: 'var(--link-color)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-                        onClick={() => router.push(`/todo/${group.id}`)}
+                        onClick={() => router.push(getTopicUrl(group))}
                       >
                         View Questions &rarr;
                       </span>
@@ -2268,7 +2269,7 @@ function DashboardContent({ searchQuery }) {
                       <div 
                         key={topic.id} 
                         className="card" 
-                        onClick={() => router.push(`/todo/${topic.id}`)}
+                        onClick={() => router.push(getTopicUrl(topic))}
                         style={{ 
                           display: 'flex', 
                           flexDirection: 'column', 
