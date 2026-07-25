@@ -532,30 +532,7 @@ function CodeEditorContent() {
     setInputsList(updatedInputs);
     setConsoleInput('');
 
-    const detected = detectCodeInputs(code, language);
-
-    // If there are remaining input prompts to collect locally before sending to server:
-    if (detected.count > 0 && updatedInputs.length < detected.count) {
-      setAwaitingInput(true);
-      let display = "";
-      for (let i = 0; i < detected.count; i++) {
-        const p = detected.prompts[i] || `Input ${i + 1}: `;
-        if (i < updatedInputs.length) {
-          display += `${p}${updatedInputs[i]}\n`;
-        } else if (i === updatedInputs.length) {
-          display += `${p}`;
-          break;
-        }
-      }
-      setOutput(display);
-      if (consoleInputRef.current) {
-        consoleInputRef.current.focus();
-      }
-    } else {
-      // All inputs collected! Perform 1 SINGLE execution pass!
-      setAwaitingInput(false);
-      handleRunCode(updatedInputs);
-    }
+    handleRunCode(updatedInputs);
   };
 
   const handleConsoleInputKeyDown = (e) => {
@@ -584,20 +561,9 @@ function CodeEditorContent() {
     setExecutionError('');
     setConsoleInput('');
     setRawStdinText('');
+    setAwaitingInput(false);
 
-    const detected = detectCodeInputs(code, language);
-
-    if (detected.count > 0 && inputsList.length < detected.count) {
-      setAwaitingInput(true);
-      const activePrompt = detected.prompts[0] || "Input 1: ";
-      setOutput(activePrompt);
-      if (consoleInputRef.current) {
-        consoleInputRef.current.focus();
-      }
-    } else {
-      setAwaitingInput(false);
-      handleRunCode([]);
-    }
+    handleRunCode([]);
   };
 
   return (
