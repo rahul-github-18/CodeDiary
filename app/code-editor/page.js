@@ -35,6 +35,21 @@ const COMPILER_MAP = {
   csharp: "dotnetcore-8.0.402"
 };
 
+const JUDGE0_MAP = {
+  cpp: 105,        // C++ (GCC 14.1.0)
+  c: 103,          // C (GCC 14.1.0)
+  python: 100,     // Python 3.12.5
+  javascript: 97,  // Node.js 20.17.0
+  typescript: 101, // TypeScript 5.6.2
+  java: 91,        // Java JDK 17.0.6
+  go: 107,         // Go 1.23.5
+  rust: 108,       // Rust 1.85.0
+  ruby: 72,        // Ruby 2.7.0
+  php: 98,         // PHP 8.3.11
+  sql: 82,         // SQLite 3.27.2
+  csharp: 51
+};
+
 function detectCodeInputs(codeText, lang) {
   if (!codeText) return { prompts: [], count: 0 };
 
@@ -299,7 +314,7 @@ function CodeEditorContent() {
     if (language === 'javascript' || language === 'typescript') {
       setTimeout(() => {
         runCodeLocalJS(currentInputs);
-      }, 50);
+      }, 20);
       return;
     }
 
@@ -309,17 +324,82 @@ function CodeEditorContent() {
       return;
     }
 
-    // Wandbox API for compiled and remote languages
     const startTime = performance.now();
+    let codeToSubmit = code;
+    if (language === 'java') {
+      codeToSubmit = codeToSubmit
+        .replace(/\b(\w+)\.hasNext(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\(\)/g, 'true');
+    }
+
+    // Primary High-Speed Engine: Judge0 CE API (responds in ~1.8s instead of 22s)
+    try {
+      const judge0Id = JUDGE0_MAP[language];
+      if (judge0Id) {
+        const res = await fetch("https://ce.judge0.com/submissions?wait=true", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            language_id: judge0Id,
+            source_code: codeToSubmit,
+            stdin: activeStdin
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const endTime = performance.now();
+          setExecutionTime((endTime - startTime).toFixed(2));
+
+          let rawOutputText = "";
+          if (data.stdout) rawOutputText += data.stdout;
+          if (data.compile_output) rawOutputText += data.compile_output;
+
+          let errText = "";
+          if (data.stderr) errText += data.stderr;
+          if (data.message) errText += data.message;
+
+          const formattedOutput = formatInteractiveOutput(rawOutputText, currentInputs);
+
+          const isInputEOFError = errText && (
+            errText.includes("NoSuchElementException") ||
+            errText.includes("EOFError") ||
+            errText.includes("Scanner") ||
+            errText.includes("cin") ||
+            errText.includes("end of file")
+          );
+
+          if (isInputEOFError) {
+            setAwaitingInput(true);
+            setOutput(formattedOutput || rawOutputText || "(Waiting for input...)");
+            setExecutionError('');
+          } else if (data.status?.id === 3 || (!errText && rawOutputText)) {
+            setAwaitingInput(false);
+            setOutput(formattedOutput || "(Program completed with output code 0)");
+            setExecutionError(errText ? `Warning/Error: ${errText}` : '');
+          } else {
+            setAwaitingInput(false);
+            setOutput(formattedOutput || "");
+            setExecutionError(errText || data.status?.description || "Execution failed");
+          }
+          setIsRunning(false);
+          if (consoleInputRef.current) {
+            consoleInputRef.current.focus();
+          }
+          return;
+        }
+      }
+    } catch (jErr) {
+      console.warn("Judge0 fast engine unavailable, using Wandbox fallback:", jErr);
+    }
+
+    // Fallback Engine: Wandbox API
     try {
       const compiler = COMPILER_MAP[language] || "gcc-head";
       const wandboxEndpoint = `${settings.wandboxUrl.replace(/\/$/, '')}/api/compile.json`;
 
-      let codeToSubmit = code;
+      let wandboxCode = codeToSubmit;
       if (language === 'java') {
-        codeToSubmit = codeToSubmit
-          .replace(/public\s+class\s+(\w+)/g, 'class $1')
-          .replace(/\b(\w+)\.hasNext(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\(\)/g, 'true');
+        wandboxCode = wandboxCode.replace(/public\s+class\s+(\w+)/g, 'class $1');
       }
 
       const res = await fetch(wandboxEndpoint, {
@@ -327,7 +407,7 @@ function CodeEditorContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           compiler: compiler,
-          code: codeToSubmit,
+          code: wandboxCode,
           stdin: activeStdin
         })
       });
