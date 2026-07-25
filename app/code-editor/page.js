@@ -85,51 +85,72 @@ function detectCodeInputs(codeText, lang) {
   let inputCount = 0;
 
   if (lang === 'java') {
-    const printMatches = [...codeText.matchAll(/System\.out\.print(?:ln)?\s*\(\s*"([^"]+)"\s*\)/g)];
-    const scannerMatches = [...codeText.matchAll(/(\w+)\.next(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\s*\(\)/g)];
+    const scannerRegex = /(\w+)\.next(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\s*\(\)/g;
+    let match;
 
-    inputCount = scannerMatches.length;
+    while ((match = scannerRegex.exec(codeText)) !== null) {
+      inputCount++;
+      const inputPos = match.index;
+      const codeBefore = codeText.substring(0, inputPos);
 
-    for (let i = 0; i < inputCount; i++) {
-      if (printMatches[i] && printMatches[i][1]) {
-        prompts.push(printMatches[i][1]);
+      const printMatches = [...codeBefore.matchAll(/System\.out\.print(?:ln)?\s*\(\s*"([^"]+)"\s*\)/g)];
+
+      if (printMatches.length > 0) {
+        prompts.push(printMatches[printMatches.length - 1][1]);
       } else {
-        prompts.push(`Input ${i + 1}: `);
+        prompts.push(`Enter Input ${inputCount}: `);
       }
     }
   } else if (lang === 'cpp') {
-    const coutMatches = [...codeText.matchAll(/cout\s*<<\s*"([^"]+)"/g)];
-    const cinMatches = [...codeText.matchAll(/cin\s*>>\s*(\w+)/g)];
+    const cinRegex = /cin\s*>>\s*\w+/g;
+    let match;
 
-    inputCount = cinMatches.length;
+    while ((match = cinRegex.exec(codeText)) !== null) {
+      inputCount++;
+      const inputPos = match.index;
+      const codeBefore = codeText.substring(0, inputPos);
 
-    for (let i = 0; i < inputCount; i++) {
-      if (coutMatches[i] && coutMatches[i][1]) {
-        prompts.push(coutMatches[i][1]);
+      const coutMatches = [...codeBefore.matchAll(/cout\s*<<\s*"([^"]+)"/g)];
+      if (coutMatches.length > 0) {
+        prompts.push(coutMatches[coutMatches.length - 1][1]);
       } else {
-        prompts.push(`Input ${i + 1}: `);
+        prompts.push(`Enter Input ${inputCount}: `);
       }
     }
   } else if (lang === 'c') {
-    const printfMatches = [...codeText.matchAll(/printf\s*\(\s*"([^"]+)"\s*\)/g)];
-    const scanfMatches = [...codeText.matchAll(/scanf\s*\(/g)];
+    const scanfRegex = /scanf\s*\(/g;
+    let match;
 
-    inputCount = scanfMatches.length;
+    while ((match = scanfRegex.exec(codeText)) !== null) {
+      inputCount++;
+      const inputPos = match.index;
+      const codeBefore = codeText.substring(0, inputPos);
 
-    for (let i = 0; i < inputCount; i++) {
-      if (printfMatches[i] && printfMatches[i][1]) {
-        prompts.push(printfMatches[i][1]);
+      const printfMatches = [...codeBefore.matchAll(/printf\s*\(\s*"([^"]+)"\s*\)/g)];
+      if (printfMatches.length > 0) {
+        prompts.push(printfMatches[printfMatches.length - 1][1]);
       } else {
-        prompts.push(`Input ${i + 1}: `);
+        prompts.push(`Enter Input ${inputCount}: `);
       }
     }
   } else if (lang === 'python') {
-    const inputMatches = [...codeText.matchAll(/input\s*\(\s*(?:"([^"]+)"|'([^']+)')?\s*\)/g)];
-    inputCount = inputMatches.length;
+    const inputRegex = /input\s*\(\s*(?:"([^"]+)"|'([^']+)')?\s*\)/g;
+    let match;
 
-    for (let i = 0; i < inputCount; i++) {
-      const p = inputMatches[i][1] || inputMatches[i][2];
-      prompts.push(p ? p : `Input ${i + 1}: `);
+    while ((match = inputRegex.exec(codeText)) !== null) {
+      inputCount++;
+      const promptStr = match[1] || match[2];
+      if (promptStr) {
+        prompts.push(promptStr);
+      } else {
+        const codeBefore = codeText.substring(0, match.index);
+        const printMatches = [...codeBefore.matchAll(/print\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g)];
+        if (printMatches.length > 0) {
+          prompts.push(printMatches[printMatches.length - 1][1] || printMatches[printMatches.length - 1][2]);
+        } else {
+          prompts.push(`Enter Input ${inputCount}: `);
+        }
+      }
     }
   }
 
