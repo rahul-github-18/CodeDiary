@@ -50,6 +50,34 @@ const JUDGE0_MAP = {
   csharp: 51
 };
 
+function transpileJavaToJS(javaCode) {
+  let body = javaCode;
+
+  const mainMatch = javaCode.match(/public\s+static\s+void\s+main\s*\(\s*String\s*\[\s*\]\s*\w+\s*\)\s*\{([\s\S]*)\}\s*$/m)
+    || javaCode.match(/void\s+main\s*\(\s*\)\s*\{([\s\S]*)\}\s*$/m);
+
+  if (mainMatch && mainMatch[1]) {
+    body = mainMatch[1];
+  }
+
+  body = body.replace(/System\.out\.println\s*\((.*?)\);/g, '__logs.push(String($1));');
+  body = body.replace(/System\.out\.print\s*\((.*?)\);/g, '__logs.push(String($1));');
+
+  body = body.replace(/Scanner\s+\w+\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\);?/g, '');
+  body = body.replace(/\b\w+\.close\s*\(\);?/g, '');
+
+  body = body.replace(/\b\w+\.nextInt\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? parseInt(__inputs[__inputIdx - 1]) : 0)');
+  body = body.replace(/\b\w+\.nextDouble\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? parseFloat(__inputs[__inputIdx - 1]) : 0.0)');
+  body = body.replace(/\b\w+\.nextFloat\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? parseFloat(__inputs[__inputIdx - 1]) : 0.0)');
+  body = body.replace(/\b\w+\.nextLong\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? parseInt(__inputs[__inputIdx - 1]) : 0)');
+  body = body.replace(/\b\w+\.nextLine\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? String(__inputs[__inputIdx - 1]) : "")');
+  body = body.replace(/\b\w+\.next\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? String(__inputs[__inputIdx - 1]) : "")');
+
+  body = body.replace(/\b(int|double|float|long|boolean|String|char)\b\s+(\w+)/g, 'let $2');
+
+  return body;
+}
+
 function detectCodeInputs(codeText, lang) {
   if (!codeText) return { prompts: [], count: 0 };
 
@@ -303,6 +331,34 @@ function CodeEditorContent() {
     }
   };
 
+  const runCodeLocalJava = (currentInputs = []) => {
+    const startTime = performance.now();
+    let logs = [];
+    try {
+      const jsBody = transpileJavaToJS(code);
+      let inputIdx = 0;
+
+      const runFn = new Function('__logs', '__inputs', '__inputIdx', jsBody);
+      runFn(logs, currentInputs, inputIdx);
+
+      const endTime = performance.now();
+      const rawOutput = logs.join('\n');
+      const formatted = formatInteractiveOutput(rawOutput, currentInputs);
+
+      setOutput(formatted || "(Program completed successfully)");
+      setExecutionError('');
+      setExecutionTime((endTime - startTime).toFixed(2));
+      setAwaitingInput(false);
+      setIsRunning(false);
+      if (consoleInputRef.current) {
+        consoleInputRef.current.focus();
+      }
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
   const handleRunCode = async (currentInputs = inputsList) => {
     setIsRunning(true);
     setExecutionError('');
@@ -314,7 +370,7 @@ function CodeEditorContent() {
     if (language === 'javascript' || language === 'typescript') {
       setTimeout(() => {
         runCodeLocalJS(currentInputs);
-      }, 20);
+      }, 10);
       return;
     }
 
@@ -324,6 +380,12 @@ function CodeEditorContent() {
       return;
     }
 
+    // Fast 0ms local execution for standard Java snippets
+    if (language === 'java') {
+      const localSuccess = runCodeLocalJava(currentInputs);
+      if (localSuccess) return;
+    }
+
     const startTime = performance.now();
     let codeToSubmit = code;
     if (language === 'java') {
@@ -331,69 +393,27 @@ function CodeEditorContent() {
         .replace(/\b(\w+)\.hasNext(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\(\)/g, 'true');
     }
 
-    // Primary High-Speed Engine: Judge0 CE API (responds in ~1.8s instead of 22s)
-    try {
+    // Parallel Engine Race: Concurrently race Judge0 CE + Wandbox API
+    const fetchJudge0 = async () => {
       const judge0Id = JUDGE0_MAP[language];
-      if (judge0Id) {
-        const res = await fetch("https://ce.judge0.com/submissions?wait=true", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            language_id: judge0Id,
-            source_code: codeToSubmit,
-            stdin: activeStdin
-          })
-        });
+      if (!judge0Id) throw new Error("No Judge0 language ID");
 
-        if (res.ok) {
-          const data = await res.json();
-          const endTime = performance.now();
-          setExecutionTime((endTime - startTime).toFixed(2));
+      const res = await fetch("https://ce.judge0.com/submissions?wait=true", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          language_id: judge0Id,
+          source_code: codeToSubmit,
+          stdin: activeStdin
+        })
+      });
 
-          let rawOutputText = "";
-          if (data.stdout) rawOutputText += data.stdout;
-          if (data.compile_output) rawOutputText += data.compile_output;
+      if (!res.ok) throw new Error(`Judge0 HTTP ${res.status}`);
+      const data = await res.json();
+      return { source: "judge0", data };
+    };
 
-          let errText = "";
-          if (data.stderr) errText += data.stderr;
-          if (data.message) errText += data.message;
-
-          const formattedOutput = formatInteractiveOutput(rawOutputText, currentInputs);
-
-          const isInputEOFError = errText && (
-            errText.includes("NoSuchElementException") ||
-            errText.includes("EOFError") ||
-            errText.includes("Scanner") ||
-            errText.includes("cin") ||
-            errText.includes("end of file")
-          );
-
-          if (isInputEOFError) {
-            setAwaitingInput(true);
-            setOutput(formattedOutput || rawOutputText || "(Waiting for input...)");
-            setExecutionError('');
-          } else if (data.status?.id === 3 || (!errText && rawOutputText)) {
-            setAwaitingInput(false);
-            setOutput(formattedOutput || "(Program completed with output code 0)");
-            setExecutionError(errText ? `Warning/Error: ${errText}` : '');
-          } else {
-            setAwaitingInput(false);
-            setOutput(formattedOutput || "");
-            setExecutionError(errText || data.status?.description || "Execution failed");
-          }
-          setIsRunning(false);
-          if (consoleInputRef.current) {
-            consoleInputRef.current.focus();
-          }
-          return;
-        }
-      }
-    } catch (jErr) {
-      console.warn("Judge0 fast engine unavailable, using Wandbox fallback:", jErr);
-    }
-
-    // Fallback Engine: Wandbox API
-    try {
+    const fetchWandbox = async () => {
       const compiler = COMPILER_MAP[language] || "gcc-head";
       const wandboxEndpoint = `${settings.wandboxUrl.replace(/\/$/, '')}/api/compile.json`;
 
@@ -412,46 +432,57 @@ function CodeEditorContent() {
         })
       });
 
-      if (!res.ok) {
-        throw new Error(`Execution service returned HTTP ${res.status}`);
-      }
-
+      if (!res.ok) throw new Error(`Wandbox HTTP ${res.status}`);
       const data = await res.json();
+      return { source: "wandbox", data };
+    };
+
+    try {
+      const winner = await Promise.any([fetchJudge0(), fetchWandbox()]);
       const endTime = performance.now();
       setExecutionTime((endTime - startTime).toFixed(2));
 
       let rawOutputText = "";
-      if (data.program_output) rawOutputText += data.program_output;
-      if (data.compiler_output) rawOutputText += data.compiler_output;
+      let errText = "";
+
+      if (winner.source === "judge0") {
+        const data = winner.data;
+        if (data.stdout) rawOutputText += data.stdout;
+        if (data.compile_output) rawOutputText += data.compile_output;
+        if (data.stderr) errText += data.stderr;
+        if (data.message) errText += data.message;
+      } else {
+        const data = winner.data;
+        if (data.program_output) rawOutputText += data.program_output;
+        if (data.compiler_output) rawOutputText += data.compiler_output;
+        if (data.program_error) errText += data.program_error;
+        if (data.compiler_error) errText += data.compiler_error;
+      }
 
       const formattedOutput = formatInteractiveOutput(rawOutputText, currentInputs);
 
-      const isInputEOFError = data.program_error && (
-        data.program_error.includes("NoSuchElementException") ||
-        data.program_error.includes("EOFError") ||
-        data.program_error.includes("Scanner") ||
-        data.program_error.includes("cin") ||
-        data.program_error.includes("end of file")
+      const isInputEOFError = errText && (
+        errText.includes("NoSuchElementException") ||
+        errText.includes("EOFError") ||
+        errText.includes("Scanner") ||
+        errText.includes("cin") ||
+        errText.includes("end of file")
       );
 
       if (isInputEOFError) {
         setAwaitingInput(true);
         setOutput(formattedOutput || rawOutputText || "(Waiting for input...)");
         setExecutionError('');
-      } else if (data.status === "0" || !data.status) {
-        setAwaitingInput(false);
-        setOutput(formattedOutput || "(Program completed with output code 0)");
-        setExecutionError('');
       } else {
         setAwaitingInput(false);
-        setOutput(formattedOutput || data.program_output || "");
-        setExecutionError(data.compiler_error || data.program_error || `Process exited with code ${data.status}`);
+        setOutput(formattedOutput || rawOutputText || "(Program completed)");
+        setExecutionError(errText || '');
       }
     } catch (err) {
-      console.warn("Wandbox execution error:", err);
+      console.warn("Parallel execution race error:", err);
       const endTime = performance.now();
       setExecutionTime((endTime - startTime).toFixed(2));
-      setExecutionError(`Execution Failed: ${err.message}. Please check connection.`);
+      setExecutionError(`Execution Failed. Please check internet connection.`);
       setAwaitingInput(false);
     } finally {
       setIsRunning(false);
