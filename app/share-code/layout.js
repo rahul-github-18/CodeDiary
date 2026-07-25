@@ -1,21 +1,29 @@
-import { SITE_URL, SITE_NAME, generateOpenGraph, generateTwitter } from '@/lib/seo';
+import { headers } from 'next/headers';
+import { getSiteUrl, SITE_NAME, generateOpenGraph, generateTwitter } from '@/lib/seo';
 
-export const metadata = {
-  title: `Share Code Snippet | ${SITE_NAME}`,
-  description: 'Instantly share clean code snippets, formatted syntax, and programming solutions with teammates and developers on CodeDiary.',
-  alternates: {
-    canonical: `${SITE_URL}/share-code`,
-  },
-  openGraph: generateOpenGraph({
+export async function generateMetadata() {
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
+
+  return {
     title: `Share Code Snippet | ${SITE_NAME}`,
     description: 'Instantly share clean code snippets, formatted syntax, and programming solutions with teammates and developers on CodeDiary.',
-    url: `${SITE_URL}/share-code`,
-  }),
-  twitter: generateTwitter({
-    title: `Share Code Snippet | ${SITE_NAME}`,
-    description: 'Instantly share clean code snippets, formatted syntax, and programming solutions with teammates and developers on CodeDiary.',
-  }),
-};
+    alternates: {
+      canonical: `${siteUrl}/share-code`,
+    },
+    openGraph: generateOpenGraph({
+      title: `Share Code Snippet | ${SITE_NAME}`,
+      description: 'Instantly share clean code snippets, formatted syntax, and programming solutions with teammates and developers on CodeDiary.',
+      url: `${siteUrl}/share-code`,
+      siteUrl,
+    }),
+    twitter: generateTwitter({
+      title: `Share Code Snippet | ${SITE_NAME}`,
+      description: 'Instantly share clean code snippets, formatted syntax, and programming solutions with teammates and developers on CodeDiary.',
+      siteUrl,
+    }),
+  };
+}
 
 export default function ShareCodeLayout({ children }) {
   return children;

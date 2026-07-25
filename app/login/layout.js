@@ -1,21 +1,29 @@
-import { SITE_URL, SITE_NAME, generateOpenGraph, generateTwitter } from '@/lib/seo';
+import { headers } from 'next/headers';
+import { getSiteUrl, SITE_NAME, generateOpenGraph, generateTwitter } from '@/lib/seo';
 
-export const metadata = {
-  title: `Login & Register | ${SITE_NAME}`,
-  description: 'Sign in or create an account on CodeDiary to track your daily coding progress, solve practice problems, and manage programming notes.',
-  alternates: {
-    canonical: `${SITE_URL}/login`,
-  },
-  openGraph: generateOpenGraph({
+export async function generateMetadata() {
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
+
+  return {
     title: `Login & Register | ${SITE_NAME}`,
     description: 'Sign in or create an account on CodeDiary to track your daily coding progress, solve practice problems, and manage programming notes.',
-    url: `${SITE_URL}/login`,
-  }),
-  twitter: generateTwitter({
-    title: `Login & Register | ${SITE_NAME}`,
-    description: 'Sign in or create an account on CodeDiary to track your daily coding progress, solve practice problems, and manage programming notes.',
-  }),
-};
+    alternates: {
+      canonical: `${siteUrl}/login`,
+    },
+    openGraph: generateOpenGraph({
+      title: `Login & Register | ${SITE_NAME}`,
+      description: 'Sign in or create an account on CodeDiary to track your daily coding progress, solve practice problems, and manage programming notes.',
+      url: `${siteUrl}/login`,
+      siteUrl,
+    }),
+    twitter: generateTwitter({
+      title: `Login & Register | ${SITE_NAME}`,
+      description: 'Sign in or create an account on CodeDiary to track your daily coding progress, solve practice problems, and manage programming notes.',
+      siteUrl,
+    }),
+  };
+}
 
 export default function LoginLayout({ children }) {
   return children;

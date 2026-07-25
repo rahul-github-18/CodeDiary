@@ -1,31 +1,35 @@
+import { headers } from 'next/headers';
 import { getCachedCurriculum } from '@/lib/cache';
-import { SITE_URL } from '@/lib/seo';
+import { getSiteUrl } from '@/lib/seo';
 import { getTopicUrl } from '@/lib/slug';
 
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap() {
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
+
   const routes = [
     {
-      url: SITE_URL,
+      url: siteUrl,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1.0,
     },
     {
-      url: `${SITE_URL}/login`,
+      url: `${siteUrl}/login`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
-      url: `${SITE_URL}/share-code`,
+      url: `${siteUrl}/share-code`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/code-editor`,
+      url: `${siteUrl}/code-editor`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
@@ -37,7 +41,7 @@ export default async function sitemap() {
     if (todos && Array.isArray(todos)) {
       todos.forEach(topic => {
         routes.push({
-          url: `${SITE_URL}${getTopicUrl(topic)}`,
+          url: `${siteUrl}${getTopicUrl(topic)}`,
           lastModified: new Date(),
           changeFrequency: 'weekly',
           priority: 0.8,

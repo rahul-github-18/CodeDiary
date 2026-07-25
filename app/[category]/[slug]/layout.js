@@ -1,9 +1,12 @@
+import { headers } from 'next/headers';
 import { getCachedCurriculum } from '@/lib/cache';
 import { findTopicBySlugs, getCategorySlug, getTopicSlug } from '@/lib/slug';
-import { SITE_URL, SITE_NAME, generateKeywords, generateOpenGraph, generateTwitter, generateTopicJsonLd } from '@/lib/seo';
+import { getSiteUrl, SITE_NAME, generateKeywords, generateOpenGraph, generateTwitter, generateTopicJsonLd } from '@/lib/seo';
 
 export async function generateMetadata({ params }) {
   const { category: categorySlug, slug: topicSlug } = params;
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
 
   try {
     const { todos, questions } = await getCachedCurriculum();
@@ -24,7 +27,7 @@ export async function generateMetadata({ params }) {
     const title = `${topic.title} in ${topic.category} | ${SITE_NAME}`;
     const description = `Learn ${topic.title} (${topic.category}) with ${topicQuestions.length} practice questions, code templates, notes, and interactive solutions on CodeDiary.`;
     const keywords = generateKeywords(topicData);
-    const canonical = `${SITE_URL}/${catSlug}/${topSlug}`;
+    const canonical = `${siteUrl}/${catSlug}/${topSlug}`;
 
     return {
       title,
@@ -38,10 +41,12 @@ export async function generateMetadata({ params }) {
         description,
         url: canonical,
         type: 'article',
+        siteUrl,
       }),
       twitter: generateTwitter({
         title,
         description,
+        siteUrl,
       }),
       robots: {
         index: true,
@@ -59,6 +64,8 @@ export async function generateMetadata({ params }) {
 
 export default async function ModuleLayout({ children, params }) {
   const { category: categorySlug, slug: topicSlug } = params;
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
   let schemas = [];
 
   try {
@@ -66,7 +73,7 @@ export default async function ModuleLayout({ children, params }) {
     const topic = findTopicBySlugs(todos, categorySlug, topicSlug);
     if (topic) {
       const topicQuestions = questions?.filter(q => q.todo_id === topic.id) || [];
-      schemas = generateTopicJsonLd({ ...topic, questions: topicQuestions }, topic.id) || [];
+      schemas = generateTopicJsonLd({ ...topic, questions: topicQuestions }, topic.id, siteUrl) || [];
     }
   } catch (e) {
     console.error('Error generating JSON-LD for module page:', e);

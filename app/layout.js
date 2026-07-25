@@ -1,76 +1,82 @@
+import { headers } from 'next/headers';
 import './globals.css';
 import PWAContainer from '@/components/PWAContainer';
-import { SITE_URL, SITE_NAME, generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo';
+import { getSiteUrl, SITE_NAME, generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo';
 
-export const metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
-    template: `%s | ${SITE_NAME}`,
-  },
-  description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
-  keywords: [
-    'coding tracker',
-    'developer journal',
-    'programming questions',
-    'code diary',
-    'coding interview practice',
-    'data structures and algorithms',
-    'learn programming',
-    'java tutorial',
-    'python tutorial'
-  ],
-  authors: [{ name: 'CodeDiary Team' }],
-  creator: SITE_NAME,
-  publisher: SITE_NAME,
-  category: 'Education & Technology',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata() {
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
+      template: `%s | ${SITE_NAME}`,
+    },
+    description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
+    keywords: [
+      'coding tracker',
+      'developer journal',
+      'programming questions',
+      'code diary',
+      'coding interview practice',
+      'data structures and algorithms',
+      'learn programming',
+      'java tutorial',
+      'python tutorial'
+    ],
+    authors: [{ name: 'CodeDiary Team' }],
+    creator: SITE_NAME,
+    publisher: SITE_NAME,
+    category: 'Education & Technology',
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  alternates: {
-    canonical: SITE_URL,
-  },
-  openGraph: {
-    title: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
-    description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    locale: 'en_US',
-    type: 'website',
-    images: [
-      {
-        url: `${SITE_URL}/icon.png`,
-        width: 1200,
-        height: 630,
-        alt: 'CodeDiary Platform',
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
       },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
-    description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
-    images: [`${SITE_URL}/icon.png`],
-  },
-  manifest: '/manifest.json',
-  icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: SITE_NAME,
-  },
-};
+    },
+    alternates: {
+      canonical: siteUrl,
+    },
+    openGraph: {
+      title: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
+      description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
+      url: siteUrl,
+      siteName: SITE_NAME,
+      locale: 'en_US',
+      type: 'website',
+      images: [
+        {
+          url: `${siteUrl}/icon.png`,
+          width: 1200,
+          height: 630,
+          alt: 'CodeDiary Platform',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
+      description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
+      images: [`${siteUrl}/icon.png`],
+    },
+    manifest: '/manifest.json',
+    icons: {
+      icon: '/favicon.png',
+      apple: '/favicon.png',
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: SITE_NAME,
+    },
+  };
+}
 
 export const viewport = {
   themeColor: '#0f172a',
@@ -82,8 +88,10 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
-  const orgSchema = generateOrganizationSchema();
-  const siteSchema = generateWebSiteSchema();
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
+  const orgSchema = generateOrganizationSchema(siteUrl);
+  const siteSchema = generateWebSiteSchema(siteUrl);
 
   return (
     <html lang="en">
@@ -102,4 +110,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-

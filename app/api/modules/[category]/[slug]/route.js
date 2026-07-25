@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getCachedCurriculum, getCachedUser } from '@/lib/cache';
 import { findTopicBySlugs, getCategorySlug, getTopicSlug } from '@/lib/slug';
-import { generateKeywords, generateOpenGraph, generateTwitter, generateTopicJsonLd, SITE_URL, SITE_NAME } from '@/lib/seo';
+import { generateKeywords, generateOpenGraph, generateTwitter, generateTopicJsonLd, getSiteUrl, SITE_NAME } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +28,8 @@ export async function GET(req, { params }) {
       console.timeEnd(timerLabel);
       return NextResponse.json({ message: 'Access Denied. Insufficient permissions.' }, { status: 403 });
     }
+
+    const siteUrl = getSiteUrl(req.headers);
 
     // Fetch curriculum from cache
     const { todos, questions, codeExamples, notes } = await getCachedCurriculum();
@@ -95,7 +97,7 @@ export async function GET(req, { params }) {
     // SEO Metadata
     const catSlug = getCategorySlug(topic.category);
     const topSlug = getTopicSlug(topic.title);
-    const canonicalUrl = `${SITE_URL}/${catSlug}/${topSlug}`;
+    const canonicalUrl = `${siteUrl}/${catSlug}/${topSlug}`;
     const seoTitle = `${topic.title} in ${topic.category} | ${SITE_NAME}`;
     const seoDescription = `Learn ${topic.title} (${topic.category}) with ${topicQuestions.length} practice questions, code examples, notes, and interactive solutions on CodeDiary.`;
     const keywords = generateKeywords({ ...topic, questions: topicQuestions });
@@ -116,9 +118,9 @@ export async function GET(req, { params }) {
         description: seoDescription,
         keywords,
         canonicalUrl,
-        openGraph: generateOpenGraph({ title: seoTitle, description: seoDescription, url: canonicalUrl, type: 'article' }),
-        twitter: generateTwitter({ title: seoTitle, description: seoDescription }),
-        jsonLd: generateTopicJsonLd({ ...topic, questions: topicQuestions }, topic.id)
+        openGraph: generateOpenGraph({ title: seoTitle, description: seoDescription, url: canonicalUrl, type: 'article', siteUrl }),
+        twitter: generateTwitter({ title: seoTitle, description: seoDescription, siteUrl }),
+        jsonLd: generateTopicJsonLd({ ...topic, questions: topicQuestions }, topic.id, siteUrl)
       }
     });
   } catch (error) {

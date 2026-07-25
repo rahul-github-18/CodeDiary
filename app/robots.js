@@ -1,6 +1,10 @@
-import { SITE_URL } from '@/lib/seo';
+import { headers } from 'next/headers';
+import { getSiteUrl } from '@/lib/seo';
 
 export default function robots() {
+  const headersList = headers();
+  const siteUrl = getSiteUrl(headersList);
+
   return {
     rules: [
       {
@@ -9,6 +13,6 @@ export default function robots() {
         disallow: ['/api/', '/admin/'],
       },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: `${siteUrl}/sitemap.xml`,
   };
 }
