@@ -363,6 +363,7 @@ const Layout = ({ children, searchQuery, setSearchQuery }) => {
             <input
               type="text"
               placeholder="Search todos or questions..."
+              aria-label="Search curriculum topics or practice questions"
               className="search-bar"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -374,6 +375,7 @@ const Layout = ({ children, searchQuery, setSearchQuery }) => {
                 <button
                   className="btn btn-secondary"
                   onClick={handleInstallClick}
+                  aria-label="Install App PWA"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -395,6 +397,7 @@ const Layout = ({ children, searchQuery, setSearchQuery }) => {
               <button
                 className="btn btn-secondary"
                 onClick={toggleTheme}
+                aria-label="Toggle theme mode"
                 style={{
                   display: 'flex',
                   alignItems: 'center',

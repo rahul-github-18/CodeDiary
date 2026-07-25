@@ -94,6 +94,7 @@ const Sidebar = memo(({ onExportPDF, isDarkMode, toggleTheme, isOpen, onClose })
         <button
           onClick={onClose}
           className="sidebar-close-btn"
+          aria-label="Close sidebar navigation"
           style={{
             background: 'none',
             border: 'none',

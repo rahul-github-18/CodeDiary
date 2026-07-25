@@ -1,9 +1,65 @@
 import './globals.css';
 import PWAContainer from '@/components/PWAContainer';
+import { SITE_URL, SITE_NAME, generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo';
 
 export const metadata = {
-  title: 'CodeDiary',
-  description: 'Organize your daily coding journey, save programming questions, write notes, format code snippets, and export summaries as PDF documents.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
+  keywords: [
+    'coding tracker',
+    'developer journal',
+    'programming questions',
+    'code diary',
+    'coding interview practice',
+    'data structures and algorithms',
+    'learn programming',
+    'java tutorial',
+    'python tutorial'
+  ],
+  authors: [{ name: 'CodeDiary Team' }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  category: 'Education & Technology',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
+    description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/icon.png`,
+        width: 1200,
+        height: 630,
+        alt: 'CodeDiary Platform',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CodeDiary - Daily Coding Tracker & Developer Learning Platform',
+    description: 'Organize your daily coding journey, practice programming questions, save code snippets, write notes, and track learning progress with CodeDiary.',
+    images: [`${SITE_URL}/icon.png`],
+  },
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.png',
@@ -12,7 +68,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'CodeDiary',
+    title: SITE_NAME,
   },
 };
 
@@ -26,8 +82,19 @@ export const viewport = {
 };
 
 export default function RootLayout({ children }) {
+  const orgSchema = generateOrganizationSchema();
+  const siteSchema = generateWebSiteSchema();
+
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([orgSchema, siteSchema]) }}
+        />
+      </head>
       <body>
         <PWAContainer />
         {children}
@@ -35,3 +102,4 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
