@@ -18,8 +18,8 @@ const getDisplayDifficulty = (difficulty) => {
 const difficultyOrder = { 'Easy': 1, 'Medium': 2, 'Hard': 3 };
 
 function TodoDetailContent() {
-  const { id: topicIdRaw } = useParams();
-  const topicId = parseInt(topicIdRaw, 10);
+  const params = useParams() || {};
+  const { id: topicIdRaw, category: categorySlug, slug: topicSlug } = params;
   const router = useRouter();
 
   const [user, setUser] = useState(null);
@@ -30,6 +30,8 @@ function TodoDetailContent() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [authorized, setAuthorized] = useState(false);
+
+  const topicId = topic?.id || (topicIdRaw ? parseInt(topicIdRaw, 10) : null);
 
   // Form states
   const [activeForm, setActiveForm] = useState(null); // 'editTopic', 'createQuestion', 'editQuestion'
@@ -68,27 +70,32 @@ function TodoDetailContent() {
         router.replace('/login');
       }
     }
-  }, [topicId, router]);
-
-
+  }, [topicIdRaw, categorySlug, topicSlug, router]);
 
   const loadTopicData = async (u) => {
     setLoading(true);
     setError('');
     try {
+      let fetchTopicPromise;
+      if (categorySlug && topicSlug) {
+        fetchTopicPromise = todoService.getModuleBySlug(categorySlug, topicSlug);
+      } else if (topicIdRaw) {
+        fetchTopicPromise = todoService.getTodo(parseInt(topicIdRaw, 10));
+      }
+
+      if (!fetchTopicPromise) {
+        setError('Could not retrieve topic details.');
+        setLoading(false);
+        return;
+      }
+
       const [topicDetail, tasks] = await Promise.all([
-        todoService.getTodo(topicId),
+        fetchTopicPromise,
         taskService.getUserTasks()
       ]);
       setTopic(topicDetail);
       setQuestions(topicDetail.questions || []);
       setUserTasks(tasks || []);
-      if (topicDetail && topicDetail.title) {
-        const cleanUrl = getTopicUrl(topicDetail);
-        if (cleanUrl && cleanUrl !== `/todo/${topicId}`) {
-          router.replace(cleanUrl);
-        }
-      }
     } catch (err) {
       console.error(err);
       setError('Could not retrieve topic details.');
