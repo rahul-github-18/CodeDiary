@@ -53,7 +53,7 @@ const JUDGE0_MAP = {
 function transpileJavaToJS(javaCode) {
   let body = javaCode;
 
-  const mainMatch = javaCode.match(/public\s+static\s+void\s+main\s*\(\s*String\s*\[\s*\]\s*\w+\s*\)\s*\{([\s\S]*)\}\s*$/m)
+  const mainMatch = javaCode.match(/public\s+static\s+void\s+main\s*\([^)]*\)\s*(?:throws\s+[\w,\s]+)?\s*\{([\s\S]*)\}\s*$/m)
     || javaCode.match(/void\s+main\s*\(\s*\)\s*\{([\s\S]*)\}\s*$/m);
 
   if (mainMatch && mainMatch[1]) {
@@ -64,7 +64,13 @@ function transpileJavaToJS(javaCode) {
   body = body.replace(/System\.out\.print\s*\((.*?)\);/g, '__logs.push(String($1));');
 
   body = body.replace(/Scanner\s+\w+\s*=\s*new\s+Scanner\s*\(\s*System\.in\s*\);?/g, '');
+  body = body.replace(/BufferedReader\s+\w+\s*=\s*new\s+BufferedReader\s*\([^;]+\);?/g, '');
+  body = body.replace(/InputStreamReader\s+\w+\s*=\s*new\s+InputStreamReader\s*\([^;]+\);?/g, '');
   body = body.replace(/\b\w+\.close\s*\(\);?/g, '');
+
+  body = body.replace(/Integer\.parseInt\s*\(\s*\w+\.readLine\s*\(\)\s*\)/g, '(__inputs[__inputIdx++] !== undefined ? parseInt(__inputs[__inputIdx - 1]) : 0)');
+  body = body.replace(/Double\.parseDouble\s*\(\s*\w+\.readLine\s*\(\)\s*\)/g, '(__inputs[__inputIdx++] !== undefined ? parseFloat(__inputs[__inputIdx - 1]) : 0.0)');
+  body = body.replace(/\b\w+\.readLine\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? String(__inputs[__inputIdx - 1]) : "")');
 
   body = body.replace(/\b\w+\.nextInt\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? parseInt(__inputs[__inputIdx - 1]) : 0)');
   body = body.replace(/\b\w+\.nextDouble\s*\(\)/g, '(__inputs[__inputIdx++] !== undefined ? parseFloat(__inputs[__inputIdx - 1]) : 0.0)');
@@ -85,10 +91,10 @@ function detectCodeInputs(codeText, lang) {
   let inputCount = 0;
 
   if (lang === 'java') {
-    const scannerRegex = /(\w+)\.next(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\s*\(\)/g;
+    const javaInputRegex = /(?:(\w+)\.next(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\s*\(\)|(\w+)\.readLine\s*\(\))/g;
     let match;
 
-    while ((match = scannerRegex.exec(codeText)) !== null) {
+    while ((match = javaInputRegex.exec(codeText)) !== null) {
       inputCount++;
       const inputPos = match.index;
       const codeBefore = codeText.substring(0, inputPos);
