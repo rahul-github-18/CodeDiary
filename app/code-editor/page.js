@@ -35,6 +35,64 @@ const COMPILER_MAP = {
   csharp: "dotnetcore-8.0.402"
 };
 
+function detectCodeInputs(codeText, lang) {
+  if (!codeText) return { prompts: [], count: 0 };
+
+  const prompts = [];
+  let inputCount = 0;
+
+  if (lang === 'java') {
+    const printMatches = [...codeText.matchAll(/System\.out\.print(?:ln)?\s*\(\s*"([^"]+)"\s*\)/g)];
+    const scannerMatches = [...codeText.matchAll(/(\w+)\.next(?:Int|Double|Float|Long|Line|Short|Byte|Boolean)?\s*\(\)/g)];
+
+    inputCount = scannerMatches.length;
+
+    for (let i = 0; i < inputCount; i++) {
+      if (printMatches[i] && printMatches[i][1]) {
+        prompts.push(printMatches[i][1]);
+      } else {
+        prompts.push(`Input ${i + 1}: `);
+      }
+    }
+  } else if (lang === 'cpp') {
+    const coutMatches = [...codeText.matchAll(/cout\s*<<\s*"([^"]+)"/g)];
+    const cinMatches = [...codeText.matchAll(/cin\s*>>\s*(\w+)/g)];
+
+    inputCount = cinMatches.length;
+
+    for (let i = 0; i < inputCount; i++) {
+      if (coutMatches[i] && coutMatches[i][1]) {
+        prompts.push(coutMatches[i][1]);
+      } else {
+        prompts.push(`Input ${i + 1}: `);
+      }
+    }
+  } else if (lang === 'c') {
+    const printfMatches = [...codeText.matchAll(/printf\s*\(\s*"([^"]+)"\s*\)/g)];
+    const scanfMatches = [...codeText.matchAll(/scanf\s*\(/g)];
+
+    inputCount = scanfMatches.length;
+
+    for (let i = 0; i < inputCount; i++) {
+      if (printfMatches[i] && printfMatches[i][1]) {
+        prompts.push(printfMatches[i][1]);
+      } else {
+        prompts.push(`Input ${i + 1}: `);
+      }
+    }
+  } else if (lang === 'python') {
+    const inputMatches = [...codeText.matchAll(/input\s*\(\s*(?:"([^"]+)"|'([^']+)')?\s*\)/g)];
+    inputCount = inputMatches.length;
+
+    for (let i = 0; i < inputCount; i++) {
+      const p = inputMatches[i][1] || inputMatches[i][2];
+      prompts.push(p ? p : `Input ${i + 1}: `);
+    }
+  }
+
+  return { prompts, count: inputCount };
+}
+
 function formatInteractiveOutput(rawOutput, inputsArray) {
   if (!rawOutput) return "";
   if (!inputsArray || inputsArray.length === 0) return rawOutput;
@@ -336,7 +394,30 @@ function CodeEditorContent() {
     setInputsList(updatedInputs);
     setConsoleInput('');
 
-    handleRunCode(updatedInputs);
+    const detected = detectCodeInputs(code, language);
+
+    // If there are remaining input prompts to collect locally before sending to server:
+    if (detected.count > 0 && updatedInputs.length < detected.count) {
+      setAwaitingInput(true);
+      let display = "";
+      for (let i = 0; i < detected.count; i++) {
+        const p = detected.prompts[i] || `Input ${i + 1}: `;
+        if (i < updatedInputs.length) {
+          display += `${p}${updatedInputs[i]}\n`;
+        } else if (i === updatedInputs.length) {
+          display += `${p}`;
+          break;
+        }
+      }
+      setOutput(display);
+      if (consoleInputRef.current) {
+        consoleInputRef.current.focus();
+      }
+    } else {
+      // All inputs collected! Perform 1 SINGLE execution pass!
+      setAwaitingInput(false);
+      handleRunCode(updatedInputs);
+    }
   };
 
   const handleConsoleInputKeyDown = (e) => {
@@ -365,8 +446,20 @@ function CodeEditorContent() {
     setExecutionError('');
     setConsoleInput('');
     setRawStdinText('');
-    setAwaitingInput(false);
-    handleRunCode([]);
+
+    const detected = detectCodeInputs(code, language);
+
+    if (detected.count > 0 && inputsList.length < detected.count) {
+      setAwaitingInput(true);
+      const activePrompt = detected.prompts[0] || "Input 1: ";
+      setOutput(activePrompt);
+      if (consoleInputRef.current) {
+        consoleInputRef.current.focus();
+      }
+    } else {
+      setAwaitingInput(false);
+      handleRunCode([]);
+    }
   };
 
   return (
