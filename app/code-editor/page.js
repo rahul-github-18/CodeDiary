@@ -60,12 +60,19 @@ function CodeEditorContent() {
   const [code, setCode] = useState(STARTER_CODES.javascript);
   const [inputsList, setInputsList] = useState([]);
   const [consoleInput, setConsoleInput] = useState('');
+  const [rawStdinText, setRawStdinText] = useState('');
   const [output, setOutput] = useState('');
   const [executionError, setExecutionError] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [executionTime, setExecutionTime] = useState(null);
+  const [awaitingInput, setAwaitingInput] = useState(false);
+  const [inputMode, setInputMode] = useState('terminal'); // 'terminal' | 'stdin'
+  const [historyList, setHistoryList] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [pyodideReady, setPyodideReady] = useState(false);
 
   const consoleInputRef = useRef(null);
+  const terminalLogsContainerRef = useRef(null);
 
   // Modals
   const [showSettings, setShowSettings] = useState(false);
@@ -85,6 +92,35 @@ function CodeEditorContent() {
     }
   }, [router]);
 
+  // Load Pyodide for Python client-side instant execution
+  useEffect(() => {
+    if (language === 'python' && typeof window !== 'undefined' && !window.pyodideInstance && !window.pyodideLoading) {
+      window.pyodideLoading = true;
+      const script = document.createElement('script');
+      script.src = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
+      script.onload = async () => {
+        try {
+          if (window.loadPyodide) {
+            window.pyodideInstance = await window.loadPyodide();
+            setPyodideReady(true);
+          }
+        } catch (err) {
+          console.warn("Pyodide load failed, fallback to cloud engine:", err);
+        } finally {
+          window.pyodideLoading = false;
+        }
+      };
+      document.body.appendChild(script);
+    }
+  }, [language]);
+
+  // Auto scroll terminal log output to bottom
+  useEffect(() => {
+    if (terminalLogsContainerRef.current) {
+      terminalLogsContainerRef.current.scrollTop = terminalLogsContainerRef.current.scrollHeight;
+    }
+  }, [output, executionError, inputsList, isRunning, awaitingInput]);
+
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
     setCode(STARTER_CODES[newLang] || `// ${newLang} snippet\n`);
@@ -93,15 +129,26 @@ function CodeEditorContent() {
     setExecutionTime(null);
     setConsoleInput('');
     setInputsList([]);
+    setRawStdinText('');
+    setAwaitingInput(false);
+  };
+
+  const handleClearConsole = () => {
+    setOutput('');
+    setExecutionError('');
+    setExecutionTime(null);
+    setConsoleInput('');
+    setInputsList([]);
+    setRawStdinText('');
+    setAwaitingInput(false);
+    if (consoleInputRef.current) {
+      consoleInputRef.current.focus();
+    }
   };
 
   const handleReset = () => {
     setCode(STARTER_CODES[language] || '');
-    setInputsList([]);
-    setConsoleInput('');
-    setOutput('');
-    setExecutionError('');
-    setExecutionTime(null);
+    handleClearConsole();
   };
 
   const runCodeLocalJS = (currentInputs = []) => {
@@ -115,18 +162,69 @@ function CodeEditorContent() {
     };
 
     try {
-      const activeStdin = currentInputs.join('\n');
-      const runFn = new Function('console', 'stdin', code);
-      runFn(customConsole, activeStdin);
+      let inputIdx = 0;
+      const mockPrompt = (msg) => {
+        if (msg) logs.push(msg);
+        if (inputIdx < currentInputs.length) {
+          return currentInputs[inputIdx++];
+        }
+        return null;
+      };
+
+      const runFn = new Function('console', 'stdin', 'prompt', code);
+      runFn(customConsole, currentInputs.join('\n'), mockPrompt);
       const endTime = performance.now();
-      setOutput(logs.join('\n') || "(Program executed successfully with no output)");
+      const rawOutput = logs.join('\n');
+      const formatted = formatInteractiveOutput(rawOutput, currentInputs);
+      setOutput(formatted || "(Program executed successfully with no output)");
       setExecutionError('');
       setExecutionTime((endTime - startTime).toFixed(2));
+      setAwaitingInput(false);
     } catch (err) {
       const endTime = performance.now();
       setOutput(logs.join('\n'));
       setExecutionError(err.toString());
       setExecutionTime((endTime - startTime).toFixed(2));
+      setAwaitingInput(false);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const runCodeLocalPython = async (currentInputs = []) => {
+    const startTime = performance.now();
+    let logs = [];
+    try {
+      const pyodide = window.pyodideInstance;
+
+      pyodide.setStdout({
+        batched: (str) => logs.push(str)
+      });
+
+      let inputIdx = 0;
+      pyodide.setStdin({
+        stdin: () => {
+          if (inputIdx < currentInputs.length) {
+            return currentInputs[inputIdx++];
+          }
+          return "";
+        }
+      });
+
+      await pyodide.runPythonAsync(code);
+      const endTime = performance.now();
+      const rawOutput = logs.join('\n');
+      const formatted = formatInteractiveOutput(rawOutput, currentInputs);
+      setOutput(formatted || "(Program completed successfully)");
+      setExecutionError('');
+      setExecutionTime((endTime - startTime).toFixed(2));
+      setAwaitingInput(false);
+    } catch (err) {
+      const endTime = performance.now();
+      setOutput(logs.join('\n'));
+      setExecutionError(err.toString());
+      setExecutionTime((endTime - startTime).toFixed(2));
+      setAwaitingInput(false);
     } finally {
       setIsRunning(false);
     }
@@ -139,15 +237,21 @@ function CodeEditorContent() {
 
     const activeStdin = currentInputs.join('\n');
 
-    // If JavaScript or TypeScript local execution
+    // Fast local execution for JavaScript / TypeScript
     if (language === 'javascript' || language === 'typescript') {
       setTimeout(() => {
         runCodeLocalJS(currentInputs);
-      }, 100);
+      }, 50);
       return;
     }
 
-    // Wandbox API for other languages
+    // Fast local execution for Python if Pyodide is ready
+    if (language === 'python' && typeof window !== 'undefined' && window.pyodideInstance) {
+      runCodeLocalPython(currentInputs);
+      return;
+    }
+
+    // Wandbox API for compiled and remote languages
     const startTime = performance.now();
     try {
       const compiler = COMPILER_MAP[language] || "gcc-head";
@@ -171,7 +275,7 @@ function CodeEditorContent() {
       });
 
       if (!res.ok) {
-        throw new Error(`Wandbox API returned HTTP ${res.status}`);
+        throw new Error(`Execution service returned HTTP ${res.status}`);
       }
 
       const data = await res.json();
@@ -188,24 +292,31 @@ function CodeEditorContent() {
         data.program_error.includes("NoSuchElementException") ||
         data.program_error.includes("EOFError") ||
         data.program_error.includes("Scanner") ||
-        data.program_error.includes("cin")
+        data.program_error.includes("cin") ||
+        data.program_error.includes("end of file")
       );
 
-      if (data.status === "0" || !data.status || (rawOutputText && isInputEOFError)) {
+      if (isInputEOFError) {
+        setAwaitingInput(true);
+        setOutput(formattedOutput || rawOutputText || "(Waiting for input...)");
+        setExecutionError('');
+      } else if (data.status === "0" || !data.status) {
+        setAwaitingInput(false);
         setOutput(formattedOutput || "(Program completed with output code 0)");
         setExecutionError('');
       } else {
+        setAwaitingInput(false);
         setOutput(formattedOutput || data.program_output || "");
         setExecutionError(data.compiler_error || data.program_error || `Process exited with code ${data.status}`);
       }
     } catch (err) {
-      console.warn("Wandbox execution error, using fallback:", err);
+      console.warn("Wandbox execution error:", err);
       const endTime = performance.now();
       setExecutionTime((endTime - startTime).toFixed(2));
       setExecutionError(`Execution Failed: ${err.message}. Please check connection.`);
+      setAwaitingInput(false);
     } finally {
       setIsRunning(false);
-      // Automatically focus terminal input box after running
       if (consoleInputRef.current) {
         consoleInputRef.current.focus();
       }
@@ -214,14 +325,38 @@ function CodeEditorContent() {
 
   const handleConsoleInputSubmit = (e) => {
     e.preventDefault();
-    if (!consoleInput.trim()) return;
+    const val = consoleInput.trim();
+    if (!val) return;
 
-    // Parse input tokens (space or line separated)
-    const newTokens = consoleInput.trim().split(/\s+/);
+    setHistoryList(prev => [...prev, val]);
+    setHistoryIndex(-1);
+
+    const newTokens = val.split(/\s+/);
     const updatedInputs = [...inputsList, ...newTokens];
     setInputsList(updatedInputs);
     setConsoleInput('');
+
     handleRunCode(updatedInputs);
+  };
+
+  const handleConsoleInputKeyDown = (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (historyList.length === 0) return;
+      const nextIdx = historyIndex < historyList.length - 1 ? historyIndex + 1 : historyIndex;
+      setHistoryIndex(nextIdx);
+      setConsoleInput(historyList[historyList.length - 1 - nextIdx] || '');
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        const nextIdx = historyIndex - 1;
+        setHistoryIndex(nextIdx);
+        setConsoleInput(historyList[historyList.length - 1 - nextIdx] || '');
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setConsoleInput('');
+      }
+    }
   };
 
   const handleInitialRunClick = () => {
@@ -229,6 +364,8 @@ function CodeEditorContent() {
     setOutput('');
     setExecutionError('');
     setConsoleInput('');
+    setRawStdinText('');
+    setAwaitingInput(false);
     handleRunCode([]);
   };
 
@@ -263,6 +400,12 @@ function CodeEditorContent() {
               <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse"></span>
               Code Diary IDE
             </span>
+
+            {language === 'python' && pyodideReady && (
+              <span style={{ fontSize: '0.75rem', fontWeight: '600', color: '#10b981', background: 'rgba(16, 185, 129, 0.12)', padding: '2px 8px', borderRadius: '12px' }}>
+                ⚡ Client WASM Ready
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -321,10 +464,26 @@ function CodeEditorContent() {
             />
           </div>
 
-          {/* Right Side: Full Height OUTPUT CONSOLE with Interactive Terminal Input */}
-          <div className="card" style={{ height: '100%', padding: '16px', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          {/* Right Side: Integrated OUTPUT CONSOLE with Interactive Terminal */}
+          <div
+            className="card output-console-card"
+            onClick={() => {
+              if (consoleInputRef.current) {
+                consoleInputRef.current.focus();
+              }
+            }}
+            style={{
+              height: '100%',
+              padding: '16px',
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              cursor: 'text'
+            }}
+          >
+            {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', borderBottom: '1px solid var(--card-border)', paddingBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--link-color)' }}>
                   <polyline points="4 17 10 11 4 5"></polyline>
                   <line x1="12" y1="19" x2="20" y2="19"></line>
@@ -333,74 +492,144 @@ function CodeEditorContent() {
                   OUTPUT CONSOLE
                 </h3>
                 {executionTime && (
-                  <span style={{ fontSize: '0.7rem', fontWeight: '600', padding: '2px 8px', borderRadius: '12px', backgroundColor: 'var(--hover-bg)', color: 'var(--text-muted)' }}>
-                    {executionTime} ms
+                  <span style={{ fontSize: '0.7rem', fontWeight: '600', padding: '2px 8px', borderRadius: '12px', backgroundColor: parseFloat(executionTime) < 200 ? 'rgba(16, 185, 129, 0.15)' : 'var(--hover-bg)', color: parseFloat(executionTime) < 200 ? '#10b981' : 'var(--text-muted)' }}>
+                    ⚡ {executionTime} ms
+                  </span>
+                )}
+                {awaitingInput && !isRunning && (
+                  <span style={{ fontSize: '0.7rem', fontWeight: '600', padding: '2px 8px', borderRadius: '12px', backgroundColor: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                    ⏳ Awaiting input...
                   </span>
                 )}
               </div>
-              {(output || executionError || inputsList.length > 0) && (
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
-                  onClick={() => { setOutput(''); setExecutionError(''); setExecutionTime(null); setConsoleInput(''); setInputsList([]); }}
+                  onClick={(e) => { e.stopPropagation(); setInputMode(inputMode === 'terminal' ? 'stdin' : 'terminal'); }}
                   className="btn btn-secondary"
+                  title="Toggle between Terminal mode and Bulk Stdin mode"
                   style={{ padding: '3px 10px', fontSize: '0.75rem', fontWeight: '600' }}
                 >
-                  Clear
+                  {inputMode === 'terminal' ? '⌨️ Terminal' : '📝 Raw Stdin'}
                 </button>
-              )}
+
+                {(output || executionError || inputsList.length > 0) && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleClearConsole(); }}
+                    className="btn btn-secondary"
+                    style={{ padding: '3px 10px', fontSize: '0.75rem', fontWeight: '600' }}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Console Terminal Log Display */}
-            <div style={{ flex: 1, overflowY: 'auto', fontFamily: 'monospace', fontSize: '0.85rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-              {output && <div style={{ color: 'var(--text-color)' }}>{output}</div>}
-              {executionError && (
-                <div style={{ color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                  {executionError}
-                </div>
-              )}
-              {!output && !executionError && !isRunning && (
-                <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                  Click "Run Code" or type input below and press Enter to execute.
-                </div>
-              )}
-            </div>
-
-            {/* Interactive Output Console Input Prompt */}
-            <form
-              onSubmit={handleConsoleInputSubmit}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginTop: '10px',
-                paddingTop: '8px',
-                borderTop: '1px solid var(--card-border)'
-              }}
-            >
-              <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--link-color)', fontSize: '0.9rem' }}>&gt;</span>
-              <input
-                ref={consoleInputRef}
-                type="text"
-                className="form-input"
-                value={consoleInput}
-                onChange={(e) => setConsoleInput(e.target.value)}
-                placeholder="Type input here and press Enter..."
+            {/* Content Area */}
+            {inputMode === 'stdin' ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }} onClick={(e) => e.stopPropagation()}>
+                <label style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+                  Bulk Standard Input (stdin) — Enter inputs on separate lines:
+                </label>
+                <textarea
+                  value={rawStdinText}
+                  onChange={(e) => {
+                    setRawStdinText(e.target.value);
+                    const lines = e.target.value.split('\n').filter(x => x.trim() !== '');
+                    setInputsList(lines);
+                  }}
+                  placeholder={"10\n20"}
+                  style={{
+                    flex: 1,
+                    width: '100%',
+                    fontFamily: 'monospace',
+                    fontSize: '0.85rem',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--card-border)',
+                    background: 'var(--input-bg)',
+                    color: 'var(--text-color)',
+                    resize: 'none'
+                  }}
+                />
+              </div>
+            ) : (
+              /* Integrated Terminal Area */
+              <div
+                ref={terminalLogsContainerRef}
                 style={{
                   flex: 1,
+                  overflowY: 'auto',
                   fontFamily: 'monospace',
                   fontSize: '0.85rem',
-                  padding: '6px 12px',
-                  borderRadius: '8px'
+                  lineHeight: '1.6',
+                  wordBreak: 'break-word',
+                  display: 'flex',
+                  flexDirection: 'column'
                 }}
-              />
-              <button
-                type="submit"
-                disabled={isRunning}
-                className="btn btn-primary"
-                style={{ padding: '6px 14px', fontSize: '0.8rem', fontWeight: '600', whiteSpace: 'nowrap' }}
               >
-                Send Input
-              </button>
-            </form>
+                {/* Output content */}
+                {output && (
+                  <div style={{ color: 'var(--text-color)', whiteSpace: 'pre-wrap' }}>
+                    {output}
+                  </div>
+                )}
+
+                {/* Execution error */}
+                {executionError && (
+                  <div style={{ marginTop: '8px', color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)', whiteSpace: 'pre-wrap' }}>
+                    {executionError}
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {!output && !executionError && !isRunning && inputsList.length === 0 && (
+                  <div style={{ color: 'var(--text-muted)', fontStyle: 'italic', marginBottom: '12px' }}>
+                    Click "Run Code" or type input below and press Enter to execute.
+                  </div>
+                )}
+
+                {/* Integrated Input Field right inside output log stream */}
+                <form
+                  onSubmit={handleConsoleInputSubmit}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '6px',
+                    paddingTop: '4px'
+                  }}
+                >
+                  <span style={{ fontFamily: 'monospace', fontWeight: 'bold', color: 'var(--link-color)', fontSize: '0.95rem', userSelect: 'none' }}>
+                    ❯
+                  </span>
+                  <input
+                    ref={consoleInputRef}
+                    type="text"
+                    value={consoleInput}
+                    onChange={(e) => setConsoleInput(e.target.value)}
+                    onKeyDown={handleConsoleInputKeyDown}
+                    placeholder={isRunning ? "Running..." : "Type input here & press Enter..."}
+                    disabled={isRunning}
+                    style={{
+                      flex: 1,
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      fontFamily: 'inherit',
+                      fontSize: '0.85rem',
+                      color: 'var(--text-color)',
+                      padding: '2px 0'
+                    }}
+                  />
+                  {isRunning && (
+                    <div className="spinner" style={{ width: '12px', height: '12px', borderWidth: '2px', borderColor: 'var(--link-color)', borderTopColor: 'transparent' }} />
+                  )}
+                </form>
+              </div>
+            )}
 
           </div>
         </div>
