@@ -148,6 +148,14 @@ export default function LandingView({ initialMode = null }) {
 
             {/* Modal Header */}
             <div className="text-left mb-6 pr-6">
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold mb-2.5 border ${
+                activeMode === 'enroll' 
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80' 
+                  : 'bg-sky-50 text-sky-700 border-sky-200/80'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${activeMode === 'enroll' ? 'bg-emerald-500' : 'bg-sky-500'}`} />
+                <span>{activeMode === 'enroll' ? 'Enrollment' : 'Login'}</span>
+              </div>
               <h2 className="text-xl font-bold text-slate-900">
                 {activeMode === 'enroll' ? 'Enroll Account' : 'Welcome back'}
               </h2>
