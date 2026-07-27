@@ -187,24 +187,6 @@ function LoginContent() {
               </p>
             </div>
 
-            {/* Mode Switcher Tabs */}
-            <div className="flex rounded-xl bg-slate-200/80 p-1 mb-6 border border-slate-300/80 text-xs font-medium">
-              <button
-                type="button"
-                className={`flex-1 rounded-lg py-1.5 text-center transition-all cursor-pointer ${activeMode === 'login' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
-                onClick={openLogin}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                className={`flex-1 rounded-lg py-1.5 text-center transition-all cursor-pointer ${activeMode === 'enroll' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
-                onClick={openEnroll}
-              >
-                Enroll User
-              </button>
-            </div>
-
             {/* Error Alert Box */}
             {error && (
               <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 mb-5">
