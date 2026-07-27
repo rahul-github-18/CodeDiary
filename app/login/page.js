@@ -113,27 +113,10 @@ const Login = () => {
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl pointer-events-none" />
 
-      {/* Main Content Area: Pristine Landing Page (No static form card) */}
+      {/* Main Content Area: Pristine Landing Page (No buttons in body) */}
       <div className="flex-1 flex items-center justify-center w-full z-10 pt-20 pb-10">
         <div className="flex flex-col items-center justify-center text-center max-w-[720px] px-4 my-12">
           
-          {/* Share Code Button Pill */}
-          <div className="mb-6">
-            <button
-              onClick={() => router.push('/share-code')}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-300 bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-sky-400 hover:bg-white transition-all shadow-sm cursor-pointer"
-            >
-              <svg className="h-4 w-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h6v6" />
-                <path d="M10 14L21 3" />
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              </svg>
-              <span>Share Code</span>
-              <span className="text-slate-300">•</span>
-              <span className="text-slate-500 font-normal">No Login Required</span>
-            </button>
-          </div>
-
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3 mb-6">
             <img
@@ -153,7 +136,7 @@ const Login = () => {
           </p>
           
           {/* Feature Tags */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mb-10">
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
               <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
               Topics & Curriculum
@@ -166,28 +149,6 @@ const Login = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               Activity Metrics
             </span>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button
-              onClick={openLogin}
-              className="px-6 py-3 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md shadow-sky-600/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={openEnroll}
-              className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              Enroll User
-            </button>
-            <button
-              onClick={() => router.push('/about')}
-              className="px-6 py-3 rounded-full bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold text-sm shadow-xs transition-all cursor-pointer"
-            >
-              About CodeDiary
-            </button>
           </div>
         </div>
       </div>
