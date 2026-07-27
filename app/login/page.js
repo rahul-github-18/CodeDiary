@@ -6,6 +6,7 @@ import { authService } from '@/lib/api';
 import FloatingNav from '@/components/FloatingNav';
 
 const Login = () => {
+  const [activeMode, setActiveMode] = useState('login'); // 'home' | 'login' | 'enroll'
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,8 +26,16 @@ const Login = () => {
       const params = new URLSearchParams(window.location.search);
       const modeParam = params.get('mode');
       if (modeParam === 'register' || modeParam === 'enroll') {
+        setActiveMode('enroll');
         setIsRegisterMode(true);
       } else if (modeParam === 'login') {
+        setActiveMode('login');
+        setIsRegisterMode(false);
+      } else if (modeParam === 'home') {
+        setActiveMode('home');
+      } else {
+        // Default to login mode when visiting /login directly
+        setActiveMode('login');
         setIsRegisterMode(false);
       }
     }
@@ -44,6 +53,7 @@ const Login = () => {
         const response = await authService.register(username, password);
         setSuccess(response.message || 'Registration successful! Wait for admin approval.');
         setIsRegisterMode(false);
+        setActiveMode('login');
         setUsername('');
         setPassword('');
       } else {
@@ -64,6 +74,23 @@ const Login = () => {
     }
   };
 
+  const switchMode = (mode) => {
+    setError('');
+    setSuccess('');
+    if (mode === 'enroll' || mode === 'register') {
+      setActiveMode('enroll');
+      setIsRegisterMode(true);
+      router.push('/login?mode=enroll');
+    } else if (mode === 'login') {
+      setActiveMode('login');
+      setIsRegisterMode(false);
+      router.push('/login?mode=login');
+    } else {
+      setActiveMode('home');
+      router.push('/login?mode=home');
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-between bg-slate-100 p-4 font-sans select-none text-slate-900 relative overflow-hidden">
       {/* Floating Header Navigation */}
@@ -73,19 +100,223 @@ const Login = () => {
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl pointer-events-none" />
 
-      {/* Main Content Row */}
-      <div className="flex-1 flex items-center justify-center w-full z-10">
-        {/* Outer Container */}
-        <div className="flex flex-col lg:flex-row items-center justify-between w-full max-w-[960px] gap-12 px-4 my-10">
-          
-          {/* Left Side: Clean & Minimal Welcome branding */}
-          <div className="flex-1 flex flex-col justify-center text-left max-w-[460px]">
+      {/* Main Content Area */}
+      <div className="flex-1 flex items-center justify-center w-full z-10 pt-20 pb-10">
+        
+        {/* Render Form view when in 'login' or 'enroll' mode */}
+        {activeMode !== 'home' ? (
+          <div className="flex flex-col lg:flex-row items-center justify-between w-full max-w-[960px] gap-12 px-4 my-6">
+            
+            {/* Left Side: Branding */}
+            <div className="flex-1 flex flex-col justify-center text-left max-w-[460px]">
+              
+              {/* Share Code Button Pill */}
+              <div className="mb-6">
+                <button
+                  onClick={() => router.push('/share-code')}
+                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-300 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 hover:text-slate-900 hover:border-sky-400 hover:bg-white transition-all shadow-sm cursor-pointer"
+                >
+                  <svg className="h-4 w-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 3h6v6" />
+                    <path d="M10 14L21 3" />
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  </svg>
+                  <span>Share Code</span>
+                  <span className="text-slate-300">•</span>
+                  <span className="text-slate-500 font-normal">No Login Required</span>
+                </button>
+              </div>
+
+              {/* Brand Logo & Name */}
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src="/light-logo.png"
+                  alt="CodeDiary Logo"
+                  className="h-9 w-9 rounded-xl object-contain bg-white p-1 border border-slate-300 shadow-sm"
+                />
+                <span className="text-slate-900 font-bold text-base tracking-tight">Code Diary</span>
+              </div>
+
+              {/* Main Title & Subtitle */}
+              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mb-3 leading-tight">
+                {activeMode === 'enroll' ? 'Join CodeDiary.' : 'Your developer workspace.'}
+              </h1>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6">
+                {activeMode === 'enroll' 
+                  ? 'Request an account enrollment to track programming topics, save code snippets, and master DSA.' 
+                  : 'Organize topics, save code snippets, and track daily progress in one structured dashboard.'}
+              </p>
+              
+              {/* Minimal Feature Tags */}
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-300/80 text-xs font-semibold text-slate-700 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+                  Topics & Curriculum
+                </span>
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-300/80 text-xs font-semibold text-slate-700 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                  Code Snippets
+                </span>
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-300/80 text-xs font-semibold text-slate-700 shadow-xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Activity Metrics
+                </span>
+              </div>
+            </div>
+
+            {/* Right Side: The Form Card */}
+            <div className="w-full max-w-[400px] rounded-2xl border border-slate-300/80 bg-white p-7 shadow-xl shadow-slate-300/40 backdrop-blur-sm transition-all duration-200">
+              
+              {/* Card Header with Mode Toggle */}
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {activeMode === 'enroll' ? 'Enroll Account' : 'Welcome back'}
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {activeMode === 'enroll' ? 'Submit account request for enrollment' : 'Enter your credentials to access your workspace'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => switchMode('home')}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                  title="Close Form"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Mode Selector Tabs */}
+              <div className="flex rounded-xl bg-slate-200/80 p-1 mb-6 border border-slate-300/80 text-xs font-medium">
+                <button
+                  type="button"
+                  className={`flex-1 rounded-lg py-1.5 text-center transition-all cursor-pointer ${activeMode === 'login' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
+                  onClick={() => switchMode('login')}
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  className={`flex-1 rounded-lg py-1.5 text-center transition-all cursor-pointer ${activeMode === 'enroll' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
+                  onClick={() => switchMode('enroll')}
+                >
+                  Enroll User
+                </button>
+              </div>
+
+              {/* Error Alert Box */}
+              {error && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 mb-5">
+                  <svg className="h-4 w-4 shrink-0 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {/* Success Alert Box */}
+              {success && (
+                <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700 mb-5">
+                  <svg className="h-4 w-4 shrink-0 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{success}</span>
+                </div>
+              )}
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-700" htmlFor="username">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    id="username"
+                    className="w-full rounded-xl border border-slate-300 bg-slate-100/80 py-2.5 px-3.5 text-sm text-slate-900 placeholder-slate-500 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
+                    placeholder={activeMode === 'enroll' ? "Choose a username" : "Enter username"}
+                    value={username}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      setError('');
+                    }}
+                    disabled={loading}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-700" htmlFor="password">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      className="w-full rounded-xl border border-slate-300 bg-slate-100/80 py-2.5 pl-3.5 pr-10 text-sm text-slate-900 placeholder-slate-500 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
+                      placeholder={activeMode === 'enroll' ? "Choose a password" : "Enter password"}
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setError('');
+                      }}
+                      disabled={loading}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                    >
+                      {showPassword ? (
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`mt-2 flex w-full items-center justify-center rounded-xl py-3 px-4 text-sm font-bold text-white shadow-md transition-all cursor-pointer ${
+                    loading ? 'bg-sky-400 cursor-not-allowed' : 'bg-sky-600 hover:bg-sky-500 active:scale-[0.99]'
+                  }`}
+                >
+                  {loading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : activeMode === 'enroll' ? (
+                    'Enroll Account'
+                  ) : (
+                    'Sign In'
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          /* Landing Hero view when activeMode === 'home' */
+          <div className="flex flex-col items-center justify-center text-center max-w-[720px] px-4 my-12">
             
             {/* Share Code Button Pill */}
             <div className="mb-6">
               <button
                 onClick={() => router.push('/share-code')}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-300 bg-white/90 backdrop-blur-sm text-xs font-medium text-slate-700 hover:text-slate-900 hover:border-sky-400 hover:bg-white transition-all shadow-sm cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-300 bg-white/90 backdrop-blur-sm text-xs font-semibold text-slate-700 hover:text-slate-900 hover:border-sky-400 hover:bg-white transition-all shadow-sm cursor-pointer"
               >
                 <svg className="h-4 w-4 text-sky-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M15 3h6v6" />
@@ -99,214 +330,74 @@ const Login = () => {
             </div>
 
             {/* Brand Logo & Name */}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-6">
               <img
                 src="/light-logo.png"
                 alt="CodeDiary Logo"
-                className="h-9 w-9 rounded-xl object-contain bg-white p-1 border border-slate-300 shadow-sm"
+                className="h-12 w-12 rounded-2xl object-contain bg-white p-1.5 border border-slate-300 shadow-md"
               />
-              <span className="text-slate-900 font-bold text-base tracking-tight">Code Diary</span>
+              <span className="text-slate-900 font-extrabold text-2xl tracking-tight">Code Diary</span>
             </div>
 
-            {/* Main Title & Brief Subtitle */}
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mb-3 leading-tight">
+            {/* Main Hero Title & Subtitle */}
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
               Your developer workspace.
             </h1>
-            <p className="text-slate-600 text-sm leading-relaxed mb-6">
-              Organize topics, save code snippets, and track daily progress in one structured dashboard.
+            <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-lg">
+              Organize programming topics, save code snippets, and track daily progress in one structured developer dashboard.
             </p>
             
-            {/* Minimal Feature Tags */}
-            <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-300/80 text-xs font-semibold text-slate-700 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+            {/* Feature Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-10">
+              <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
                 Topics & Curriculum
               </span>
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-300/80 text-xs font-semibold text-slate-700 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+              <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
                 Code Snippets
               </span>
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-300/80 text-xs font-semibold text-slate-700 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                 Activity Metrics
               </span>
             </div>
-          </div>
 
-          {/* Right Side: The Login Card */}
-          <div className="w-full max-w-[400px] rounded-2xl border border-slate-300/80 bg-white p-7 shadow-xl shadow-slate-300/40 backdrop-blur-sm">
-            {/* Card Header */}
-            <div className="text-left mb-6">
-              <h2 className="text-xl font-bold text-slate-900">
-                {isRegisterMode ? 'Create Account' : 'Welcome back'}
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                {isRegisterMode ? 'Submit account request for enrollment' : 'Enter your credentials to access your workspace'}
-              </p>
-            </div>
-
-            {/* Mode Selector Tabs */}
-            <div className="flex rounded-xl bg-slate-200/80 p-1 mb-6 border border-slate-300/80 text-xs font-medium">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <button
-                type="button"
-                className={`flex-1 rounded-lg py-1.5 text-center transition-all cursor-pointer ${!isRegisterMode ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
-                onClick={() => {
-                  setIsRegisterMode(false);
-                  setError('');
-                  setSuccess('');
-                }}
+                onClick={() => switchMode('login')}
+                className="px-6 py-3 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md shadow-sky-600/20 transition-all cursor-pointer"
               >
                 Sign In
               </button>
               <button
-                type="button"
-                className={`flex-1 rounded-lg py-1.5 text-center transition-all cursor-pointer ${isRegisterMode ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'}`}
-                onClick={() => {
-                  setIsRegisterMode(true);
-                  setError('');
-                  setSuccess('');
-                }}
+                onClick={() => switchMode('enroll')}
+                className="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
               >
                 Enroll User
               </button>
-            </div>
-
-            {/* Error Alert Box */}
-            {error && (
-              <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 mb-5">
-                <svg className="h-4 w-4 shrink-0 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Success Alert Box */}
-            {success && (
-              <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700 mb-5">
-                <svg className="h-4 w-4 shrink-0 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{success}</span>
-              </div>
-            )}
-
-            {/* Login/Register Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700" htmlFor="username">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  id="username"
-                  className="w-full rounded-xl border border-slate-300 bg-slate-100/80 py-2.5 px-3.5 text-sm text-slate-900 placeholder-slate-500 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
-                  placeholder={isRegisterMode ? "Choose a username" : "Enter username"}
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setError('');
-                  }}
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700" htmlFor="password">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    className="w-full rounded-xl border border-slate-300 bg-slate-100/80 py-2.5 pl-3.5 pr-10 text-sm text-slate-900 placeholder-slate-500 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
-                    placeholder={isRegisterMode ? "Choose a password" : "Enter password"}
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setError('');
-                    }}
-                    disabled={loading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
-                  >
-                    {showPassword ? (
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between text-xs mt-0.5">
-                <label className="flex items-center gap-2 text-slate-600 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                    className="rounded border-slate-300 text-sky-600 focus:ring-sky-500 h-3.5 w-3.5 cursor-pointer"
-                  />
-                  <span>Remember me</span>
-                </label>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert('Password reset is managed by the administrator. Please contact the administrator to reset your password.');
-                  }}
-                  className="text-slate-500 hover:text-sky-600 transition-colors font-medium"
-                >
-                  Forgot password?
-                </a>
-              </div>
-
               <button
-                type="submit"
-                className="w-full mt-2 rounded-xl bg-sky-600 hover:bg-sky-700 py-3 font-bold text-sm text-white shadow-md shadow-sky-600/25 transition duration-150 cursor-pointer disabled:opacity-50"
-                disabled={loading}
+                onClick={() => router.push('/about')}
+                className="px-6 py-3 rounded-full bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold text-sm shadow-xs transition-all cursor-pointer"
               >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>{isRegisterMode ? 'Submitting...' : 'Signing in...'}</span>
-                  </div>
-                ) : (
-                  <span>{isRegisterMode ? 'Submit Enrollment' : 'Sign In'}</span>
-                )}
+                About CodeDiary
               </button>
-            </form>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Clean Light Footer */}
-      <footer className="w-full max-w-[960px] border-t border-slate-300/80 pt-5 pb-3 flex items-center justify-between text-xs text-slate-500 z-10">
-        <span>Copyright © 2026 All Rights Reserved</span>
-        <a 
-          href="https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-slate-500 hover:text-sky-600 transition font-medium"
-        >
-          <svg className="h-3.5 w-3.5 text-[#0a66c2]" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-          </svg>
-          <span>LinkedIn</span>
-        </a>
+      {/* Clean Footer */}
+      <footer className="w-full text-center py-4 text-xs text-slate-500 border-t border-slate-200/80 z-10">
+        <div className="flex items-center justify-center gap-4 mb-1">
+          <button onClick={() => router.push('/about')} className="hover:text-slate-800 transition-colors">About</button>
+          <span>•</span>
+          <button onClick={() => router.push('/share-code')} className="hover:text-slate-800 transition-colors">Share Code</button>
+          <span>•</span>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-800 transition-colors">LinkedIn</a>
+        </div>
+        <p>Copyright © {new Date().getFullYear()} CodeDiary. All Rights Reserved.</p>
       </footer>
     </div>
   );
