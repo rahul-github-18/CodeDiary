@@ -89,6 +89,12 @@ export default function LandingView({ initialMode = null }) {
       <div className="flex-1 flex items-center justify-center w-full z-10 pt-20 pb-10">
         <div className="flex flex-col items-center justify-center text-center max-w-[720px] px-4 my-12">
           
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs font-bold text-sky-700 mb-6 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+            <span>Developer Workspace & Learning Platform</span>
+          </div>
+
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3 mb-6">
             <img
@@ -101,11 +107,11 @@ export default function LandingView({ initialMode = null }) {
 
           {/* Main Hero Title & Subtitle */}
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
-            Track, Learn & Master <br className="hidden sm:inline" />
-            <span className="text-sky-600">Programming Skills</span>
+            Your Personal <br className="hidden sm:inline" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500">Developer Workspace</span>
           </h1>
-          <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-lg font-normal">
-            Your comprehensive developer diary to organize topics, practice Data Structures & Algorithms, and monitor your daily coding journey.
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-xl font-normal">
+            Organize programming topics, practice Data Structures & Algorithms, write structured notes, and track your daily learning progress—all in one place.
           </p>
           
           {/* Feature Tags */}
