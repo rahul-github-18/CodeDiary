@@ -269,36 +269,16 @@ export default function AboutPage() {
           </div>
 
           <div className="flex items-center justify-center gap-4 mb-6">
-            <img 
-              src="/light-logo.png" 
-              alt="CodeDiary Logo" 
-              className="w-14 h-14 rounded-2xl object-contain bg-white p-2 shadow-md border border-slate-300" 
-            />
             <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
               About <span className="text-sky-600">CodeDiary</span>
             </h1>
           </div>
 
-          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal mb-8">
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
             CodeDiary is a modern developer workspace built for learning programming, 
             preparing for coding interviews, organizing technical notes, tracking daily progress, and 
             mastering software engineering concepts.
           </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/login?mode=enroll"
-              className="px-6 py-3 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md shadow-sky-600/20 transition-all transform hover:-translate-y-0.5"
-            >
-              Get Started Free
-            </Link>
-            <Link
-              href="/share-code"
-              className="px-6 py-3 rounded-full bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold text-sm shadow-xs transition-all"
-            >
-              Try Share Code
-            </Link>
-          </div>
         </section>
 
         {/* 2. Our Mission */}
@@ -381,38 +361,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 5. Technology Stack */}
-        <section className="mb-24">
-          <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-8 sm:p-12 shadow-sm">
-            <div className="text-center max-w-2xl mx-auto mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3">
-                Built with Modern Technology
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base">
-                Architected for speed, responsiveness, and reliability.
-              </p>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {techStack.map((tech, idx) => (
-                <div 
-                  key={idx} 
-                  className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-5 flex flex-col justify-between"
-                >
-                  <span className="text-[11px] font-bold tracking-wider text-sky-600 uppercase mb-2">
-                    {tech.category}
-                  </span>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">
-                    {tech.name}
-                  </h3>
-                  <p className="text-slate-600 text-xs leading-relaxed">
-                    {tech.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* 6. Vision */}
         <section className="mb-24 text-center max-w-3xl mx-auto">
