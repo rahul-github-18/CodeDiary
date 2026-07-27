@@ -4,7 +4,6 @@ import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Layout from '@/components/Layout';
 import { todoService, taskService, questionService } from '@/lib/api';
-import { generateTopicPDF } from '@/lib/pdfExport';
 import { getTopicUrl } from '@/lib/slug';
 
 const getDisplayDifficulty = (difficulty) => {
@@ -384,24 +383,133 @@ function TodoDetailContent() {
     });
   };
 
-  const handleExportTopicPDF = async () => {
+  const handleExportTopicPDF = () => {
     if (!topic) return;
 
-    try {
+    import('jspdf').then(({ jsPDF }) => {
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pageWidth - 2 * margin;
+
+      let yPos = 20;
+
+      const addText = (text, fontSize = 10, isBold = false, color = [0, 0, 0], spacing = 5) => {
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+        doc.setTextColor(color[0], color[1], color[2]);
+
+        const lines = doc.splitTextToSize(text, contentWidth);
+        const requiredHeight = lines.length * (fontSize * 0.4) + spacing;
+        if (yPos + requiredHeight > pageHeight - margin) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        lines.forEach(line => {
+          doc.text(line, margin, yPos);
+          yPos += (fontSize * 0.4);
+        });
+
+        yPos += spacing;
+      };
+
+      addText(topic.title.toUpperCase(), 16, true, [26, 115, 232], 6);
+      addText(`Category: ${topic.category || 'General'} | Difficulty: ${topic.difficulty || 'Easy'}`, 10, false, [128, 128, 128], 4);
+      
+      // Author details with a clickable LinkedIn link
+      const prefix = "Copyright © 2026 All Rights Reserved | ";
+      const linkText = "LinkedIn";
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const prefixWidth = doc.getTextWidth(prefix);
+      const linkWidth = doc.getTextWidth(linkText);
+      const lineSpacing = 10;
+      
+      if (yPos + (9 * 0.4) + lineSpacing > pageHeight - margin) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setTextColor(100, 100, 100);
+      doc.text(prefix, margin, yPos);
+      
+      doc.setTextColor(26, 115, 232);
+      doc.text(linkText, margin + prefixWidth, yPos);
+      doc.link(margin + prefixWidth, yPos - 3, linkWidth, 4, { url: 'https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/' });
+      
+      yPos += (9 * 0.4) + lineSpacing;
+      
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 10;
+
       const sortedQuestions = [...questions].sort((a, b) => {
         const diffA = getDisplayDifficulty(a.difficulty);
         const diffB = getDisplayDifficulty(b.difficulty);
         return (difficultyOrder[diffA] || 1) - (difficultyOrder[diffB] || 1);
       });
 
-      const doc = await generateTopicPDF(topic, sortedQuestions);
-      if (doc) {
-        doc.save(`${topic.title.replace(/\s+/g, '_')}_Curriculum.pdf`);
-      }
-    } catch (err) {
-      console.error("Failed to generate topic PDF:", err);
+      addText(`Total Questions: ${sortedQuestions.length}`, 13, true, [0, 0, 0], 8);
+
+      sortedQuestions.forEach((q, idx) => {
+        addText(`${idx + 1}. ${q.title}`, 11, true, [0, 0, 0], 4);
+        addText(`Difficulty: ${getDisplayDifficulty(q.difficulty)}`, 9, false, [100, 100, 100], 4);
+
+        if (q.explanation) {
+          addText(`Explanation:`, 9, true, [80, 80, 80], 2);
+          addText(q.explanation, 9.5, false, [50, 50, 50], 6);
+        }
+
+        if (q.code) {
+          addText(`Code:`, 9, true, [80, 80, 80], 2);
+          doc.setFontSize(8.5);
+          doc.setFont('courier', 'normal');
+          doc.setTextColor(50, 50, 50);
+          
+          const codeLines = doc.splitTextToSize(q.code, contentWidth - 6);
+          const boxHeight = codeLines.length * 3.8 + 6;
+
+          if (yPos + boxHeight > pageHeight - margin) {
+            doc.addPage();
+            yPos = 20;
+          }
+
+          doc.setFillColor(245, 245, 245);
+          doc.rect(margin, yPos, contentWidth, boxHeight, 'F');
+          
+          let codeY = yPos + 4;
+          codeLines.forEach(line => {
+            doc.text(line, margin + 3, codeY);
+            codeY += 3.8;
+          });
+
+          yPos += boxHeight + 4;
+        }
+
+        if (idx < sortedQuestions.length - 1) {
+          if (yPos + 10 > pageHeight - margin) {
+            doc.addPage();
+            yPos = 20;
+          } else {
+            doc.setDrawColor(240, 240, 240);
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 8;
+          }
+        }
+      });
+
+      doc.save(`${topic.title.replace(/\s+/g, '_')}_Curriculum.pdf`);
+    }).catch(err => {
+      console.error("Failed to load jsPDF library:", err);
       setError("Failed to generate PDF document.");
-    }
+    });
   };
 
   const handleKPIFilterClick = (filterType) => {
