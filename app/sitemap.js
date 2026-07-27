@@ -1,15 +1,15 @@
-import { getCachedCurriculum } from '@/lib/cache';
 import { getSiteUrl } from '@/lib/seo';
-import { getTopicUrl } from '@/lib/slug';
 
 export const revalidate = 86400; // Revalidate sitemap every 24 hours (ISR)
 
 /**
+ * Sitemap listing only publicly accessible pages for search engine crawling and indexing.
  * @returns {Promise<import('next').MetadataRoute.Sitemap>}
  */
 export default async function sitemap() {
   const siteUrl = getSiteUrl();
 
+  // Publicly accessible pages without login requirement
   const routes = [
     {
       url: siteUrl,
@@ -27,36 +27,21 @@ export default async function sitemap() {
       url: `${siteUrl}/share-code`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/login`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
-      url: `${siteUrl}/code-editor`,
+      url: `${siteUrl}/enroll`,
       lastModified: new Date(),
-      changeFrequency: 'weekly',
+      changeFrequency: 'monthly',
       priority: 0.7,
     },
   ];
-
-  try {
-    const { todos } = await getCachedCurriculum();
-    if (todos && Array.isArray(todos)) {
-      todos.forEach(topic => {
-        if (topic) {
-          const topicPath = getTopicUrl(topic);
-          if (topicPath && topicPath !== '/') {
-            routes.push({
-              url: `${siteUrl}${topicPath.startsWith('/') ? topicPath : `/${topicPath}`}`,
-              lastModified: topic.updatedAt ? new Date(topic.updatedAt) : new Date(),
-              changeFrequency: 'weekly',
-              priority: 0.8,
-            });
-          }
-        }
-      });
-    }
-  } catch (error) {
-    console.warn('Sitemap using static routes fallback:', error?.message || error);
-  }
 
   return routes;
 }
