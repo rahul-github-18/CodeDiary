@@ -226,7 +226,7 @@ function ShareCodeContent({ isLoggedIn }) {
               disabled={saving || !newCode.trim()}
               className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-[0.99] font-bold text-white shadow-md shadow-sky-600/25 flex items-center justify-center cursor-pointer transition-all disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap self-start sm:self-auto"
             >
-              {saving ? 'Generating...' : 'Share & Generate 4-Digit Code'}
+              {saving ? 'Generating...' : 'Generate Code'}
             </button>
           </div>
 
