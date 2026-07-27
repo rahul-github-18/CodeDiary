@@ -45,7 +45,7 @@ function ShareCodeContent({ isLoggedIn }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [shareSuccess, setShareSuccess] = useState('');
-  
+
   // Retrieval states
   const [retrievalKey, setRetrievalKey] = useState('');
   const [retrievedSnippet, setRetrievedSnippet] = useState(null);
@@ -78,11 +78,11 @@ function ShareCodeContent({ isLoggedIn }) {
       const payloadCode = `[lang:${snippetLanguage}]\n${newCode}`;
 
       await shareService.createSharedCode(shareCode, payloadCode);
-      
+
       // Fill generated code into the top code box directly
       setRetrievalKey(shareCode);
       setShareSuccess(`Snippet shared! Your 4-digit code is ${shareCode} (filled in the box above).`);
-      
+
       // Auto-copy to clipboard
       try {
         navigator.clipboard.writeText(shareCode);
@@ -114,10 +114,10 @@ function ShareCodeContent({ isLoggedIn }) {
       const data = await shareService.getSharedCodeByKey(key);
       if (data && data.length > 0) {
         const snippet = data[0];
-        
+
         let parsedLanguage = 'javascript';
         let parsedCode = snippet.code;
-        
+
         if (snippet.code.startsWith('[lang:')) {
           const match = snippet.code.match(/^\[lang:([^\]]+)\]\n([\s\S]*)$/);
           if (match) {
@@ -150,32 +150,30 @@ function ShareCodeContent({ isLoggedIn }) {
 
   const innerUI = (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
-      
+
       {/* Top Bar with Old-Style Tab Switcher & 4-Digit Code Box */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/90 border border-slate-200/90 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
         {/* Old-style Share Code / Get Code Tab Switcher */}
         <div className="flex rounded-xl bg-slate-200/80 p-1 border border-slate-300/80 text-xs font-medium w-full sm:w-64">
-          <button 
+          <button
             type="button"
             onClick={() => {
               setActiveTab('share');
               setError('');
             }}
-            className={`flex-1 rounded-lg py-2 text-center transition-all cursor-pointer ${
-              activeTab === 'share' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`flex-1 rounded-lg py-2 text-center transition-all cursor-pointer ${activeTab === 'share' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             Share Code
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => {
               setActiveTab('get');
               setRetrievalError('');
             }}
-            className={`flex-1 rounded-lg py-2 text-center transition-all cursor-pointer ${
-              activeTab === 'get' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`flex-1 rounded-lg py-2 text-center transition-all cursor-pointer ${activeTab === 'get' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             Get Code
           </button>
@@ -189,11 +187,10 @@ function ShareCodeContent({ isLoggedIn }) {
               type="text"
               placeholder="1234"
               maxLength={4}
-              className={`w-20 sm:w-24 rounded-xl py-1.5 px-2.5 text-center text-sm font-extrabold tracking-widest outline-none transition-all ${
-                retrievalKey && retrievalKey.length === 4
+              className={`w-20 sm:w-24 rounded-xl py-1.5 px-2.5 text-center text-sm font-extrabold tracking-widest outline-none transition-all ${retrievalKey && retrievalKey.length === 4
                   ? 'bg-sky-50 border-2 border-sky-500 text-sky-600 shadow-sm ring-4 ring-sky-500/20'
                   : 'border border-slate-300 bg-slate-50 text-slate-900 focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20'
-              }`}
+                }`}
               value={retrievalKey}
               onChange={(e) => setRetrievalKey(e.target.value.replace(/\D/g, ''))}
             />
@@ -213,7 +210,7 @@ function ShareCodeContent({ isLoggedIn }) {
       {activeTab === 'share' ? (
         /* Share Snippet Card */
         <form onSubmit={handleShare} className="bg-white/90 border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-sm backdrop-blur-sm flex flex-col gap-6">
-          
+
           {/* Header Row: Title on Left, Generate Button on Right */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
             <div>
@@ -221,8 +218,8 @@ function ShareCodeContent({ isLoggedIn }) {
               <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Paste your code below to get a temporary 4-digit code.</p>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={saving || !newCode.trim()}
               className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-[0.99] font-bold text-white shadow-md shadow-sky-600/25 flex items-center justify-center cursor-pointer transition-all disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap self-start sm:self-auto"
             >
@@ -238,9 +235,9 @@ function ShareCodeContent({ isLoggedIn }) {
 
           <div className="flex flex-col gap-1.5 text-left">
             <label className="text-xs font-bold text-slate-700 tracking-wider uppercase">Language</label>
-            <select 
-              value={snippetLanguage} 
-              onChange={(e) => setSnippetLanguage(e.target.value)} 
+            <select
+              value={snippetLanguage}
+              onChange={(e) => setSnippetLanguage(e.target.value)}
               className="w-full sm:w-64 rounded-xl border border-slate-300 bg-slate-50 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
             >
               <option value="javascript">JavaScript</option>
@@ -284,8 +281,8 @@ function ShareCodeContent({ isLoggedIn }) {
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Retrieved Shared Code</h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              {retrievedSnippet 
-                ? 'Viewing shared code snippet.' 
+              {retrievedSnippet
+                ? 'Viewing shared code snippet.'
                 : 'Enter a 4-digit code in the top box and click View Snippet to display.'}
             </p>
           </div>
@@ -362,14 +359,14 @@ function ShareCodeContent({ isLoggedIn }) {
           <p>
             Copyright © {new Date().getFullYear()} CodeDiary. All Rights Reserved.
           </p>
-          <a 
-            href="https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/" 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            href="https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-slate-600 hover:text-sky-600 font-medium transition-colors"
           >
             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
             </svg>
             <span>LinkedIn</span>
           </a>
