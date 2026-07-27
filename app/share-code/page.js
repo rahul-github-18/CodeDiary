@@ -39,7 +39,6 @@ function ExpiryCountdown({ createdAtStr }) {
 }
 
 function ShareCodeContent({ isLoggedIn }) {
-  const [activeTab, setActiveTab] = useState('share'); // 'share' or 'get'
   const [newCode, setNewCode] = useState('');
   const [snippetLanguage, setSnippetLanguage] = useState('javascript');
   const [saving, setSaving] = useState(false);
@@ -62,7 +61,6 @@ function ShareCodeContent({ isLoggedIn }) {
   useEffect(() => {
     if (codeParam && codeParam.length === 4) {
       setRetrievalKey(codeParam);
-      setActiveTab('get');
       handleRetrieveCode(codeParam);
     }
   }, [codeParam]);
@@ -122,7 +120,6 @@ function ShareCodeContent({ isLoggedIn }) {
           language: parsedLanguage,
           code: parsedCode
         });
-        setActiveTab('get');
       } else {
         setRetrievalError('No active snippet found for this code. It may have expired.');
       }
@@ -142,233 +139,181 @@ function ShareCodeContent({ isLoggedIn }) {
   const innerUI = (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full">
       
-      {/* Upper Quick Retrieval Box & Tab Switcher */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/90 border border-slate-200/90 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
-        {/* Tab Switcher */}
-        <div className="flex rounded-xl bg-slate-200/80 p-1 border border-slate-300/80 text-xs font-medium w-full sm:w-64">
-          <button 
-            type="button"
-            onClick={() => {
-              setActiveTab('share');
-              setError('');
-            }}
-            className={`flex-1 rounded-lg py-2 text-center transition-all cursor-pointer ${
-              activeTab === 'share' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Share Code
-          </button>
-          <button 
-            type="button"
-            onClick={() => {
-              setActiveTab('get');
-              setRetrievalError('');
-            }}
-            className={`flex-1 rounded-lg py-2 text-center transition-all cursor-pointer ${
-              activeTab === 'get' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Get Code
-          </button>
+      {/* Upper 4-Digit Retrieval Box (Only Code Box Above) */}
+      <div className="flex items-center justify-between gap-4 bg-white/90 border border-slate-200/90 rounded-2xl px-5 py-3 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+          <span className="text-xs font-extrabold text-slate-800 tracking-tight">Retrieve Shared Code:</span>
         </div>
 
-        {/* Small 4-Digit Code Direct Entry Box */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto">
-          <span className="text-xs font-bold text-slate-700 whitespace-nowrap">4-Digit Code:</span>
-          <div className="flex items-center gap-1.5 flex-1 sm:flex-initial">
-            <input
-              type="text"
-              placeholder="1234"
-              maxLength={4}
-              className="w-20 rounded-xl border border-slate-300 bg-slate-50 py-1.5 px-2.5 text-center text-sm font-extrabold text-slate-900 tracking-widest outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20"
-              value={retrievalKey}
-              onChange={(e) => setRetrievalKey(e.target.value.replace(/\D/g, ''))}
-            />
-            <button
-              onClick={() => handleRetrieveCode()}
-              disabled={retrievalLoading || retrievalKey.length !== 4}
-              className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold text-xs shadow-xs transition-all cursor-pointer whitespace-nowrap"
-            >
-              {retrievalLoading ? 'Loading...' : 'View Snippet'}
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500 hidden sm:inline">4-Digit Code:</span>
+          <input
+            type="text"
+            placeholder="1234"
+            maxLength={4}
+            className="w-20 sm:w-24 rounded-xl border border-slate-300 bg-slate-50 py-1.5 px-2.5 text-center text-sm font-extrabold text-slate-900 tracking-widest outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20"
+            value={retrievalKey}
+            onChange={(e) => setRetrievalKey(e.target.value.replace(/\D/g, ''))}
+          />
+          <button
+            type="button"
+            onClick={() => handleRetrieveCode()}
+            disabled={retrievalLoading || retrievalKey.length !== 4}
+            className="px-4 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold text-xs shadow-xs transition-all cursor-pointer whitespace-nowrap"
+          >
+            {retrievalLoading ? 'Loading...' : 'View Snippet'}
+          </button>
         </div>
       </div>
 
-      {/* Conditionally Render Share / Get Card */}
-      {activeTab === 'share' ? (
-        /* Share Snippet Card */
-        <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-sm backdrop-blur-sm flex flex-col gap-6">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Share a Snippet</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Paste your code below to get a temporary 4-digit code.</p>
-          </div>
-
-          {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleShare} className="flex flex-col gap-5">
-            <div className="flex flex-col gap-1.5 text-left">
-              <label className="text-xs font-bold text-slate-700 tracking-wider uppercase">Language</label>
-              <select 
-                value={snippetLanguage} 
-                onChange={(e) => setSnippetLanguage(e.target.value)} 
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
-              >
-                <option value="javascript">JavaScript</option>
-                <option value="typescript">TypeScript</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
-                <option value="cpp">C++</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-                <option value="sql">SQL</option>
-                <option value="plaintext">Plain Text</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1.5 text-left">
-              <label className="text-xs font-bold text-slate-700 tracking-wider uppercase">Paste Code</label>
-              <div className="h-72 rounded-2xl overflow-hidden border border-slate-300">
-                <Editor
-                  height="100%"
-                  language={snippetLanguage}
-                  theme="vs-dark"
-                  value={newCode}
-                  onChange={(val) => setNewCode(val || '')}
-                  options={{
-                    selectOnLineNumbers: true,
-                    lineNumbers: 'on',
-                    wordWrap: 'on',
-                    autoClosingBrackets: 'always',
-                    minimap: { enabled: false },
-                    fontSize: 13,
-                    automaticLayout: true
-                  }}
-                />
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              disabled={saving || !newCode.trim()}
-              className="w-full rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-[0.99] py-3.5 font-bold text-white shadow-md shadow-sky-600/25 flex items-center justify-center cursor-pointer transition-all disabled:opacity-50 text-sm"
-            >
-              {saving ? 'Generating 4-Digit Code...' : 'Share & Generate 4-Digit Code'}
-            </button>
-          </form>
-
-          {/* Generated Share Code Box */}
-          {generatedShareCode && (
-            <div className="mt-2 p-6 rounded-2xl bg-sky-50 border border-sky-200 flex flex-col items-center gap-3 text-center">
-              <span className="text-xs font-extrabold text-sky-800 tracking-wider uppercase">
-                YOUR 4-DIGIT SHARE CODE
-              </span>
-              <div className="px-6 py-3 rounded-2xl bg-white border border-sky-300 shadow-sm">
-                <span className="text-4xl sm:text-5xl font-black text-sky-600 tracking-[8px]">
-                  {generatedShareCode}
-                </span>
-              </div>
-              <p className="text-xs text-sky-700 font-medium">
-                Shared code automatically expires in 15 minutes.
-              </p>
-              <div className="flex gap-3 w-full max-w-xs mt-1">
-                <button 
-                  type="button"
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs shadow-xs transition-all cursor-pointer"
-                  onClick={() => copyToClipboard(generatedShareCode, 'Share key copied!')}
-                >
-                  Copy Code
-                </button>
-                <button 
-                  type="button"
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-sky-600 text-white hover:bg-sky-500 font-bold text-xs shadow-xs transition-all cursor-pointer"
-                  onClick={() => {
-                    const link = `${window.location.origin}/share-code?code=${generatedShareCode}`;
-                    copyToClipboard(link, 'Direct sharing link copied!');
-                  }}
-                >
-                  Copy Link
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Retrieve Code Card */
-        <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-sm backdrop-blur-sm flex flex-col gap-6">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Retrieve Shared Code</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Enter a 4-digit code to instantly access a shared snippet.</p>
-          </div>
-
-          <div className="flex gap-3">
-            <input
-              type="text"
-              placeholder="E.g., 5819"
-              maxLength={4}
-              className="flex-1 rounded-xl border border-slate-300 bg-slate-50 h-12 px-4 text-center text-xl font-extrabold text-slate-900 tracking-[6px] outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20"
-              value={retrievalKey}
-              onChange={(e) => setRetrievalKey(e.target.value.replace(/\D/g, ''))}
-            />
-            <button 
-              type="button"
-              onClick={() => handleRetrieveCode()}
-              disabled={retrievalLoading || retrievalKey.length !== 4}
-              className="h-12 px-6 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold text-sm shadow-md transition-all cursor-pointer"
-            >
-              {retrievalLoading ? 'Retrieving...' : 'Get Code'}
-            </button>
-          </div>
-
-          {retrievalError && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
-              {retrievalError}
-            </div>
-          )}
-
-          {retrievedSnippet && (
-            <div className="flex flex-col gap-4 mt-2 p-5 rounded-2xl bg-slate-50 border border-slate-200 text-left">
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Language: {retrievedSnippet.language}
-                  </span>
-                  <span className="text-slate-300">•</span>
-                  <ExpiryCountdown createdAtStr={retrievedSnippet.created_at} />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => copyToClipboard(retrievedSnippet.code, 'Code snippet copied!')}
-                  className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold shadow-xs transition-all cursor-pointer"
-                >
-                  Copy Snippet
-                </button>
-              </div>
-
-              <div className="h-80 rounded-xl overflow-hidden border border-slate-300">
-                <Editor
-                  height="100%"
-                  language={retrievedSnippet.language}
-                  theme="vs-dark"
-                  value={retrievedSnippet.code}
-                  options={{
-                    readOnly: true,
-                    lineNumbers: 'on',
-                    wordWrap: 'on',
-                    minimap: { enabled: false },
-                    fontSize: 13,
-                    automaticLayout: true
-                  }}
-                />
-              </div>
-            </div>
-          )}
+      {retrievalError && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
+          {retrievalError}
         </div>
       )}
+
+      {/* Main Snippet Sharing Form */}
+      <form onSubmit={handleShare} className="bg-white/90 border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-sm backdrop-blur-sm flex flex-col gap-6">
+        
+        {/* Header Row: Title on Left, Generate Button on Right */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Share a Snippet</h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">Paste your code below to get a temporary 4-digit code.</p>
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={saving || !newCode.trim()}
+            className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 active:scale-[0.99] font-bold text-white shadow-md shadow-sky-600/25 flex items-center justify-center cursor-pointer transition-all disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap self-start sm:self-auto"
+          >
+            {saving ? 'Generating...' : 'Share & Generate 4-Digit Code'}
+          </button>
+        </div>
+
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
+            {error}
+          </div>
+        )}
+
+        <div className="flex flex-col gap-1.5 text-left">
+          <label className="text-xs font-bold text-slate-700 tracking-wider uppercase">Language</label>
+          <select 
+            value={snippetLanguage} 
+            onChange={(e) => setSnippetLanguage(e.target.value)} 
+            className="w-full sm:w-64 rounded-xl border border-slate-300 bg-slate-50 py-2.5 px-3.5 text-sm text-slate-900 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
+          >
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="cpp">C++</option>
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="sql">SQL</option>
+            <option value="plaintext">Plain Text</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5 text-left">
+          <label className="text-xs font-bold text-slate-700 tracking-wider uppercase">Paste Code</label>
+          <div className="h-72 rounded-2xl overflow-hidden border border-slate-300">
+            <Editor
+              height="100%"
+              language={snippetLanguage}
+              theme="vs-dark"
+              value={newCode}
+              onChange={(val) => setNewCode(val || '')}
+              options={{
+                selectOnLineNumbers: true,
+                lineNumbers: 'on',
+                wordWrap: 'on',
+                autoClosingBrackets: 'always',
+                minimap: { enabled: false },
+                fontSize: 13,
+                automaticLayout: true
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Generated Share Code Output Box */}
+        {generatedShareCode && (
+          <div className="mt-2 p-6 rounded-2xl bg-sky-50 border border-sky-200 flex flex-col items-center gap-3 text-center animate-in fade-in duration-200">
+            <span className="text-xs font-extrabold text-sky-800 tracking-wider uppercase">
+              YOUR 4-DIGIT SHARE CODE
+            </span>
+            <div className="px-6 py-3 rounded-2xl bg-white border border-sky-300 shadow-sm">
+              <span className="text-4xl sm:text-5xl font-black text-sky-600 tracking-[8px]">
+                {generatedShareCode}
+              </span>
+            </div>
+            <p className="text-xs text-sky-700 font-medium">
+              Shared code automatically expires in 15 minutes.
+            </p>
+            <div className="flex gap-3 w-full max-w-xs mt-1">
+              <button 
+                type="button"
+                className="flex-1 py-2.5 px-3 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-bold text-xs shadow-xs transition-all cursor-pointer"
+                onClick={() => copyToClipboard(generatedShareCode, 'Share key copied!')}
+              >
+                Copy Code
+              </button>
+              <button 
+                type="button"
+                className="flex-1 py-2.5 px-3 rounded-xl bg-sky-600 text-white hover:bg-sky-500 font-bold text-xs shadow-xs transition-all cursor-pointer"
+                onClick={() => {
+                  const link = `${window.location.origin}/share-code?code=${generatedShareCode}`;
+                  copyToClipboard(link, 'Direct sharing link copied!');
+                }}
+              >
+                Copy Link
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Retrieved Snippet Display Block */}
+        {retrievedSnippet && (
+          <div className="flex flex-col gap-4 mt-2 p-5 rounded-2xl bg-slate-50 border border-slate-200 text-left animate-in fade-in duration-200">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Retrieved Snippet ({retrievedSnippet.language})
+                </span>
+                <span className="text-slate-300">•</span>
+                <ExpiryCountdown createdAtStr={retrievedSnippet.created_at} />
+              </div>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(retrievedSnippet.code, 'Code snippet copied!')}
+                className="px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold shadow-xs transition-all cursor-pointer"
+              >
+                Copy Snippet
+              </button>
+            </div>
+
+            <div className="h-80 rounded-xl overflow-hidden border border-slate-300">
+              <Editor
+                height="100%"
+                language={retrievedSnippet.language}
+                theme="vs-dark"
+                value={retrievedSnippet.code}
+                options={{
+                  readOnly: true,
+                  lineNumbers: 'on',
+                  wordWrap: 'on',
+                  minimap: { enabled: false },
+                  fontSize: 13,
+                  automaticLayout: true
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </form>
     </div>
   );
 
