@@ -189,7 +189,11 @@ function ShareCodeContent({ isLoggedIn }) {
               type="text"
               placeholder="1234"
               maxLength={4}
-              className="w-20 sm:w-24 rounded-xl border border-slate-300 bg-slate-50 py-1.5 px-2.5 text-center text-sm font-extrabold text-slate-900 tracking-widest outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20"
+              className={`w-20 sm:w-24 rounded-xl py-1.5 px-2.5 text-center text-sm font-extrabold tracking-widest outline-none transition-all ${
+                retrievalKey && retrievalKey.length === 4
+                  ? 'bg-sky-50 border-2 border-sky-500 text-sky-600 shadow-sm ring-4 ring-sky-500/20'
+                  : 'border border-slate-300 bg-slate-50 text-slate-900 focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20'
+              }`}
               value={retrievalKey}
               onChange={(e) => setRetrievalKey(e.target.value.replace(/\D/g, ''))}
             />
@@ -229,22 +233,6 @@ function ShareCodeContent({ isLoggedIn }) {
           {error && (
             <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 font-medium">
               {error}
-            </div>
-          )}
-
-          {shareSuccess && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-700 font-bold flex items-center justify-between">
-              <span>{shareSuccess}</span>
-              <button 
-                type="button" 
-                onClick={() => {
-                  const link = `${window.location.origin}/share-code?code=${retrievalKey}`;
-                  copyToClipboard(link, 'Direct sharing link copied!');
-                }}
-                className="px-3 py-1 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 text-xs font-bold transition-colors cursor-pointer"
-              >
-                Copy Link
-              </button>
             </div>
           )}
 
