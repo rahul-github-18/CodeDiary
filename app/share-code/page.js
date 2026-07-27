@@ -282,27 +282,12 @@ function ShareCodeContent({ isLoggedIn }) {
         /* Retrieve Code Card */
         <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-sm backdrop-blur-sm flex flex-col gap-6">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Retrieve Shared Code</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Enter a 4-digit code to instantly access a shared snippet.</p>
-          </div>
-
-          <div className="flex gap-3">
-            <input
-              type="text"
-              placeholder="E.g., 5819"
-              maxLength={4}
-              className="flex-1 rounded-xl border border-slate-300 bg-slate-50 h-12 px-4 text-center text-xl font-extrabold text-slate-900 tracking-[6px] outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20"
-              value={retrievalKey}
-              onChange={(e) => setRetrievalKey(e.target.value.replace(/\D/g, ''))}
-            />
-            <button 
-              type="button"
-              onClick={() => handleRetrieveCode()}
-              disabled={retrievalLoading || retrievalKey.length !== 4}
-              className="h-12 px-6 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white font-bold text-sm shadow-md transition-all cursor-pointer"
-            >
-              {retrievalLoading ? 'Retrieving...' : 'Get Code'}
-            </button>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Retrieved Shared Code</h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              {retrievedSnippet 
+                ? 'Viewing shared code snippet.' 
+                : 'Enter a 4-digit code in the top box and click View Snippet to display.'}
+            </p>
           </div>
 
           {retrievalError && (
@@ -311,8 +296,8 @@ function ShareCodeContent({ isLoggedIn }) {
             </div>
           )}
 
-          {retrievedSnippet && (
-            <div className="flex flex-col gap-4 mt-2 p-5 rounded-2xl bg-slate-50 border border-slate-200 text-left animate-in fade-in duration-200">
+          {retrievedSnippet ? (
+            <div className="flex flex-col gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-200 text-left animate-in fade-in duration-200">
               <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -347,7 +332,7 @@ function ShareCodeContent({ isLoggedIn }) {
                 />
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       )}
     </div>
