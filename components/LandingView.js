@@ -81,64 +81,79 @@ export default function LandingView({ initialMode = null }) {
       {/* Floating Header Navigation */}
       <FloatingNav />
 
-      {/* Soft Ambient Background Elements */}
+      {/* Soft Ambient Background Mesh Elements */}
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-emerald-200/30 blur-3xl pointer-events-none" />
 
-      {/* Main Content Area: Pristine Landing Page */}
-      <div className="flex-1 flex items-center justify-center w-full z-10 pt-20 pb-10">
-        <div className="flex flex-col items-center justify-center text-center max-w-[720px] px-4 my-12">
+      {/* Main Content Area: Modern SaaS Landing View */}
+      <div className="flex-1 flex items-center justify-center w-full z-10 pt-24 pb-12">
+        <div className="flex flex-col items-center justify-center text-center max-w-[760px] px-4 my-8">
           
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs font-bold text-sky-700 mb-6 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+            <span>Developer Workspace & Learning Platform</span>
+          </div>
+
           {/* Brand Logo & Name */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3.5 mb-6">
             <img
               src="/light-logo.png"
               alt="CodeDiary Logo"
-              className="h-12 w-12 rounded-2xl object-contain bg-white p-1.5 border border-slate-300 shadow-md"
+              className="h-12 w-12 rounded-2xl object-contain bg-white p-2 border border-slate-300 shadow-md"
             />
-            <span className="text-slate-900 font-extrabold text-2xl sm:text-3xl tracking-tight">Code Diary</span>
+            <span className="text-slate-900 font-extrabold text-3xl tracking-tight">CodeDiary</span>
           </div>
 
           {/* Main Hero Title & Subtitle */}
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
-            Your developer workspace.
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.15]">
+            Your Personal <br className="hidden sm:inline" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500">Developer Workspace</span>
           </h1>
-          <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-lg font-normal">
-            Organize programming topics, save code snippets, and track daily progress in one structured developer dashboard.
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-xl font-normal">
+            Organize programming topics, practice Data Structures & Algorithms, write structured notes, and track your daily learning progress—all in one place.
           </p>
           
           {/* Feature Tags */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 border border-slate-200 text-xs font-bold text-slate-700 shadow-xs backdrop-blur-sm">
               <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
               Topics & Curriculum
             </span>
-            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 border border-slate-200 text-xs font-bold text-slate-700 shadow-xs backdrop-blur-sm">
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-              Code Snippets
+              Code Snippets & Sharing
             </span>
-            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/90 border border-slate-200 text-xs font-bold text-slate-700 shadow-xs backdrop-blur-sm">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              Activity Metrics
+              Activity Metrics & Analytics
             </span>
           </div>
         </div>
       </div>
 
-      {/* FLOATING MODAL OVERLAY (Login & Enroll Popups) */}
+      {/* FLOATING MODAL OVERLAY (Sleek Modern Glassmorphic Popup) */}
       {activeMode && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="w-full max-w-[420px] rounded-2xl border border-slate-300/90 bg-white p-7 shadow-2xl shadow-slate-900/20 relative animate-in zoom-in-95 duration-200">
+          <div className="w-full max-w-[420px] rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-xl p-8 sm:p-9 shadow-2xl shadow-slate-900/15 relative animate-in zoom-in-95 duration-200 overflow-hidden">
             
+            {/* Top Accent Gradient Bar */}
+            <div className={`absolute top-0 inset-x-0 h-1.5 ${
+              activeMode === 'enroll' 
+                ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400' 
+                : 'bg-gradient-to-r from-sky-500 via-indigo-500 to-sky-400'
+            }`} />
+
             {/* Close Button */}
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer border border-transparent hover:border-slate-200"
               title="Close modal (Esc)"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -147,66 +162,89 @@ export default function LandingView({ initialMode = null }) {
             </button>
 
             {/* Modal Header */}
-            <div className="text-left mb-6 pr-6">
-              <h2 className="text-xl font-bold text-slate-900">
+            <div className="text-left mb-6 pr-8">
+              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold mb-3 border ${
+                activeMode === 'enroll' 
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80' 
+                  : 'bg-sky-50 text-sky-700 border-sky-200/80'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${activeMode === 'enroll' ? 'bg-emerald-500 animate-pulse' : 'bg-sky-500 animate-pulse'}`} />
+                <span>{activeMode === 'enroll' ? 'Account Enrollment' : 'User Authentication'}</span>
+              </div>
+
+              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
                 {activeMode === 'enroll' ? 'Enroll Account' : 'Login'}
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                {activeMode === 'enroll' ? 'Submit account request for enrollment' : 'Enter your credentials to access your workspace'}
+              <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                {activeMode === 'enroll' ? 'Submit an account request to access your developer workspace.' : 'Enter your credentials to access your personal workspace.'}
               </p>
             </div>
 
             {/* Error Alert Box */}
             {error && (
-              <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 mb-5">
+              <div className="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700 mb-5 shadow-xs">
                 <svg className="h-4 w-4 shrink-0 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <span>{error}</span>
+                <span className="font-medium">{error}</span>
               </div>
             )}
 
             {/* Success Alert Box */}
             {success && (
-              <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-700 mb-5">
+              <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-700 mb-5 shadow-xs">
                 <svg className="h-4 w-4 shrink-0 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>{success}</span>
+                <span className="font-medium">{success}</span>
               </div>
             )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700" htmlFor="modal-username">
+              {/* Username Input with Left Icon */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-xs font-extrabold text-slate-700" htmlFor="modal-username">
                   Username
                 </label>
-                <input
-                  type="text"
-                  id="modal-username"
-                  className="w-full rounded-xl border border-slate-300 bg-slate-100/80 py-2.5 px-3.5 text-sm text-slate-900 placeholder-slate-500 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
-                  placeholder={activeMode === 'enroll' ? "Choose a username" : "Enter username"}
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setError('');
-                  }}
-                  disabled={loading}
-                  autoFocus
-                  required
-                />
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    id="modal-username"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium"
+                    placeholder={activeMode === 'enroll' ? "Choose a username" : "Enter username"}
+                    value={username}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      setError('');
+                    }}
+                    disabled={loading}
+                    autoFocus
+                    required
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-700" htmlFor="modal-password">
+              {/* Password Input with Left Icon & Eye Toggle */}
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-xs font-extrabold text-slate-700" htmlFor="modal-password">
                   Password
                 </label>
                 <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </span>
                   <input
                     type={showPassword ? "text" : "password"}
                     id="modal-password"
-                    className="w-full rounded-xl border border-slate-300 bg-slate-100/80 py-2.5 pl-3.5 pr-10 text-sm text-slate-900 placeholder-slate-500 outline-none transition focus:bg-white focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 font-medium"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium"
                     placeholder={activeMode === 'enroll' ? "Choose a password" : "Enter password"}
                     value={password}
                     onChange={(e) => {
@@ -235,11 +273,16 @@ export default function LandingView({ initialMode = null }) {
                 </div>
               </div>
 
+              {/* Gradient Action Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className={`mt-2 flex w-full items-center justify-center rounded-xl py-3 px-4 text-sm font-bold text-white shadow-md transition-all cursor-pointer ${
-                  loading ? 'bg-sky-400 cursor-not-allowed' : 'bg-sky-600 hover:bg-sky-500 active:scale-[0.99]'
+                className={`mt-2 flex w-full items-center justify-center rounded-xl py-3.5 px-4 text-sm font-extrabold text-white shadow-lg transition-all transform active:scale-[0.98] cursor-pointer ${
+                  loading 
+                    ? 'bg-sky-400 cursor-not-allowed' 
+                    : activeMode === 'enroll'
+                      ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/25'
+                      : 'bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500 hover:from-sky-500 hover:to-indigo-500 shadow-sky-600/25'
                 }`}
               >
                 {loading ? (
