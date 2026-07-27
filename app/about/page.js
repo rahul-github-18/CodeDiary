@@ -411,18 +411,13 @@ export default function AboutPage() {
         </section>
 
         {/* 8. Footer */}
-        <footer className="border-t border-slate-200/80 pt-12 pb-6 text-center text-xs text-slate-500">
-          <div className="flex flex-wrap items-center justify-center gap-6 mb-6 font-semibold text-slate-600">
-            <Link href="/login" className="hover:text-slate-900 transition-colors">Home</Link>
-            <Link href="/about" className="hover:text-slate-900 transition-colors">About</Link>
-            <Link href="/share-code" className="hover:text-slate-900 transition-colors">Share Code</Link>
-            <Link href="/login?mode=login" className="hover:text-slate-900 transition-colors">Login</Link>
-            <Link href="/login?mode=enroll" className="hover:text-slate-900 transition-colors">Enroll</Link>
-          </div>
-
-          <div className="flex items-center justify-center gap-4 mb-6">
+        <footer className="border-t border-slate-200/80 pt-8 pb-6 text-xs text-slate-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p>
+              Copyright © {new Date().getFullYear()} CodeDiary. All Rights Reserved.
+            </p>
             <a 
-              href="https://linkedin.com" 
+              href="https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-flex items-center gap-1.5 text-slate-600 hover:text-sky-600 transition-colors font-medium"
@@ -432,18 +427,7 @@ export default function AboutPage() {
               </svg>
               <span>LinkedIn</span>
             </a>
-            <span>•</span>
-            <a 
-              href="mailto:support@kodediary.com" 
-              className="text-slate-600 hover:text-sky-600 transition-colors font-medium"
-            >
-              Contact Email
-            </a>
           </div>
-
-          <p>
-            Copyright © {new Date().getFullYear()} CodeDiary. All Rights Reserved.
-          </p>
         </footer>
 
       </main>
