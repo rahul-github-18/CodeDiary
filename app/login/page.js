@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/lib/api';
+import FloatingNav from '@/components/FloatingNav';
 
 const Login = () => {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -18,6 +19,16 @@ const Login = () => {
     // Redirect to dashboard if already logged in
     if (localStorage.getItem('isLoggedIn') === 'true') {
       router.replace('/');
+    }
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const modeParam = params.get('mode');
+      if (modeParam === 'register' || modeParam === 'enroll') {
+        setIsRegisterMode(true);
+      } else if (modeParam === 'login') {
+        setIsRegisterMode(false);
+      }
     }
   }, [router]);
 
@@ -55,6 +66,9 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-between bg-slate-100 p-4 font-sans select-none text-slate-900 relative overflow-hidden">
+      {/* Floating Header Navigation */}
+      <FloatingNav />
+
       {/* Soft Ambient Background Elements */}
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl pointer-events-none" />
