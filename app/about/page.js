@@ -58,7 +58,7 @@ const jsonLd = {
       url: siteUrl,
       logo: `${siteUrl}/icon.png`,
       sameAs: [
-        'https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/',
+        'https://linkedin.com',
         'https://github.com'
       ],
       description: 'CodeDiary is a developer workspace built for learning programming, preparing for coding interviews, organizing notes, and tracking daily progress.'
@@ -89,7 +89,16 @@ const jsonLd = {
 };
 
 export default function AboutPage() {
-  const premiumFeatures = [
+  const features = [
+    {
+      title: 'Structured Learning',
+      desc: 'Step-by-step categorized roadmap covering fundamental and advanced programming topics.',
+      icon: (
+        <svg className="w-6 h-6 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      )
+    },
     {
       title: 'DSA Practice',
       desc: 'Handpicked Data Structures & Algorithms questions with detailed code solutions and complexity analysis.',
@@ -100,8 +109,8 @@ export default function AboutPage() {
       )
     },
     {
-      title: 'Java & Spring Boot',
-      desc: 'Core Java, OOP principles, Collections, REST APIs, and Spring Boot microservices patterns.',
+      title: 'Java Mastery',
+      desc: 'Core Java, OOP principles, Collections framework, Multithreading, and Stream API patterns.',
       icon: (
         <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -109,8 +118,26 @@ export default function AboutPage() {
       )
     },
     {
+      title: 'Spring Boot',
+      desc: 'REST API design, Spring Security, Dependency Injection, JPA/Hibernate, and microservices architecture.',
+      icon: (
+        <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+        </svg>
+      )
+    },
+    {
+      title: 'SQL & Databases',
+      desc: 'Relational database design, query optimization, indexing strategies, joins, and transaction management.',
+      icon: (
+        <svg className="w-6 h-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+        </svg>
+      )
+    },
+    {
       title: 'Programming Notes',
-      desc: 'Rich Markdown note taking with code syntax highlighting for quick revision.',
+      desc: 'Rich Markdown note taking with code syntax highlighting and searchable topics for quick revision.',
       icon: (
         <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 012.828 0L20.586 7.586a2 2 0 010 2.828L11.828 19H8v-3.828l8.586-8.586z" />
@@ -118,17 +145,17 @@ export default function AboutPage() {
       )
     },
     {
-      title: 'Code Editor / Share Code',
-      desc: 'Instant code execution preview and account-free code snippet sharing.',
+      title: 'Code Snippets',
+      desc: 'Save and format executable code snippets with instant preview and copy-to-clipboard functionality.',
       icon: (
-        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+        <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       )
     },
     {
       title: 'Progress Tracking',
-      desc: 'Visual analytics, streak counters, completed topic metrics, and daily activity.',
+      desc: 'Visual analytics, completed topics counters, streak tracking, and daily coding activity metrics.',
       icon: (
         <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -136,28 +163,60 @@ export default function AboutPage() {
       )
     },
     {
-      title: 'Interview Preparation',
-      desc: 'Targeted company problem patterns, frequency tags, and step-by-step hints.',
+      title: 'Share Code',
+      desc: 'Instantly share code snippets and solutions with peers without needing an account or login.',
+      icon: (
+        <svg className="w-6 h-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+        </svg>
+      )
+    },
+    {
+      title: 'Interview Prep',
+      desc: 'Targeted interview questions with frequency tags, company problem patterns, and step-by-step hints.',
       icon: (
         <svg className="w-6 h-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
       )
+    },
+    {
+      title: 'Dark Mode',
+      desc: 'Sleek, customizable themes for high-focus coding sessions day and night.',
+      icon: (
+        <svg className="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      )
+    },
+    {
+      title: 'Secure Authentication',
+      desc: 'Role-based access control powered by Supabase with encrypted session management.',
+      icon: (
+        <svg className="w-6 h-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      )
     }
-  ];
-
-  const stats = [
-    { number: '100+', label: 'Programming Topics' },
-    { number: '500+', label: 'Interview Questions' },
-    { number: '10+', label: 'Learning Categories' },
-    { number: '24/7', label: 'Available Online' }
   ];
 
   const audience = [
     { title: 'Students', desc: 'Computer science & engineering students building solid fundamentals.' },
-    { title: 'Developers', desc: 'Engineers refining system design, Core Java, and coding practices.' },
-    { title: 'Job Seekers', desc: 'Candidates cracking technical coding interviews at top tech companies.' },
-    { title: 'Professionals', desc: 'Developers looking for one central hub for notes and code snippets.' }
+    { title: 'Freshers', desc: 'Recent graduates preparing for technical campus hiring and online tests.' },
+    { title: 'Software Engineers', desc: 'Working professionals refining system design and coding practices.' },
+    { title: 'Java Developers', desc: 'Engineers specializing in Core Java, Spring Boot, and enterprise backend.' },
+    { title: 'Full Stack Developers', desc: 'Developers mastering both frontend UI and backend services.' },
+    { title: 'Backend Developers', desc: 'Engineers building scalable REST APIs, microservices, and databases.' },
+    { title: 'Interview Candidates', desc: 'Job seekers cracking coding interviews at tech companies.' },
+    { title: 'Competitive Programmers', desc: 'Coder enthusiasts solving algorithmic problems daily.' }
+  ];
+
+  const techStack = [
+    { name: 'Next.js 14/15', category: 'Framework', desc: 'React App Router, Server Components & Metadata API' },
+    { name: 'React', category: 'UI Library', desc: 'Declarative component architecture & responsive hooks' },
+    { name: 'JavaScript (ES6+)', category: 'Language', desc: 'Modern asynchronous programming & logic' },
+    { name: 'Supabase', category: 'Backend & DB', desc: 'PostgreSQL database, Authentication & Row Level Security' },
+    { name: 'PWA', category: 'Platform', desc: 'Progressive Web App support with offline caching' }
   ];
 
   const faqs = [
@@ -176,6 +235,10 @@ export default function AboutPage() {
     {
       q: 'Can I use CodeDiary on mobile devices?',
       a: 'Yes! CodeDiary is fully responsive and built as a Progressive Web App (PWA), meaning you can install it on iOS and Android devices for a seamless native app experience.'
+    },
+    {
+      q: 'What technologies and topics are covered in CodeDiary?',
+      a: 'CodeDiary covers Data Structures & Algorithms (DSA), Java, Spring Boot, SQL & Databases, System Design, Object-Oriented Programming (OOP), Web Development, and interview preparation questions.'
     }
   ];
 
@@ -190,7 +253,7 @@ export default function AboutPage() {
       {/* Floating Header Navigation */}
       <FloatingNav />
 
-      {/* Soft Ambient Background Elements */}
+      {/* Soft Ambient Background Elements (Matching App Light Theme) */}
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-emerald-200/30 blur-3xl pointer-events-none" />
@@ -198,106 +261,60 @@ export default function AboutPage() {
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 relative z-10">
         
-        {/* 1. SaaS Hero Section */}
+        {/* 1. Hero Section */}
+        <section className="text-center max-w-3xl mx-auto mb-20">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs font-semibold text-sky-700 mb-6 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+            <span>Developer Workspace & Learning Hub</span>
+          </div>
+
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              About <span className="text-sky-600">CodeDiary</span>
+            </h1>
+          </div>
+
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+            CodeDiary is a modern developer workspace built for learning programming, 
+            preparing for coding interviews, organizing technical notes, tracking daily progress, and 
+            mastering software engineering concepts.
+          </p>
+        </section>
+
+        {/* 2. Our Mission */}
         <section className="mb-24">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-            {/* Hero Left Content */}
-            <div className="flex-1 text-left max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs font-bold text-sky-700 mb-6 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
-                <span>Developer Workspace & Learning Platform</span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-[1.15] mb-6">
-                Your Personal <br className="hidden sm:inline" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500">Developer Workspace</span>
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal mb-8">
-                Organize programming topics, practice Data Structures & Algorithms, write structured notes, and track your daily learning progress—all in one place.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4">
-                <Link
-                  href="/login?mode=enroll"
-                  className="px-6 py-3.5 rounded-full bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-md shadow-sky-600/20 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-                >
-                  Get Started
-                </Link>
-                <Link
-                  href="/share-code"
-                  className="px-6 py-3.5 rounded-full bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-bold text-sm shadow-xs transition-all cursor-pointer"
-                >
-                  Share Code
-                </Link>
-              </div>
-            </div>
-
-            {/* Hero Right Product Mockup */}
-            <div className="flex-1 w-full relative">
-              <div className="absolute -inset-2 bg-gradient-to-r from-sky-400/20 to-indigo-400/20 rounded-3xl blur-xl pointer-events-none" />
-              <div className="relative rounded-2xl border border-slate-300/80 bg-white p-2 shadow-2xl shadow-slate-400/30 overflow-hidden">
-                <img 
-                  src="/dashboard-mockup.png" 
-                  alt="CodeDiary Workspace Dashboard Mockup" 
-                  className="w-full h-auto rounded-xl object-cover"
-                />
-              </div>
-            </div>
+          <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-8 sm:p-12 backdrop-blur-sm relative overflow-hidden shadow-sm">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4 tracking-tight">
+              Our Mission
+            </h2>
+            <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-6">
+              In the fast-evolving world of software development, learning programming can feel overwhelming. 
+              Tutorials are scattered, practice questions lack context, and daily learning progress often gets lost.
+            </p>
+            <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+              CodeDiary was created to solve this exact challenge. Our mission is to provide developers with a single, 
+              distraction-free environment where they can systematically practice Data Structures & Algorithms, write structured notes, 
+              store reusable code snippets, track learning milestones, and ace technical interviews with confidence.
+            </p>
           </div>
         </section>
 
-        {/* Section Divider */}
-        <div className="w-full h-[1px] bg-slate-200/80 my-16" />
-
-        {/* 2. Compact Mission Section */}
-        <section className="mb-24">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-10 bg-white/90 border border-slate-200/90 rounded-3xl p-8 sm:p-12 shadow-sm">
-            <div className="flex-1">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4 tracking-tight">
-                Our Mission
-              </h2>
-              <p className="text-slate-600 text-base leading-relaxed mb-4 font-normal">
-                Learning software engineering can feel fragmented. Tutorials are scattered, code snippets get lost, and daily progress goes untracked.
-              </p>
-              <p className="text-slate-600 text-base leading-relaxed font-normal">
-                CodeDiary provides developers with a single, distraction-free environment to systematically master programming concepts, write notes, and prepare for interviews with clarity.
-              </p>
-            </div>
-            
-            <div className="w-full lg:w-72 bg-slate-50 rounded-2xl p-6 border border-slate-200/80 flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 flex items-center justify-center font-bold text-sm">✓</div>
-                <span className="text-xs font-bold text-slate-800">Distraction-Free Workspace</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center font-bold text-sm">✓</div>
-                <span className="text-xs font-bold text-slate-800">Structured Roadmap</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-sm">✓</div>
-                <span className="text-xs font-bold text-slate-800">Real-Time Progress Tracking</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. 6 Premium Features Grid */}
+        {/* 3. Features */}
         <section className="mb-24">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-              Built for Modern Developers
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3">
+              Powerful Features for Developers
             </h2>
             <p className="text-slate-600 text-sm sm:text-base">
-              Six core capabilities designed to accelerate your programming mastery.
+              Everything you need to streamline your daily programming journey in one place.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {premiumFeatures.map((feature, idx) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, idx) => (
               <article 
                 key={idx}
-                className="bg-white/90 border border-slate-200/90 hover:border-sky-400/80 rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between"
+                className="bg-white/90 border border-slate-200/90 hover:border-sky-400/60 rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md flex flex-col justify-between"
               >
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-4">
@@ -306,7 +323,7 @@ export default function AboutPage() {
                   <h3 className="text-lg font-bold text-slate-900 mb-2">
                     {feature.title}
                   </h3>
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                  <p className="text-slate-600 text-sm leading-relaxed">
                     {feature.desc}
                   </p>
                 </div>
@@ -315,145 +332,28 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Section Divider */}
-        <div className="w-full h-[1px] bg-slate-200/80 my-16" />
-
-        {/* 4. Product Showcase: "See CodeDiary in Action" */}
+        {/* 4. Who is it for? */}
         <section className="mb-24">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-              See CodeDiary in Action
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3">
+              Who is CodeDiary for?
             </h2>
             <p className="text-slate-600 text-sm sm:text-base">
-              Explore how CodeDiary streamlines curriculum tracking, code sharing, and interview prep.
+              Tailored learning paths for developers at every stage of their career.
             </p>
           </div>
 
-          <div className="bg-white/90 border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-md relative overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-left">
-                <div className="w-3 h-3 rounded-full bg-sky-500 mb-3" />
-                <h3 className="text-base font-bold text-slate-900 mb-1">Curriculum & Topics</h3>
-                <p className="text-slate-600 text-xs leading-relaxed">
-                  Categorized topics from Java OOP to Spring Boot REST APIs with completion status.
-                </p>
-              </div>
-
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-left">
-                <div className="w-3 h-3 rounded-full bg-indigo-500 mb-3" />
-                <h3 className="text-base font-bold text-slate-900 mb-1">Code Snippets & Sharing</h3>
-                <p className="text-slate-600 text-xs leading-relaxed">
-                  Save syntax-highlighted code snippets and share them instantly with peers.
-                </p>
-              </div>
-
-              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 text-left">
-                <div className="w-3 h-3 rounded-full bg-emerald-500 mb-3" />
-                <h3 className="text-base font-bold text-slate-900 mb-1">Progress Analytics</h3>
-                <p className="text-slate-600 text-xs leading-relaxed">
-                  Track daily activity streaks, completed questions, and learning velocity.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              <img 
-                src="/dashboard-mockup.png" 
-                alt="CodeDiary Product Showcase" 
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* 5. Why CodeDiary (Split Layout) */}
-        <section className="mb-24">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 bg-white/90 border border-slate-200/90 rounded-3xl p-8 sm:p-12 shadow-sm">
-            {/* Left Column: Code Preview Card */}
-            <div className="flex-1 w-full bg-slate-900 text-slate-100 rounded-2xl p-6 font-mono text-xs shadow-lg border border-slate-800">
-              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-800 text-slate-400">
-                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <span className="w-3 h-3 rounded-full bg-green-500/80" />
-                <span className="ml-2 text-[11px] font-sans">UserService.java</span>
-              </div>
-              <p className="text-emerald-400 font-semibold mb-1">// CodeDiary Java Spring Boot Snippet</p>
-              <p className="text-sky-300 mb-1">@RestController</p>
-              <p className="text-sky-300 mb-1">@RequestMapping("/api/workspace")</p>
-              <p className="text-purple-300">public class <span className="text-amber-300">WorkspaceController</span> &#123;</p>
-              <p className="pl-4 text-slate-300">@GetMapping("/progress")</p>
-              <p className="pl-4 text-slate-300">public ResponseEntity&lt;Progress&gt; getDailyProgress() &#123;</p>
-              <p className="pl-8 text-slate-400">return ResponseEntity.ok(workspace.getStats());</p>
-              <p className="pl-4 text-slate-300">&#125;</p>
-              <p className="text-purple-300">&#125;</p>
-            </div>
-
-            {/* Right Column: Checkmark Bullets */}
-            <div className="flex-1 text-left">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-6 tracking-tight">
-                Why Choose CodeDiary?
-              </h2>
-
-              <ul className="space-y-4">
-                {[
-                  'Organized learning paths for DSA and Java',
-                  'Daily progress tracking & streak metrics',
-                  'Targeted technical interview preparation',
-                  'Reusable code snippets & instant sharing',
-                  'One unified workspace for everything'
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-3 text-slate-700 font-medium text-sm sm:text-base">
-                    <div className="w-6 h-6 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-xs shrink-0">
-                      ✓
-                    </div>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* 6. Compact Statistics Bar */}
-        <section className="mb-24">
-          <div className="bg-slate-900 text-slate-100 rounded-3xl p-8 sm:p-10 shadow-xl">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
-              {stats.map((stat, idx) => (
-                <div key={idx} className={idx > 0 ? 'pt-6 lg:pt-0' : ''}>
-                  <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-300 mb-1">
-                    {stat.number}
-                  </div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-400">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* 7. Who is CodeDiary For? (4 Elegant Cards) */}
-        <section className="mb-24">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-              Who is CodeDiary For?
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base">
-              Tailored for ambitious developers at every stage.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {audience.map((item, idx) => (
               <div 
                 key={idx} 
-                className="bg-white/90 border border-slate-200/90 rounded-2xl p-6 hover:border-sky-400 transition-all shadow-xs"
+                className="bg-white/90 border border-slate-200/90 rounded-xl p-5 hover:border-sky-300 transition-colors shadow-xs"
               >
-                <div className="w-2.5 h-2.5 rounded-full bg-sky-500 mb-4" />
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-sky-500 mb-3" />
+                <h3 className="text-base font-bold text-slate-900 mb-1">
                   {item.title}
                 </h3>
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
+                <p className="text-slate-600 text-xs leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -461,10 +361,26 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 8. Modern FAQ Accordion (4 essential FAQs) */}
+
+
+        {/* 6. Vision */}
+        <section className="mb-24 text-center max-w-3xl mx-auto">
+          <div className="p-8 sm:p-10 rounded-3xl bg-white/90 border border-slate-200/90 shadow-md">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-4">
+              Long-Term Vision
+            </h2>
+            <p className="text-slate-600 text-base leading-relaxed">
+              We envision CodeDiary as the definitive all-in-one developer workspace where every programmer can map their career 
+              growth from writing their first "Hello World" in Java to building enterprise microservices and cracking top-tier 
+              technical interviews.
+            </p>
+          </div>
+        </section>
+
+        {/* 7. Frequently Asked Questions (FAQ) */}
         <section className="mb-24">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-3">
               Frequently Asked Questions
             </h2>
             <p className="text-slate-600 text-sm sm:text-base">
@@ -486,7 +402,7 @@ export default function AboutPage() {
                     </svg>
                   </span>
                 </summary>
-                <p className="mt-4 text-slate-600 text-sm leading-relaxed border-t border-slate-200 pt-4 font-normal">
+                <p className="mt-4 text-slate-600 text-sm leading-relaxed border-t border-slate-200 pt-4">
                   {faq.a}
                 </p>
               </details>
@@ -494,27 +410,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 9. Final CTA Section */}
-        <section className="mb-20 text-center max-w-4xl mx-auto">
-          <div className="p-10 sm:p-14 rounded-3xl bg-gradient-to-br from-sky-600 via-indigo-600 to-slate-900 text-white shadow-2xl relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4 leading-tight">
-              Ready to Start Your Coding Journey?
-            </h2>
-            <p className="text-sky-100 text-base sm:text-lg mb-8 max-w-xl mx-auto font-normal">
-              Join CodeDiary and organize your learning in one structured developer workspace.
-            </p>
-            <Link
-              href="/login?mode=enroll"
-              className="inline-block px-8 py-4 rounded-full bg-white text-sky-600 hover:bg-slate-100 font-extrabold text-sm shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              Get Started Free
-            </Link>
-          </div>
-        </section>
-
-        {/* 10. Clean Footer */}
+        {/* 8. Footer */}
         <footer className="border-t border-slate-200/80 pt-8 pb-6 text-xs text-slate-500">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p>
