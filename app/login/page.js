@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/lib/api';
 import FloatingNav from '@/components/FloatingNav';
 
-const Login = () => {
+function LoginContent() {
   const [activeMode, setActiveMode] = useState(null); // null | 'login' | 'enroll'
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [username, setUsername] = useState('');
@@ -14,28 +14,31 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const modeParam = searchParams ? searchParams.get('mode') : null;
 
   useEffect(() => {
     // Redirect to dashboard if already logged in
     if (localStorage.getItem('isLoggedIn') === 'true') {
       router.replace('/');
     }
-
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const modeParam = params.get('mode');
-      if (modeParam === 'register' || modeParam === 'enroll') {
-        setActiveMode('enroll');
-        setIsRegisterMode(true);
-      } else if (modeParam === 'login') {
-        setActiveMode('login');
-        setIsRegisterMode(false);
-      } else {
-        setActiveMode(null);
-      }
-    }
   }, [router]);
+
+  // React to URL query parameters dynamically
+  useEffect(() => {
+    if (modeParam === 'register' || modeParam === 'enroll') {
+      setActiveMode('enroll');
+      setIsRegisterMode(true);
+    } else if (modeParam === 'login') {
+      setActiveMode('login');
+      setIsRegisterMode(false);
+    } else {
+      setActiveMode(null);
+      setIsRegisterMode(false);
+    }
+  }, [modeParam]);
 
   // Handle Escape key to close modal
   useEffect(() => {
@@ -113,7 +116,7 @@ const Login = () => {
       <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl pointer-events-none" />
 
-      {/* Main Content Area: Pristine Landing Page (No buttons in body) */}
+      {/* Main Content Area: Pristine Landing Page */}
       <div className="flex-1 flex items-center justify-center w-full z-10 pt-20 pb-10">
         <div className="flex flex-col items-center justify-center text-center max-w-[720px] px-4 my-12">
           
@@ -329,6 +332,16 @@ const Login = () => {
       </footer>
     </div>
   );
-};
+}
 
-export default Login;
+export default function Login() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 text-slate-600 font-sans">
+        Loading workspace...
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
+  );
+}
