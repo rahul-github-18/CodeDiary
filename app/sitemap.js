@@ -1,13 +1,14 @@
-import { headers } from 'next/headers';
 import { getCachedCurriculum } from '@/lib/cache';
 import { getSiteUrl } from '@/lib/seo';
 import { getTopicUrl } from '@/lib/slug';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 86400; // Revalidate sitemap every 24 hours (ISR)
 
+/**
+ * @returns {Promise<import('next').MetadataRoute.Sitemap>}
+ */
 export default async function sitemap() {
-  const headersList = headers();
-  const siteUrl = getSiteUrl(headersList);
+  const siteUrl = getSiteUrl();
 
   const routes = [
     {
@@ -15,12 +16,6 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1.0,
-    },
-    {
-      url: `${siteUrl}/login`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
     },
     {
       url: `${siteUrl}/share-code`,
@@ -40,16 +35,21 @@ export default async function sitemap() {
     const { todos } = await getCachedCurriculum();
     if (todos && Array.isArray(todos)) {
       todos.forEach(topic => {
-        routes.push({
-          url: `${siteUrl}${getTopicUrl(topic)}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.8,
-        });
+        if (topic) {
+          const topicPath = getTopicUrl(topic);
+          if (topicPath && topicPath !== '/') {
+            routes.push({
+              url: `${siteUrl}${topicPath.startsWith('/') ? topicPath : `/${topicPath}`}`,
+              lastModified: topic.updatedAt ? new Date(topic.updatedAt) : new Date(),
+              changeFrequency: 'weekly',
+              priority: 0.8,
+            });
+          }
+        }
       });
     }
   } catch (error) {
-    console.error('Error generating sitemap dynamic routes:', error);
+    console.warn('Sitemap using static routes fallback:', error?.message || error);
   }
 
   return routes;

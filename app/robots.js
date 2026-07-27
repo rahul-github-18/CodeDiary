@@ -1,9 +1,10 @@
-import { headers } from 'next/headers';
 import { getSiteUrl } from '@/lib/seo';
 
+/**
+ * @returns {import('next').MetadataRoute.Robots}
+ */
 export default function robots() {
-  const headersList = headers();
-  const siteUrl = getSiteUrl(headersList);
+  const siteUrl = getSiteUrl();
 
   return {
     rules: [
