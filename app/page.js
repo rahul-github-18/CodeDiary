@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Layout from '@/components/Layout';
+import LandingView from '@/components/LandingView';
 import { todoService, userService, taskService, questionService, userQueryService, adminQueryService, adminSubmissionService, noteService } from '@/lib/api';
 import { getTopicUrl } from '@/lib/slug';
 
@@ -111,20 +112,19 @@ function DashboardContent({ searchQuery }) {
   // Load user from localStorage
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      router.replace('/login');
-    } else {
+    if (isLoggedIn) {
       try {
         const u = JSON.parse(localStorage.getItem('currentUser'));
-        setUser(u);
-        setQuestionFilter('all');
-        setDashboardFilter('all');
-        setVisibleCurriculumCount(8);
-        setVisibleAdminCount(8);
-        loadDashboardData(u);
+        if (u) {
+          setUser(u);
+          setQuestionFilter('all');
+          setDashboardFilter('all');
+          setVisibleCurriculumCount(8);
+          setVisibleAdminCount(8);
+          loadDashboardData(u);
+        }
       } catch (e) {
         localStorage.clear();
-        router.replace('/login');
       }
     }
   }, [router, filter, searchParams]);
@@ -2678,6 +2678,17 @@ function DashboardContent({ searchQuery }) {
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsLoggedIn(localStorage.getItem('isLoggedIn') === 'true');
+    }
+  }, []);
+
+  if (isLoggedIn === false) {
+    return <LandingView initialMode={null} />;
+  }
 
   return (
     <Suspense fallback={<div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>}>

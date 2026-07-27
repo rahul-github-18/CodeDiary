@@ -2,17 +2,15 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 export default function FloatingNav() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const mode = searchParams ? searchParams.get('mode') : null;
 
   const isAboutActive = pathname === '/about';
   const isShareCodeActive = pathname === '/share-code';
-  const isLoginActive = pathname === '/login' && (mode === 'login' || (!mode && typeof window !== 'undefined' && window.location.search.includes('mode=login')));
-  const isEnrollActive = pathname === '/login' && (mode === 'register' || mode === 'enroll');
+  const isLoginActive = pathname === '/login';
+  const isEnrollActive = pathname === '/enroll';
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-auto max-w-[92vw]">
@@ -22,7 +20,7 @@ export default function FloatingNav() {
       >
         {/* Brand Link */}
         <Link 
-          href="/login" 
+          href="/" 
           className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full text-slate-800 font-bold text-xs sm:text-sm hover:text-sky-600 transition-colors"
         >
           <img 
@@ -61,7 +59,7 @@ export default function FloatingNav() {
 
         {/* 3. Login */}
         <Link
-          href="/login?mode=login"
+          href="/login"
           className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
             isLoginActive
               ? 'bg-sky-600 text-white shadow-sm shadow-sky-600/30'
@@ -73,7 +71,7 @@ export default function FloatingNav() {
 
         {/* 4. Enroll */}
         <Link
-          href="/login?mode=enroll"
+          href="/enroll"
           className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
             isEnrollActive
               ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30'
