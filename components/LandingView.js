@@ -544,63 +544,36 @@ export default function LandingView({ initialMode = null }) {
                   </div>
                 </form>
               ) : (
-                /* Step 3: Registration Success Welcome Card with Logo & Footer */
-                <div className="flex flex-col items-center justify-center text-center py-2 animate-in zoom-in-95 duration-300">
-                  {/* Brand Logo with Glow */}
-                  <div className="relative mb-5">
-                    <div className="absolute inset-0 rounded-2xl bg-emerald-500/20 blur-xl animate-pulse pointer-events-none" />
-                    <img
-                      src="/light-logo.png"
-                      alt="CodeDiary Logo"
-                      className="h-16 w-16 rounded-2xl object-contain bg-white p-2 border-2 border-emerald-300 shadow-xl relative z-10"
-                    />
-                  </div>
+                /* Step 3: Lean Registration Successful Card */
+                <div className="flex flex-col items-center justify-center text-center py-4 animate-in zoom-in-95 duration-200">
+                  {/* Brand Logo */}
+                  <img
+                    src="/light-logo.png"
+                    alt="CodeDiary Logo"
+                    className="h-14 w-14 rounded-2xl object-contain bg-white p-2 border border-slate-200 shadow-md mb-4"
+                  />
 
-                  {/* Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 mb-3">
-                    <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Email Verified & Account Ready</span>
-                  </div>
-
-                  {/* Header Title */}
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+                  {/* Clean Title */}
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-1.5">
                     Registration Successful!
                   </h3>
 
-                  {/* Warm Welcome Message */}
-                  <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 my-3 text-left space-y-2 text-xs text-slate-600 leading-relaxed shadow-xs">
-                    <p className="font-bold text-slate-800 text-sm">
-                      Welcome to CodeDiary, <span className="text-emerald-700">{username}</span>! 🎉
-                    </p>
-                    <p>
-                      Your email address (<span className="font-semibold text-slate-700">{email}</span>) has been verified. Your developer workspace account is now active and fully ready for use.
-                    </p>
-                  </div>
-
-                  {/* Regard & Warm Note */}
-                  <div className="text-left w-full my-2 px-1 text-xs text-slate-500">
-                    <p className="font-semibold text-slate-700">Warm regards,</p>
-                    <p className="font-bold text-emerald-800">The CodeDiary Team</p>
-                  </div>
+                  {/* Simple Subtitle */}
+                  <p className="text-xs text-slate-500 font-medium mb-6">
+                    Your account has been verified and is ready for use.
+                  </p>
 
                   {/* Action Button: Proceed to Login */}
                   <button
                     type="button"
                     onClick={() => switchMode('login')}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-sm font-extrabold text-white shadow-xl shadow-sky-600/25 transition-all transform active:scale-[0.98] cursor-pointer bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500 hover:from-sky-500 hover:to-indigo-500"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-sm font-extrabold text-white shadow-lg shadow-sky-600/20 transition-all transform active:scale-[0.98] cursor-pointer bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500 hover:from-sky-500 hover:to-indigo-500"
                   >
                     <span>Proceed to Login</span>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </button>
-
-                  {/* Card Footer */}
-                  <div className="mt-5 pt-3 border-t border-slate-200/80 w-full text-[11px] text-slate-400">
-                    Copyright © {new Date().getFullYear()} CodeDiary. All Rights Reserved.
-                  </div>
                 </div>
               )
             ) : (
