@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Editor from '@monaco-editor/react';
 import Layout from '@/components/Layout';
 import FloatingNav from '@/components/FloatingNav';
+import Footer from '@/components/Footer';
 import { shareService } from '@/lib/api';
 
 function ExpiryCountdown({ createdAtStr }) {
@@ -258,7 +259,7 @@ function ShareCodeContent({ isLoggedIn }) {
               <Editor
                 height="100%"
                 language={snippetLanguage}
-                theme="vs-dark"
+                theme="light"
                 value={newCode}
                 onChange={(val) => setNewCode(val || '')}
                 options={{
@@ -316,7 +317,7 @@ function ShareCodeContent({ isLoggedIn }) {
                 <Editor
                   height="100%"
                   language={retrievedSnippet.language}
-                  theme="vs-dark"
+                  theme="light"
                   value={retrievedSnippet.code}
                   options={{
                     readOnly: true,
@@ -354,24 +355,7 @@ function ShareCodeContent({ isLoggedIn }) {
       </main>
 
       {/* Clean Footer */}
-      <footer className="w-full border-t border-slate-200/80 py-5 px-4 text-xs text-slate-500 z-10">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>
-            Copyright © {new Date().getFullYear()} CodeDiary. All Rights Reserved.
-          </p>
-          <a
-            href="https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-slate-600 hover:text-sky-600 font-medium transition-colors"
-          >
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
-            </svg>
-            <span>LinkedIn</span>
-          </a>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
