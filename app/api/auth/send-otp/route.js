@@ -9,20 +9,75 @@ const memoryOtpStore = new Map();
 
 export async function POST(req) {
   try {
-    const { email, username } = await req.json();
+    const { email, username, password } = await req.json();
+
+    if (!username || !username.trim()) {
+      return NextResponse.json({ message: 'Username is required' }, { status: 400 });
+    }
 
     if (!email || !/^\S+@\S+\.\S+$/.test(email.trim())) {
       return NextResponse.json({ message: 'Valid email address is required' }, { status: 400 });
     }
 
+    if (username.trim().toLowerCase() === 'admin') {
+      return NextResponse.json({ message: 'Cannot register with username "admin"' }, { status: 400 });
+    }
+
+    const cleanUsername = username.trim();
     const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Check if user already exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id, username, approved')
+      .eq('username', cleanUsername)
+      .maybeSingle();
+
+    if (existingUser && existingUser.approved) {
+      return NextResponse.json({ message: 'Username is already registered and approved. Please log in.' }, { status: 400 });
+    }
+
+    // 2. Insert or update user in `users` table with approved: false (Pending OTP or Manual Admin Approval)
+    const userPayload = {
+      username: cleanUsername,
+      password: password || '1234',
+      role: 'user',
+      approved: false, // Set to false so admin can manually approve if OTP fails!
+      can_view: true,
+      can_edit: false,
+      can_delete: false,
+      email: cleanEmail
+    };
+
+    if (existingUser) {
+      // Update pending user password & email
+      let { error: updateError } = await supabase
+        .from('users')
+        .update(userPayload)
+        .eq('id', existingUser.id);
+
+      if (updateError && updateError.message && updateError.message.toLowerCase().includes('email')) {
+        delete userPayload.email;
+        await supabase.from('users').update(userPayload).eq('id', existingUser.id);
+      }
+    } else {
+      // Insert new pending user with approved = false
+      let { error: insertError } = await supabase
+        .from('users')
+        .insert(userPayload);
+
+      if (insertError && insertError.message && insertError.message.toLowerCase().includes('email')) {
+        delete userPayload.email;
+        await supabase.from('users').insert(userPayload);
+      }
+    }
+
+    // 3. Generate OTP & Store in DB / memory
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-    // Store in memory store
     memoryOtpStore.set(cleanEmail, { code: otpCode, expiresAt });
 
-    // Try storing in Supabase if table exists
     try {
       await supabase.from('otp_codes').delete().eq('email', cleanEmail);
       await supabase.from('otp_codes').insert({ email: cleanEmail, code: otpCode });
@@ -30,17 +85,17 @@ export async function POST(req) {
       console.warn('Supabase otp_codes insert ignored:', e.message);
     }
 
-    // Send Email via SMTP
-    const emailResult = await sendOtpEmail(cleanEmail, otpCode, username);
+    // 4. Send Email via SMTP
+    const emailResult = await sendOtpEmail(cleanEmail, otpCode, cleanUsername);
 
     return NextResponse.json({
-      message: `Verification OTP code sent to ${cleanEmail}. Please check your email inbox.`,
+      message: `Verification OTP code sent to ${cleanEmail}. Account saved (Pending OTP or Admin approval).`,
       sent: emailResult.sent
     }, { status: 200 });
 
   } catch (error) {
     console.error('Send OTP error:', error);
-    return NextResponse.json({ message: 'Failed to generate and send OTP' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to process registration request' }, { status: 500 });
   }
 }
 

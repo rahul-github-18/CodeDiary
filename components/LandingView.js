@@ -88,8 +88,8 @@ export default function LandingView({ initialMode = null }) {
 
     setLoading(true);
     try {
-      // Call backend API to send OTP via SMTP
-      const res = await authService.sendOtp(email.trim(), username.trim());
+      // Call backend API to create pending user (approved: false) & send OTP via SMTP
+      const res = await authService.sendOtp(email.trim(), username.trim(), password);
       setUserOtp('');
       setTimerSeconds(120);
       setSuccess(res.message || `Verification OTP sent to ${email.trim()}`);
