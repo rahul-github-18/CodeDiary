@@ -260,10 +260,10 @@ export default function LandingView({ initialMode = null }) {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className={`w-full max-w-[390px] rounded-3xl border p-6 sm:p-7 shadow-2xl relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900 backdrop-blur-xl ${
+          <div className={`w-full max-w-[390px] rounded-3xl border p-6 sm:p-7 shadow-2xl relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900 backdrop-blur-2xl ${
             activeMode === 'enroll'
-              ? 'bg-gradient-to-br from-white via-emerald-50/70 to-teal-50/50 border-emerald-200/80 shadow-emerald-950/10'
-              : 'bg-gradient-to-br from-white via-sky-50/70 to-indigo-50/50 border-sky-200/80 shadow-sky-950/10'
+              ? 'bg-gradient-to-br from-white/40 via-emerald-50/30 to-teal-50/20 border-white/80 shadow-emerald-950/10'
+              : 'bg-gradient-to-br from-white/40 via-sky-50/30 to-indigo-50/20 border-white/80 shadow-sky-950/10'
           }`}>
 
             {/* Close Button */}
