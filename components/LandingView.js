@@ -197,22 +197,21 @@ export default function LandingView({ initialMode = null }) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between bg-slate-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-indigo-950 to-slate-950 p-4 font-sans select-none text-white relative overflow-hidden">
+    <div className="flex min-h-screen flex-col items-center justify-between bg-slate-100 p-4 font-sans select-none text-slate-900 relative overflow-hidden">
       {/* Floating Header Navigation */}
       <FloatingNav />
 
-      {/* Rich Glowing Ambient Mesh Gradient Orbs */}
-      <div className="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-sky-500/30 via-indigo-500/25 to-purple-600/20 blur-[110px] pointer-events-none animate-pulse" />
-      <div className="absolute -bottom-32 -right-32 h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-indigo-500/30 via-purple-600/25 to-teal-400/25 blur-[110px] pointer-events-none animate-pulse" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-gradient-to-r from-blue-600/20 to-teal-500/20 blur-[130px] pointer-events-none" />
+      {/* Soft Ambient Background Elements */}
+      <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-sky-200/50 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-200/40 blur-3xl pointer-events-none" />
 
       {/* Main Content Area: Pristine Landing Page */}
       <div className="flex-1 flex items-center justify-center w-full z-10 pt-20 pb-10">
         <div className="flex flex-col items-center justify-center text-center max-w-[720px] px-4 my-12">
           
           {/* Top Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 text-xs font-bold text-sky-300 mb-6 shadow-xs backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs font-bold text-sky-700 mb-6 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
             <span>Developer Workspace & Learning Platform</span>
           </div>
 
@@ -221,32 +220,32 @@ export default function LandingView({ initialMode = null }) {
             <img
               src="/light-logo.png"
               alt="CodeDiary Logo"
-              className="h-10 w-10 rounded-xl object-contain bg-white p-1.5 border border-white/20 shadow-md"
+              className="h-10 w-10 rounded-xl object-contain bg-white p-1.5 border border-slate-300 shadow-sm"
             />
-            <span className="text-white font-extrabold text-2xl tracking-tight">CodeDiary</span>
+            <span className="text-slate-900 font-extrabold text-2xl tracking-tight">CodeDiary</span>
           </div>
 
           {/* Main Hero Title & Subtitle */}
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 mb-4 leading-tight">
             Your Personal <br className="hidden sm:inline" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-indigo-400 to-teal-300">Developer Workspace</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500">Developer Workspace</span>
           </h1>
-          <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-8 max-w-xl font-normal">
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-8 max-w-xl font-normal">
             Organize programming topics, practice Data Structures & Algorithms, write structured notes, and track your daily learning progress—all in one place.
           </p>
           
           {/* Feature Tags */}
           <div className="flex flex-wrap items-center justify-center gap-2.5">
-            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/60 border border-white/10 text-xs font-bold text-slate-200 backdrop-blur-md shadow-xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
               Topics & Curriculum
             </span>
-            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/60 border border-white/10 text-xs font-bold text-slate-200 backdrop-blur-md shadow-xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
               Code Snippets & Sharing
             </span>
-            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/60 border border-white/10 text-xs font-bold text-slate-200 backdrop-blur-md shadow-xs">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-slate-300/80 text-xs font-bold text-slate-700 shadow-xs">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               Activity Metrics
             </span>
           </div>
@@ -261,7 +260,11 @@ export default function LandingView({ initialMode = null }) {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="w-full max-w-[440px] rounded-3xl border border-white/70 bg-white/75 backdrop-blur-2xl p-8 sm:p-9 shadow-2xl shadow-slate-900/20 relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900">
+          <div className={`w-full max-w-[440px] rounded-3xl border p-8 sm:p-9 shadow-2xl relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900 backdrop-blur-xl ${
+            activeMode === 'enroll'
+              ? 'bg-gradient-to-br from-white via-emerald-50/70 to-teal-50/50 border-emerald-200/80 shadow-emerald-950/10'
+              : 'bg-gradient-to-br from-white via-sky-50/70 to-indigo-50/50 border-sky-200/80 shadow-sky-950/10'
+          }`}>
             
             {/* Top Accent Gradient Bar */}
             <div className={`absolute top-0 inset-x-0 h-1.5 ${
