@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { getCachedCurriculum, invalidateCache, getCachedUser } from '@/lib/cache';
+import { getCachedCurriculum, invalidateCache, getCachedUser, getCachedUserTasks } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,16 +32,9 @@ export async function GET(req) {
     // Fetch curriculum from cache
     const { todos, questions, codeExamples, notes } = await getCachedCurriculum();
 
-    // Fetch user completed tasks (uncached as they are user-specific)
-    console.time('Supabase: Fetch user_tasks (GET topics)');
-    const { data: completedTasks, error: tasksError } = await supabase
-      .from('user_tasks')
-      .select('item_type, item_id, status')
-      .eq('user_id', user.id)
-      .eq('status', 'Completed');
-    console.timeEnd('Supabase: Fetch user_tasks (GET topics)');
-
-    if (tasksError) throw tasksError;
+    // Fetch user completed tasks from cache
+    const userTasks = await getCachedUserTasks(user.id);
+    const completedTasks = userTasks.filter(t => t.status === 'Completed');
 
     // Filter todos list
     let filteredTodos = todos;

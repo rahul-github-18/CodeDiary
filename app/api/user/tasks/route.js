@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { getCachedCurriculum, getCachedUser } from '@/lib/cache';
+import { getCachedCurriculum, getCachedUser, getCachedUserTasks, invalidateUserTasksCache } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,16 +24,8 @@ export async function GET(req) {
       return NextResponse.json({ message: 'Access Denied. Insufficient permissions.' }, { status: 403 });
     }
 
-    // Fetch user tasks
-    console.time('Supabase: Fetch user_tasks (GET tasks)');
-    const { data: userTasks, error: tasksError } = await supabase
-      .from('user_tasks')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('id', { ascending: false });
-    console.timeEnd('Supabase: Fetch user_tasks (GET tasks)');
-
-    if (tasksError) throw tasksError;
+    // Fetch user tasks from cache
+    const userTasks = await getCachedUserTasks(user.id);
 
     if (!userTasks || userTasks.length === 0) {
       console.timeEnd('API: GET /api/user/tasks');
@@ -122,6 +114,8 @@ export async function POST(req) {
     console.timeEnd('Supabase: Upsert user_tasks');
 
     if (upsertError) throw upsertError;
+
+    invalidateUserTasksCache(user.id);
 
     console.timeEnd('API: POST /api/user/tasks');
     return NextResponse.json(task);

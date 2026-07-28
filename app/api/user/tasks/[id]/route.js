@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-import { getCachedUser, invalidateUserCache } from '@/lib/cache';
+import { getCachedUser, invalidateUserCache, invalidateUserTasksCache } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,6 +103,9 @@ export async function PUT(req, { params }) {
 
     if (updateError) throw updateError;
 
+    // Invalidate user tasks cache
+    invalidateUserTasksCache(user.id);
+
     // Update user streak if it changed
     if (streakUpdated) {
       const { error: userUpdateError } = await supabase
@@ -149,6 +152,8 @@ export async function DELETE(req, { params }) {
     if (error || !deletedTask) {
       return NextResponse.json({ message: 'Task not found.' }, { status: 404 });
     }
+
+    invalidateUserTasksCache(user.id);
 
     return NextResponse.json({ message: 'Task removed successfully.' });
   } catch (error) {

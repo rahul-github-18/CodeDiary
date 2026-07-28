@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { getCachedCurriculum, getCachedUser } from '@/lib/cache';
+import { getCachedCurriculum, getCachedUser, getCachedUserTasks } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,20 +32,13 @@ export async function GET(req) {
     const nCount = notes.length;
     const totalItems = qCount + eCount + nCount;
 
-    // Fetch user completed tasks in a single query
-    console.time('Supabase: Fetch user_tasks (stats)');
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const sevenDaysAgoISO = sevenDaysAgo.toISOString();
 
-    const { data: userCompletedTasks, error: completedError } = await supabase
-      .from('user_tasks')
-      .select('item_type, item_id, completed_at')
-      .eq('user_id', user.id)
-      .eq('status', 'Completed');
-    console.timeEnd('Supabase: Fetch user_tasks (stats)');
-
-    if (completedError) throw completedError;
+    // Fetch user completed tasks from cache
+    const allUserTasks = await getCachedUserTasks(user.id);
+    const userCompletedTasks = allUserTasks.filter(t => t.status === 'Completed');
 
     const completedItems = (userCompletedTasks || []).length;
 
