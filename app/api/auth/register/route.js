@@ -24,11 +24,15 @@ export async function POST(req) {
     const cleanEmail = (email || '').trim().toLowerCase();
     const cleanOtp = String(otp).trim();
 
-    // 1. Verify OTP code
+    // 1. Verify OTP code & check expiration
     let isOtpValid = verifyInMemoryOtp(cleanEmail, cleanOtp);
 
     if (!isOtpValid && cleanEmail) {
       try {
+        // Delete all expired OTPs from database (older than 10 mins)
+        const nowIso = new Date().toISOString();
+        await supabase.from('otp_codes').delete().lt('expires_at', nowIso);
+
         const { data: dbOtp } = await supabase
           .from('otp_codes')
           .select('*')
@@ -37,7 +41,13 @@ export async function POST(req) {
           .maybeSingle();
 
         if (dbOtp) {
-          isOtpValid = true;
+          // Check if DB OTP is expired (> 10 minutes old)
+          if (dbOtp.expires_at && new Date(dbOtp.expires_at).getTime() < Date.now()) {
+            isOtpValid = false;
+          } else {
+            isOtpValid = true;
+          }
+          // Remove OTP from database immediately after use/verification
           await supabase.from('otp_codes').delete().eq('email', cleanEmail);
         }
       } catch (e) {
@@ -48,7 +58,7 @@ export async function POST(req) {
     if (!isOtpValid) {
       console.timeEnd('API: POST /api/auth/register');
       return NextResponse.json(
-        { message: 'Invalid or expired OTP code. Your registration request remains saved in pending users for manual Admin approval.' },
+        { message: 'Invalid or expired OTP code (OTPs expire after 10 minutes). Your registration request remains saved in pending users for manual Admin approval.' },
         { status: 400 }
       );
     }

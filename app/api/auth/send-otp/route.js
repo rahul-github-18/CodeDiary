@@ -7,6 +7,16 @@ export const dynamic = 'force-dynamic';
 // In-memory fallback store for OTP codes with expiration
 const memoryOtpStore = new Map();
 
+// Helper to clean up expired OTPs from memory store
+function cleanupMemoryStore() {
+  const now = Date.now();
+  for (const [email, data] of memoryOtpStore.entries()) {
+    if (now > data.expiresAt) {
+      memoryOtpStore.delete(email);
+    }
+  }
+}
+
 export async function POST(req) {
   try {
     const { email, username, password } = await req.json();
@@ -25,6 +35,9 @@ export async function POST(req) {
 
     const cleanUsername = username.trim();
     const cleanEmail = email.trim().toLowerCase();
+
+    // Clean up memory store
+    cleanupMemoryStore();
 
     // 1. Check if user already exists
     const { data: existingUser } = await supabase
@@ -72,15 +85,30 @@ export async function POST(req) {
       }
     }
 
-    // 3. Generate OTP & Store in DB / memory
+    // 3. Generate OTP & Store in DB / memory (10 Minute Expiration)
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const nowMs = Date.now();
+    const expiresAtMs = nowMs + 10 * 60 * 1000; // Exactly 10 minutes
+    const expiresAtIso = new Date(expiresAtMs).toISOString();
 
-    memoryOtpStore.set(cleanEmail, { code: otpCode, expiresAt });
+    memoryOtpStore.set(cleanEmail, { code: otpCode, expiresAt: expiresAtMs });
 
+    // Store in Supabase and delete any expired OTP codes from database
     try {
+      // Delete old/expired OTPs for this email or past 10 minutes
       await supabase.from('otp_codes').delete().eq('email', cleanEmail);
-      await supabase.from('otp_codes').insert({ email: cleanEmail, code: otpCode });
+      await supabase.from('otp_codes').delete().lt('expires_at', new Date(nowMs).toISOString());
+      
+      let { error: insertOtpErr } = await supabase.from('otp_codes').insert({ 
+        email: cleanEmail, 
+        code: otpCode,
+        expires_at: expiresAtIso
+      });
+
+      // Fallback if expires_at column is not present in DB schema yet
+      if (insertOtpErr && insertOtpErr.message && insertOtpErr.message.toLowerCase().includes('expires_at')) {
+        await supabase.from('otp_codes').insert({ email: cleanEmail, code: otpCode });
+      }
     } catch (e) {
       console.warn('Supabase otp_codes insert ignored:', e.message);
     }
@@ -108,5 +136,9 @@ export function verifyInMemoryOtp(email, otp) {
     memoryOtpStore.delete(cleanEmail);
     return false;
   }
-  return stored.code === String(otp).trim();
+  const isMatch = stored.code === String(otp).trim();
+  if (isMatch) {
+    memoryOtpStore.delete(cleanEmail); // Remove immediately after successful verification
+  }
+  return isMatch;
 }
