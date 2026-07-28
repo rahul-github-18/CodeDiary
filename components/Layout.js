@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Sidebar from './Sidebar';
+import Footer from './Footer';
 import { generateNotesPDF } from '@/lib/pdfExport';
 import { userQueryService } from '@/lib/api';
 
@@ -707,46 +708,7 @@ const Layout = ({ children, searchQuery, setSearchQuery }) => {
           <div style={{ flex: 1 }}>
             {children}
           </div>
-          <footer style={{
-            padding: '24px 16px 16px 16px',
-            borderTop: '1px solid var(--card-border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            fontSize: '0.85rem',
-            color: 'var(--text-muted)',
-            flexWrap: 'wrap',
-            textAlign: 'center'
-          }}>
-            <span>Copyright © 2026 All Rights Reserved</span>
-            <a
-              href="https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#0a66c2',
-                color: 'white',
-                padding: '4px 10px',
-                borderRadius: '4px',
-                textDecoration: 'none',
-                fontWeight: '600',
-                fontSize: '0.75rem',
-                gap: '6px',
-                transition: 'opacity 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-              </svg>
-              LinkedIn
-            </a>
-          </footer>
+          <Footer className="border-t border-[var(--card-border)]" />
         </main>
       </div>
 
