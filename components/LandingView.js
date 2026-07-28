@@ -260,11 +260,7 @@ export default function LandingView({ initialMode = null }) {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className={`w-full max-w-[390px] rounded-3xl border p-6 sm:p-7 shadow-2xl relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900 backdrop-blur-2xl ${
-            activeMode === 'enroll'
-              ? 'bg-gradient-to-br from-white/40 via-emerald-50/30 to-teal-50/20 border-white/80 shadow-emerald-950/10'
-              : 'bg-gradient-to-br from-white/40 via-sky-50/30 to-indigo-50/20 border-white/80 shadow-sky-950/10'
-          }`}>
+          <div className="w-full max-w-[420px] rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-9 shadow-2xl shadow-slate-900/15 relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900">
 
             {/* Close Button */}
             <button
@@ -347,7 +343,7 @@ export default function LandingView({ initialMode = null }) {
                       <input
                         type="text"
                         id="modal-username"
-                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium shadow-xs"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium"
                         placeholder="Choose a username"
                         value={username}
                         onChange={(e) => {
@@ -375,7 +371,7 @@ export default function LandingView({ initialMode = null }) {
                       <input
                         type="email"
                         id="modal-email"
-                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium shadow-xs"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium"
                         placeholder="Enter your email address"
                         value={email}
                         onChange={(e) => {
@@ -402,7 +398,7 @@ export default function LandingView({ initialMode = null }) {
                       <input
                         type={showPassword ? "text" : "password"}
                         id="modal-password"
-                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium shadow-xs"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium"
                         placeholder="Choose a password"
                         value={password}
                         onChange={(e) => {
@@ -473,7 +469,7 @@ export default function LandingView({ initialMode = null }) {
                         type="text"
                         id="modal-otp"
                         maxLength={6}
-                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3 text-center tracking-[0.4em] font-mono text-lg text-slate-900 placeholder-slate-300 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold shadow-xs"
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-center tracking-[0.4em] font-mono text-lg text-slate-900 placeholder-slate-300 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold"
                         placeholder="------"
                         value={userOtp}
                         onChange={(e) => {
@@ -590,7 +586,7 @@ export default function LandingView({ initialMode = null }) {
                     <input
                       type="text"
                       id="modal-username"
-                      className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium shadow-xs"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium"
                       placeholder="Enter username"
                       value={username}
                       onChange={(e) => {
@@ -618,7 +614,7 @@ export default function LandingView({ initialMode = null }) {
                     <input
                       type={showPassword ? "text" : "password"}
                       id="modal-password"
-                      className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium shadow-xs"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium"
                       placeholder="Enter password"
                       value={password}
                       onChange={(e) => {
