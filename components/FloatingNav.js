@@ -25,10 +25,10 @@ export default function FloatingNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border ${
+            className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 border ${
               item.isActive
-                ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-600/30 font-bold'
-                : 'text-slate-600 border-transparent hover:text-emerald-700 hover:bg-emerald-50/80 hover:border-emerald-200/60'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold shadow-2xs'
+                : 'text-slate-600 border-transparent hover:text-emerald-700 hover:bg-emerald-50/80 hover:border-emerald-200/80 font-semibold'
             }`}
           >
             {item.label}
