@@ -31,6 +31,14 @@ CREATE TABLE IF NOT EXISTS users (
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255);
 
+-- 1b. Create otp_codes table for email verification
+CREATE TABLE IF NOT EXISTS otp_codes (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  code VARCHAR(10) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Seed default users
 INSERT INTO users (username, password, role, approved, can_view, can_edit, can_delete)
 VALUES ('admin', 'admin@123', 'admin', true, true, true, true)
