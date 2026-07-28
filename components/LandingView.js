@@ -255,12 +255,12 @@ export default function LandingView({ initialMode = null }) {
       {/* FLOATING MODAL OVERLAY */}
       {activeMode && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200"
           onClick={(e) => {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="w-full max-w-[440px] rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-xl p-8 sm:p-9 shadow-2xl shadow-slate-900/15 relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900">
+          <div className="w-full max-w-[440px] rounded-3xl border border-white/70 bg-white/75 backdrop-blur-2xl p-8 sm:p-9 shadow-2xl shadow-slate-900/20 relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900">
             
             {/* Top Accent Gradient Bar */}
             <div className={`absolute top-0 inset-x-0 h-1.5 ${
@@ -350,7 +350,7 @@ export default function LandingView({ initialMode = null }) {
                       <input
                         type="text"
                         id="modal-username"
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium"
+                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium shadow-xs"
                         placeholder="Choose a username"
                         value={username}
                         onChange={(e) => {
@@ -378,7 +378,7 @@ export default function LandingView({ initialMode = null }) {
                       <input
                         type="email"
                         id="modal-email"
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium"
+                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium shadow-xs"
                         placeholder="Enter your email address"
                         value={email}
                         onChange={(e) => {
@@ -405,7 +405,7 @@ export default function LandingView({ initialMode = null }) {
                       <input
                         type={showPassword ? "text" : "password"}
                         id="modal-password"
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium"
+                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-medium shadow-xs"
                         placeholder="Choose a password"
                         value={password}
                         onChange={(e) => {
@@ -476,7 +476,7 @@ export default function LandingView({ initialMode = null }) {
                         type="text"
                         id="modal-otp"
                         maxLength={6}
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-center tracking-[0.4em] font-mono text-lg text-slate-900 placeholder-slate-300 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold"
+                        className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3 text-center tracking-[0.4em] font-mono text-lg text-slate-900 placeholder-slate-300 outline-none transition-all focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 font-bold shadow-xs"
                         placeholder="------"
                         value={userOtp}
                         onChange={(e) => {
@@ -593,7 +593,7 @@ export default function LandingView({ initialMode = null }) {
                     <input
                       type="text"
                       id="modal-username"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium"
+                      className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-3.5 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium shadow-xs"
                       placeholder="Enter username"
                       value={username}
                       onChange={(e) => {
@@ -621,7 +621,7 @@ export default function LandingView({ initialMode = null }) {
                     <input
                       type={showPassword ? "text" : "password"}
                       id="modal-password"
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium"
+                      className="w-full rounded-xl border border-slate-200/90 bg-white/60 py-3 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 font-medium shadow-xs"
                       placeholder="Enter password"
                       value={password}
                       onChange={(e) => {
