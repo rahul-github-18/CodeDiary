@@ -321,8 +321,8 @@ export default function LandingView({ initialMode = null }) {
               </div>
             )}
 
-            {/* Success Alert Box */}
-            {success && enrollStep !== 3 && (
+            {/* Success Alert Box (Step 1 only) */}
+            {success && enrollStep === 1 && (
               <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-700 mb-5 shadow-xs">
                 <svg className="h-4 w-4 shrink-0 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -459,19 +459,8 @@ export default function LandingView({ initialMode = null }) {
                   </button>
                 </form>
               ) : enrollStep === 2 ? (
-                /* Step 2: OTP Verification & 2-Min Timer */
+                /* Step 2: OTP Verification & 2-Min Timer (Clean UI) */
                 <form onSubmit={handleVerifyAndRegister} className="flex flex-col gap-4">
-                  {/* Informational Email Dispatched Notice */}
-                  <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-4 text-center relative overflow-hidden shadow-xs">
-                    <div className="flex items-center justify-center gap-2 mb-1 text-emerald-800 text-xs font-bold uppercase tracking-wider">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>OTP Verification Email Dispatched</span>
-                    </div>
-                    <p className="text-xs text-emerald-800 font-medium">
-                      Please check your email inbox at <span className="font-bold text-emerald-950 underline">{email}</span> for your 6-digit OTP code.
-                    </p>
-                  </div>
-
                   {/* OTP Input Field */}
                   <div className="flex flex-col gap-1.5 text-left">
                     <label className="text-xs font-extrabold text-slate-700" htmlFor="modal-otp">
