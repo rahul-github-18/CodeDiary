@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { verifyInMemoryOtp } from '@/app/api/auth/send-otp/route';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,9 +80,16 @@ export async function POST(req) {
       }
     }
 
+    // 3. Send Registration Successful Welcome Email via SMTP
+    if (cleanEmail) {
+      sendWelcomeEmail(cleanEmail, cleanUsername).catch(err => {
+        console.error('Failed to send welcome email:', err);
+      });
+    }
+
     console.timeEnd('API: POST /api/auth/register');
     return NextResponse.json(
-      { message: 'Registration and OTP verification successful! Your account is now approved and active.' },
+      { message: 'Registration and OTP verification successful! Welcome email sent to your inbox.' },
       { status: 200 }
     );
   } catch (error) {
