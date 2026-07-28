@@ -17,7 +17,6 @@ export default function LandingView({ initialMode = null }) {
 
   // OTP Verification States
   const [enrollStep, setEnrollStep] = useState(1); // 1: Details, 2: OTP verification, 3: Registration Success Welcome
-  const [generatedOtp, setGeneratedOtp] = useState('');
   const [userOtp, setUserOtp] = useState('');
   const [timerSeconds, setTimerSeconds] = useState(120); // 2 min resend timer
 
@@ -91,7 +90,6 @@ export default function LandingView({ initialMode = null }) {
     try {
       // Call backend API to send OTP via SMTP
       const res = await authService.sendOtp(email.trim(), username.trim());
-      if (res.devOtp) setGeneratedOtp(res.devOtp);
       setUserOtp('');
       setTimerSeconds(120);
       setSuccess(res.message || `Verification OTP sent to ${email.trim()}`);
@@ -104,34 +102,29 @@ export default function LandingView({ initialMode = null }) {
     }
   };
 
-  // Step 2: Click "Verify OTP & Complete Registration" -> Check OTP & Register User
+  // Step 2: Click "Verify OTP & Complete Registration" -> Send OTP to backend API for verification
   const handleVerifyAndRegister = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
     if (!userOtp.trim()) {
-      setError('Please enter the 6-digit OTP code.');
-      return;
-    }
-
-    if (userOtp.trim() !== generatedOtp) {
-      setError('Invalid OTP code. Please enter the correct code sent to your email.');
+      setError('Please enter the 6-digit OTP code sent to your email.');
       return;
     }
 
     setLoading(true);
     try {
-      // Register user in database
-      await authService.register(username.trim(), email.trim(), password);
+      // Register user in database with verified OTP
+      await authService.register(username.trim(), email.trim(), password, userOtp.trim());
       
-      // Move to Step 3: Registration Success Welcome Card (redirect to login step)
+      // Move to Step 3: Registration Success Welcome Card
       setSuccess('');
       setError('');
       setEnrollStep(3);
     } catch (err) {
       console.error(err);
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.message || 'Invalid OTP code. Please check your email inbox and try again.');
     } finally {
       setLoading(false);
     }
@@ -145,21 +138,15 @@ export default function LandingView({ initialMode = null }) {
     setLoading(true);
     try {
       const res = await authService.sendOtp(email.trim(), username.trim());
-      if (res.devOtp) setGeneratedOtp(res.devOtp);
       setUserOtp('');
       setTimerSeconds(120); // Reset 2 min timer
-      setSuccess(`A new OTP has been sent to ${email.trim()}!`);
+      setSuccess(`A new OTP code has been sent to ${email.trim()}!`);
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to resend OTP.');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAutofillOtp = () => {
-    setUserOtp(generatedOtp);
-    setError('');
   };
 
   // Login submission (Redirects to Dashboard '/')
@@ -191,7 +178,6 @@ export default function LandingView({ initialMode = null }) {
     setActiveMode(null);
     setEnrollStep(1);
     setUserOtp('');
-    setGeneratedOtp('');
     setTimerSeconds(120);
     router.push('/');
   };
@@ -201,7 +187,6 @@ export default function LandingView({ initialMode = null }) {
     setSuccess('');
     setEnrollStep(1);
     setUserOtp('');
-    setGeneratedOtp('');
     setTimerSeconds(120);
     setActiveMode(mode);
     if (mode === 'enroll') {
@@ -306,7 +291,7 @@ export default function LandingView({ initialMode = null }) {
                   <span className={`w-1.5 h-1.5 rounded-full ${activeMode === 'enroll' ? 'bg-emerald-500 animate-pulse' : 'bg-sky-500 animate-pulse'}`} />
                   <span>
                     {activeMode === 'enroll' 
-                      ? (enrollStep === 1 ? 'Step 1 of 2: Registration Details' : 'Step 2 of 2: SMTP OTP Verification')
+                      ? (enrollStep === 1 ? 'Step 1 of 2: Registration Details' : 'Step 2 of 2: Email OTP Verification')
                       : 'User Authentication'}
                   </span>
                 </div>
@@ -320,7 +305,7 @@ export default function LandingView({ initialMode = null }) {
                   {activeMode === 'enroll' 
                     ? (enrollStep === 1 
                         ? 'Fill in your details below to receive your OTP verification email.' 
-                        : `Enter the verification code sent to ${email || 'your email'}.`)
+                        : `Check your email inbox (${email || 'your email'}) for the 6-digit verification code.`)
                     : 'Enter your credentials to access your developer workspace.'}
                 </p>
               </div>
@@ -476,30 +461,16 @@ export default function LandingView({ initialMode = null }) {
               ) : enrollStep === 2 ? (
                 /* Step 2: OTP Verification & 2-Min Timer */
                 <form onSubmit={handleVerifyAndRegister} className="flex flex-col gap-4">
-                  {/* Generated OTP Display Box */}
-                  {generatedOtp && (
-                    <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-4 text-center relative overflow-hidden shadow-xs">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                          Generated OTP Code
-                        </span>
-                        <button
-                          type="button"
-                          onClick={handleAutofillOtp}
-                          className="text-[11px] font-extrabold text-emerald-700 bg-white border border-emerald-300/80 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer"
-                        >
-                          Auto-fill OTP
-                        </button>
-                      </div>
-                      <div className="text-3xl font-black tracking-widest text-emerald-900 my-1 font-mono">
-                        {generatedOtp}
-                      </div>
-                      <p className="text-[11px] text-emerald-700/80 font-medium">
-                        OTP Email dispatched to <span className="font-semibold text-emerald-900">{email}</span>
-                      </p>
+                  {/* Informational Email Dispatched Notice */}
+                  <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-4 text-center relative overflow-hidden shadow-xs">
+                    <div className="flex items-center justify-center gap-2 mb-1 text-emerald-800 text-xs font-bold uppercase tracking-wider">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>OTP Verification Email Dispatched</span>
                     </div>
-                  )}
+                    <p className="text-xs text-emerald-800 font-medium">
+                      Please check your email inbox at <span className="font-bold text-emerald-950 underline">{email}</span> for your 6-digit OTP code.
+                    </p>
+                  </div>
 
                   {/* OTP Input Field */}
                   <div className="flex flex-col gap-1.5 text-left">

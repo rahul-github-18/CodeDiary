@@ -34,11 +34,8 @@ export async function POST(req) {
     const emailResult = await sendOtpEmail(cleanEmail, otpCode, username);
 
     return NextResponse.json({
-      message: emailResult.sent 
-        ? `Verification OTP sent to ${cleanEmail}` 
-        : `OTP code generated for ${cleanEmail}`,
-      sent: emailResult.sent,
-      devOtp: otpCode
+      message: `Verification OTP code sent to ${cleanEmail}. Please check your email inbox.`,
+      sent: emailResult.sent
     }, { status: 200 });
 
   } catch (error) {
