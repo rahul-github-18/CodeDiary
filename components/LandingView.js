@@ -260,18 +260,11 @@ export default function LandingView({ initialMode = null }) {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className={`w-full max-w-[440px] rounded-3xl border p-8 sm:p-9 shadow-2xl relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900 backdrop-blur-xl ${
+          <div className={`w-full max-w-[390px] rounded-3xl border p-6 sm:p-7 shadow-2xl relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900 backdrop-blur-xl ${
             activeMode === 'enroll'
               ? 'bg-gradient-to-br from-white via-emerald-50/70 to-teal-50/50 border-emerald-200/80 shadow-emerald-950/10'
               : 'bg-gradient-to-br from-white via-sky-50/70 to-indigo-50/50 border-sky-200/80 shadow-sky-950/10'
           }`}>
-            
-            {/* Top Accent Gradient Bar */}
-            <div className={`absolute top-0 inset-x-0 h-1.5 ${
-              activeMode === 'enroll' 
-                ? 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400' 
-                : 'bg-gradient-to-r from-sky-500 via-indigo-500 to-sky-400'
-            }`} />
 
             {/* Close Button */}
             <button
