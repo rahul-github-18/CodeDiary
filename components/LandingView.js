@@ -16,15 +16,17 @@ export default function LandingView({ initialMode = null }) {
   const [showPassword, setShowPassword] = useState(false);
 
   // OTP Verification States
-  const [enrollStep, setEnrollStep] = useState(1); // 1: Input details, 2: OTP verification
+  const [enrollStep, setEnrollStep] = useState(1); // 1: Details, 2: OTP verification, 3: Registration Success Welcome
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [userOtp, setUserOtp] = useState('');
+  const [timerSeconds, setTimerSeconds] = useState(120); // 2 min resend timer
 
   const router = useRouter();
 
   useEffect(() => {
     setActiveMode(initialMode);
     setEnrollStep(1);
+    setTimerSeconds(120);
   }, [initialMode]);
 
   // Redirect to dashboard if already logged in
@@ -45,8 +47,27 @@ export default function LandingView({ initialMode = null }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeMode]);
 
-  // Step 1: Click "Register" -> Validate details & Generate OTP
-  const handleRegisterClick = (e) => {
+  // 2-minute countdown timer for Resend OTP
+  useEffect(() => {
+    let interval = null;
+    if (activeMode === 'enroll' && enrollStep === 2 && timerSeconds > 0) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => prev - 1);
+      }, 1000);
+    } else if (timerSeconds === 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [activeMode, enrollStep, timerSeconds]);
+
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  // Step 1: Click "Register" -> Send OTP via SMTP API & start 2-min timer
+  const handleRegisterClick = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -66,14 +87,24 @@ export default function LandingView({ initialMode = null }) {
       return;
     }
 
-    // Generate random 6-digit OTP code
-    const randomOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(randomOtp);
-    setUserOtp('');
-    setEnrollStep(2);
+    setLoading(true);
+    try {
+      // Call backend API to send OTP via SMTP
+      const res = await authService.sendOtp(email.trim(), username.trim());
+      if (res.devOtp) setGeneratedOtp(res.devOtp);
+      setUserOtp('');
+      setTimerSeconds(120);
+      setSuccess(res.message || `Verification OTP sent to ${email.trim()}`);
+      setEnrollStep(2);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to send OTP verification email.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Step 2: Click "Verify OTP & Complete Registration" -> Check OTP & Call API
+  // Step 2: Click "Verify OTP & Complete Registration" -> Check OTP & Register User
   const handleVerifyAndRegister = async (e) => {
     e.preventDefault();
     setError('');
@@ -85,22 +116,19 @@ export default function LandingView({ initialMode = null }) {
     }
 
     if (userOtp.trim() !== generatedOtp) {
-      setError('Invalid OTP code. Please enter the correct code shown above.');
+      setError('Invalid OTP code. Please enter the correct code sent to your email.');
       return;
     }
 
     setLoading(true);
     try {
+      // Register user in database
       await authService.register(username.trim(), email.trim(), password);
       
-      // Auto-login since user OTP is verified and account is automatically approved
-      const user = await authService.login(username.trim(), password);
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userId', user.id.toString());
-      localStorage.setItem('userRole', user.role);
-      localStorage.setItem('currentUser', JSON.stringify(user));
-
-      router.replace('/');
+      // Move to Step 3: Registration Success Welcome Card (redirect to login step)
+      setSuccess('');
+      setError('');
+      setEnrollStep(3);
     } catch (err) {
       console.error(err);
       setError(err.message || 'Registration failed. Please try again.');
@@ -109,7 +137,32 @@ export default function LandingView({ initialMode = null }) {
     }
   };
 
-  // Login submission
+  // Resend OTP handler with 2-min timer
+  const handleResendOtp = async () => {
+    if (timerSeconds > 0 || loading) return;
+    setError('');
+    setSuccess('');
+    setLoading(true);
+    try {
+      const res = await authService.sendOtp(email.trim(), username.trim());
+      if (res.devOtp) setGeneratedOtp(res.devOtp);
+      setUserOtp('');
+      setTimerSeconds(120); // Reset 2 min timer
+      setSuccess(`A new OTP has been sent to ${email.trim()}!`);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Failed to resend OTP.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAutofillOtp = () => {
+    setUserOtp(generatedOtp);
+    setError('');
+  };
+
+  // Login submission (Redirects to Dashboard '/')
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -132,20 +185,6 @@ export default function LandingView({ initialMode = null }) {
     }
   };
 
-  const handleResendOtp = () => {
-    const randomOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(randomOtp);
-    setUserOtp('');
-    setError('');
-    setSuccess('New OTP generated successfully!');
-    setTimeout(() => setSuccess(''), 3000);
-  };
-
-  const handleAutofillOtp = () => {
-    setUserOtp(generatedOtp);
-    setError('');
-  };
-
   const closeModal = () => {
     setError('');
     setSuccess('');
@@ -153,6 +192,7 @@ export default function LandingView({ initialMode = null }) {
     setEnrollStep(1);
     setUserOtp('');
     setGeneratedOtp('');
+    setTimerSeconds(120);
     router.push('/');
   };
 
@@ -162,6 +202,7 @@ export default function LandingView({ initialMode = null }) {
     setEnrollStep(1);
     setUserOtp('');
     setGeneratedOtp('');
+    setTimerSeconds(120);
     setActiveMode(mode);
     if (mode === 'enroll') {
       router.push('/enroll');
@@ -226,7 +267,7 @@ export default function LandingView({ initialMode = null }) {
         </div>
       </div>
 
-      {/* FLOATING MODAL OVERLAY (Sleek Modern Glassmorphic Popup) */}
+      {/* FLOATING MODAL OVERLAY */}
       {activeMode && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-200"
@@ -234,7 +275,7 @@ export default function LandingView({ initialMode = null }) {
             if (e.target === e.currentTarget) closeModal();
           }}
         >
-          <div className="w-full max-w-[420px] rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-xl p-8 sm:p-9 shadow-2xl shadow-slate-900/15 relative animate-in zoom-in-95 duration-200 overflow-hidden">
+          <div className="w-full max-w-[440px] rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-xl p-8 sm:p-9 shadow-2xl shadow-slate-900/15 relative animate-in zoom-in-95 duration-200 overflow-hidden text-slate-900">
             
             {/* Top Accent Gradient Bar */}
             <div className={`absolute top-0 inset-x-0 h-1.5 ${
@@ -255,33 +296,35 @@ export default function LandingView({ initialMode = null }) {
             </button>
 
             {/* Modal Header */}
-            <div className="text-left mb-6 pr-8">
-              <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold mb-3 border ${
-                activeMode === 'enroll' 
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80' 
-                  : 'bg-sky-50 text-sky-700 border-sky-200/80'
-              }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${activeMode === 'enroll' ? 'bg-emerald-500 animate-pulse' : 'bg-sky-500 animate-pulse'}`} />
-                <span>
-                  {activeMode === 'enroll' 
-                    ? (enrollStep === 1 ? 'Step 1 of 2: Details' : 'Step 2 of 2: OTP Verification')
-                    : 'User Authentication'}
-                </span>
-              </div>
+            {enrollStep !== 3 && (
+              <div className="text-left mb-6 pr-8">
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold mb-3 border ${
+                  activeMode === 'enroll' 
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80' 
+                    : 'bg-sky-50 text-sky-700 border-sky-200/80'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${activeMode === 'enroll' ? 'bg-emerald-500 animate-pulse' : 'bg-sky-500 animate-pulse'}`} />
+                  <span>
+                    {activeMode === 'enroll' 
+                      ? (enrollStep === 1 ? 'Step 1 of 2: Registration Details' : 'Step 2 of 2: SMTP OTP Verification')
+                      : 'User Authentication'}
+                  </span>
+                </div>
 
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                {activeMode === 'enroll' 
-                  ? (enrollStep === 1 ? 'Enroll Account' : 'OTP Verification') 
-                  : 'Sign In'}
-              </h2>
-              <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
-                {activeMode === 'enroll' 
-                  ? (enrollStep === 1 
-                      ? 'Fill in your details below to begin registration.' 
-                      : `Enter the OTP verification code generated for ${email || 'your account'}.`)
-                  : 'Enter your credentials to access your developer workspace.'}
-              </p>
-            </div>
+                <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                  {activeMode === 'enroll' 
+                    ? (enrollStep === 1 ? 'Enroll Account' : 'Verify Email OTP') 
+                    : 'Sign In'}
+                </h2>
+                <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                  {activeMode === 'enroll' 
+                    ? (enrollStep === 1 
+                        ? 'Fill in your details below to receive your OTP verification email.' 
+                        : `Enter the verification code sent to ${email || 'your email'}.`)
+                    : 'Enter your credentials to access your developer workspace.'}
+                </p>
+              </div>
+            )}
 
             {/* Error Alert Box */}
             {error && (
@@ -294,7 +337,7 @@ export default function LandingView({ initialMode = null }) {
             )}
 
             {/* Success Alert Box */}
-            {success && (
+            {success && enrollStep !== 3 && (
               <div className="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-700 mb-5 shadow-xs">
                 <svg className="h-4 w-4 shrink-0 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -409,39 +452,54 @@ export default function LandingView({ initialMode = null }) {
                   {/* 4. Register Action Button */}
                   <button
                     type="submit"
-                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-sm font-extrabold text-white shadow-lg transition-all transform active:scale-[0.98] cursor-pointer bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/25"
+                    disabled={loading}
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-sm font-extrabold text-white shadow-lg transition-all transform active:scale-[0.98] cursor-pointer bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/25 disabled:opacity-60"
                   >
-                    <span>Register</span>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+                    {loading ? (
+                      <span className="inline-flex items-center gap-2">
+                        <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Sending OTP Email...
+                      </span>
+                    ) : (
+                      <>
+                        <span>Register</span>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </>
+                    )}
                   </button>
                 </form>
-              ) : (
-                /* Step 2: OTP Verification */
+              ) : enrollStep === 2 ? (
+                /* Step 2: OTP Verification & 2-Min Timer */
                 <form onSubmit={handleVerifyAndRegister} className="flex flex-col gap-4">
                   {/* Generated OTP Display Box */}
-                  <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-4 text-center relative overflow-hidden shadow-xs">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        Randomly Generated OTP
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleAutofillOtp}
-                        className="text-[11px] font-extrabold text-emerald-700 bg-white border border-emerald-300/80 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer"
-                      >
-                        Auto-fill OTP
-                      </button>
+                  {generatedOtp && (
+                    <div className="rounded-2xl border border-emerald-200/90 bg-emerald-50/80 p-4 text-center relative overflow-hidden shadow-xs">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          Generated OTP Code
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleAutofillOtp}
+                          className="text-[11px] font-extrabold text-emerald-700 bg-white border border-emerald-300/80 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer"
+                        >
+                          Auto-fill OTP
+                        </button>
+                      </div>
+                      <div className="text-3xl font-black tracking-widest text-emerald-900 my-1 font-mono">
+                        {generatedOtp}
+                      </div>
+                      <p className="text-[11px] text-emerald-700/80 font-medium">
+                        OTP Email dispatched to <span className="font-semibold text-emerald-900">{email}</span>
+                      </p>
                     </div>
-                    <div className="text-3xl font-black tracking-widest text-emerald-900 my-1 font-mono">
-                      {generatedOtp}
-                    </div>
-                    <p className="text-[11px] text-emerald-700/80 font-medium">
-                      Simulated code sent to <span className="font-semibold text-emerald-900">{email}</span>
-                    </p>
-                  </div>
+                  )}
 
                   {/* OTP Input Field */}
                   <div className="flex flex-col gap-1.5 text-left">
@@ -484,14 +542,14 @@ export default function LandingView({ initialMode = null }) {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                         </svg>
-                        Verifying & Registering...
+                        Verifying OTP...
                       </span>
                     ) : (
                       'Verify OTP & Complete Registration'
                     )}
                   </button>
 
-                  {/* Secondary Controls: Resend OTP and Back */}
+                  {/* 2-Min Resend Timer Controls */}
                   <div className="flex items-center justify-between pt-1 text-xs">
                     <button
                       type="button"
@@ -509,12 +567,81 @@ export default function LandingView({ initialMode = null }) {
                     <button
                       type="button"
                       onClick={handleResendOtp}
-                      className="text-emerald-700 hover:text-emerald-900 font-bold transition-colors cursor-pointer"
+                      disabled={timerSeconds > 0 || loading}
+                      className={`font-bold transition-all flex items-center gap-1.5 ${
+                        timerSeconds > 0 || loading 
+                          ? 'text-slate-400 cursor-not-allowed' 
+                          : 'text-emerald-700 hover:text-emerald-900 cursor-pointer'
+                      }`}
                     >
-                      Resend OTP
+                      <span>Resend OTP</span>
+                      {timerSeconds > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-mono text-slate-600 border border-slate-200">
+                          {formatTimer(timerSeconds)}
+                        </span>
+                      )}
                     </button>
                   </div>
                 </form>
+              ) : (
+                /* Step 3: Registration Success Welcome Card with Logo & Footer */
+                <div className="flex flex-col items-center justify-center text-center py-2 animate-in zoom-in-95 duration-300">
+                  {/* Brand Logo with Glow */}
+                  <div className="relative mb-5">
+                    <div className="absolute inset-0 rounded-2xl bg-emerald-500/20 blur-xl animate-pulse pointer-events-none" />
+                    <img
+                      src="/light-logo.png"
+                      alt="CodeDiary Logo"
+                      className="h-16 w-16 rounded-2xl object-contain bg-white p-2 border-2 border-emerald-300 shadow-xl relative z-10"
+                    />
+                  </div>
+
+                  {/* Badge */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 mb-3">
+                    <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Email Verified & Account Ready</span>
+                  </div>
+
+                  {/* Header Title */}
+                  <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
+                    Registration Successful!
+                  </h3>
+
+                  {/* Warm Welcome Message */}
+                  <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 my-3 text-left space-y-2 text-xs text-slate-600 leading-relaxed shadow-xs">
+                    <p className="font-bold text-slate-800 text-sm">
+                      Welcome to CodeDiary, <span className="text-emerald-700">{username}</span>! 🎉
+                    </p>
+                    <p>
+                      Your email address (<span className="font-semibold text-slate-700">{email}</span>) has been verified. Your developer workspace account is now active and fully ready for use.
+                    </p>
+                  </div>
+
+                  {/* Regard & Warm Note */}
+                  <div className="text-left w-full my-2 px-1 text-xs text-slate-500">
+                    <p className="font-semibold text-slate-700">Warm regards,</p>
+                    <p className="font-bold text-emerald-800">The CodeDiary Team</p>
+                  </div>
+
+                  {/* Action Button: Proceed to Login */}
+                  <button
+                    type="button"
+                    onClick={() => switchMode('login')}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 px-4 text-sm font-extrabold text-white shadow-xl shadow-sky-600/25 transition-all transform active:scale-[0.98] cursor-pointer bg-gradient-to-r from-sky-600 via-indigo-600 to-sky-500 hover:from-sky-500 hover:to-indigo-500"
+                  >
+                    <span>Proceed to Login</span>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </button>
+
+                  {/* Card Footer */}
+                  <div className="mt-5 pt-3 border-t border-slate-200/80 w-full text-[11px] text-slate-400">
+                    Copyright © {new Date().getFullYear()} CodeDiary. All Rights Reserved.
+                  </div>
+                </div>
               )
             ) : (
               /* Login Form */
@@ -612,31 +739,33 @@ export default function LandingView({ initialMode = null }) {
             )}
 
             {/* Mode Switcher Footer Link */}
-            <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-              {activeMode === 'enroll' ? (
-                <span>
-                  Already have an account?{' '}
-                  <button
-                    type="button"
-                    onClick={() => switchMode('login')}
-                    className="font-extrabold text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer"
-                  >
-                    Sign In
-                  </button>
-                </span>
-              ) : (
-                <span>
-                  Don't have an account?{' '}
-                  <button
-                    type="button"
-                    onClick={() => switchMode('enroll')}
-                    className="font-extrabold text-sky-700 hover:text-sky-800 hover:underline cursor-pointer"
-                  >
-                    Enroll now
-                  </button>
-                </span>
-              )}
-            </div>
+            {enrollStep !== 3 && (
+              <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+                {activeMode === 'enroll' ? (
+                  <span>
+                    Already have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => switchMode('login')}
+                      className="font-extrabold text-emerald-700 hover:text-emerald-800 hover:underline cursor-pointer"
+                    >
+                      Sign In
+                    </button>
+                  </span>
+                ) : (
+                  <span>
+                    Don't have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => switchMode('enroll')}
+                      className="font-extrabold text-sky-700 hover:text-sky-800 hover:underline cursor-pointer"
+                    >
+                      Enroll now
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
 
           </div>
         </div>
