@@ -18,6 +18,7 @@
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) UNIQUE NOT NULL,
+  email VARCHAR(255),
   password VARCHAR(255) NOT NULL,
   role VARCHAR(50) DEFAULT 'user',
   approved BOOLEAN DEFAULT false,
@@ -27,6 +28,8 @@ CREATE TABLE IF NOT EXISTS users (
   streak INTEGER DEFAULT 0,
   last_activity_date DATE DEFAULT NULL
 );
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255);
 
 -- Seed default users
 INSERT INTO users (username, password, role, approved, can_view, can_edit, can_delete)

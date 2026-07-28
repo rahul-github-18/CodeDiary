@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(req) {
   console.time('API: POST /api/auth/register');
   try {
-    const { username, password } = await req.json();
+    const { username, email, password } = await req.json();
 
     if (!username || !password) {
       console.timeEnd('API: POST /api/auth/register');
@@ -36,17 +36,31 @@ export async function POST(req) {
 
     // Insert user
     console.time('Supabase: Insert User (register)');
-    const { error: insertError } = await supabase
+    const userPayload = {
+      username: username.trim(),
+      password: password,
+      role: 'user',
+      approved: false,
+      can_view: true,
+      can_edit: false,
+      can_delete: false
+    };
+    if (email) {
+      userPayload.email = email.trim();
+    }
+
+    let { error: insertError } = await supabase
       .from('users')
-      .insert({
-        username: username.trim(),
-        password: password,
-        role: 'user',
-        approved: false,
-        can_view: true,
-        can_edit: false,
-        can_delete: false
-      });
+      .insert(userPayload);
+
+    // Fallback if email column does not exist in DB yet
+    if (insertError && insertError.message && insertError.message.toLowerCase().includes('email')) {
+      delete userPayload.email;
+      const fallback = await supabase
+        .from('users')
+        .insert(userPayload);
+      insertError = fallback.error;
+    }
     console.timeEnd('Supabase: Insert User (register)');
 
     if (insertError) throw insertError;
