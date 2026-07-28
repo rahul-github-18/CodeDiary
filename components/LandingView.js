@@ -91,14 +91,16 @@ export default function LandingView({ initialMode = null }) {
 
     setLoading(true);
     try {
-      const response = await authService.register(username.trim(), email.trim(), password);
-      setSuccess(response.message || 'Registration successful! Your account is pending admin approval.');
-      setUsername('');
-      setEmail('');
-      setPassword('');
-      setUserOtp('');
-      setGeneratedOtp('');
-      setEnrollStep(1);
+      await authService.register(username.trim(), email.trim(), password);
+      
+      // Auto-login since user OTP is verified and account is automatically approved
+      const user = await authService.login(username.trim(), password);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('userId', user.id.toString());
+      localStorage.setItem('userRole', user.role);
+      localStorage.setItem('currentUser', JSON.stringify(user));
+
+      router.replace('/');
     } catch (err) {
       console.error(err);
       setError(err.message || 'Registration failed. Please try again.');

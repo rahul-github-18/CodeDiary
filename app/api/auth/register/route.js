@@ -40,7 +40,7 @@ export async function POST(req) {
       username: username.trim(),
       password: password,
       role: 'user',
-      approved: false,
+      approved: true,
       can_view: true,
       can_edit: false,
       can_delete: false
@@ -67,7 +67,7 @@ export async function POST(req) {
 
     console.timeEnd('API: POST /api/auth/register');
     return NextResponse.json(
-      { message: 'Enrollment successful! Your account is pending admin approval.' },
+      { message: 'Registration and OTP verification successful! Your account is now active.' },
       { status: 201 }
     );
   } catch (error) {
