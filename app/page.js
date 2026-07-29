@@ -2021,14 +2021,6 @@ function DashboardContent({ searchQuery }) {
 
               {/* Right Side Actions */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory(null)}
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 16px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  &larr; Back to Categories
-                </button>
                 {user?.role === 'admin' && (
                   <button 
                     className="btn btn-primary" 
@@ -2098,7 +2090,7 @@ function DashboardContent({ searchQuery }) {
                               <button 
                                 className="btn btn-secondary" 
                                 disabled={selectedCategoryTopics.findIndex(x => x.id === group.id) === 0}
-                                onClick={() => handleMoveTopic(group.id, 'up')}
+                                onClick={(e) => { e.stopPropagation(); handleMoveTopic(group.id, 'up'); }}
                                 style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 title="Move Up"
                               >
@@ -2107,11 +2099,34 @@ function DashboardContent({ searchQuery }) {
                               <button 
                                 className="btn btn-secondary" 
                                 disabled={selectedCategoryTopics.findIndex(x => x.id === group.id) === selectedCategoryTopics.length - 1}
-                                onClick={() => handleMoveTopic(group.id, 'down')}
+                                onClick={(e) => { e.stopPropagation(); handleMoveTopic(group.id, 'down'); }}
                                 style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 title="Move Down"
                               >
                                 ↓
+                              </button>
+                              <button 
+                                className="btn btn-secondary" 
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  setEditingTopic({ ...group }); 
+                                  setActiveForm('editTopic'); 
+                                }}
+                                style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Edit Topic"
+                              >
+                                ✏️
+                              </button>
+                              <button 
+                                className="btn btn-secondary" 
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  handleDeleteTopic(group.id); 
+                                }}
+                                style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d93025' }}
+                                title="Delete Topic"
+                              >
+                                🗑️
                               </button>
                             </div>
                           )}
