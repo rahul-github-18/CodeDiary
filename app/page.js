@@ -2151,43 +2151,6 @@ function DashboardContent({ searchQuery }) {
                 </p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ display: 'inline-flex', padding: '3px', backgroundColor: 'var(--btn-secondary-bg)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('categories')}
-                    style={{
-                      padding: '6px 14px',
-                      fontSize: '0.8rem',
-                      fontWeight: '600',
-                      borderRadius: '16px',
-                      border: 'none',
-                      backgroundColor: viewMode === 'categories' ? 'var(--link-color)' : 'transparent',
-                      color: viewMode === 'categories' ? '#fff' : 'var(--text-muted)',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    Category View
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('all')}
-                    style={{
-                      padding: '6px 14px',
-                      fontSize: '0.8rem',
-                      fontWeight: '600',
-                      borderRadius: '16px',
-                      border: 'none',
-                      backgroundColor: viewMode === 'all' ? 'var(--link-color)' : 'transparent',
-                      color: viewMode === 'all' ? '#fff' : 'var(--text-muted)',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
-                  >
-                    All Topics View
-                  </button>
-                </div>
-
                 {user?.role === 'admin' && (
                   <button 
                     className="btn btn-primary" 
@@ -2224,7 +2187,7 @@ function DashboardContent({ searchQuery }) {
                         boxShadow: 'var(--card-shadow)',
                         cursor: 'pointer',
                         transition: 'transform 0.2s ease, border-color 0.2s ease',
-                        minHeight: '140px'
+                        minHeight: '160px'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = 'var(--link-color)';
@@ -2336,7 +2299,7 @@ function DashboardContent({ searchQuery }) {
                 )
               )}
             </div>
-            {groupedTasks.length > visibleCurriculumCount && (
+            {(viewMode === 'categories' ? categoryGroups.length : groupedTasks.length) > visibleCurriculumCount && (
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
                 <button 
                   className="btn btn-secondary" 
