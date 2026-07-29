@@ -16,18 +16,6 @@ const getDisplayDifficulty = (difficulty) => {
   return 'Easy';
 };
 
-const getCategoryIcon = (categoryName) => {
-  const cat = String(categoryName || '').toLowerCase();
-  if (cat.includes('back')) return '⚙️';
-  if (cat.includes('lang') || cat.includes('code') || cat.includes('prog')) return '💻';
-  if (cat.includes('data') || cat.includes('struct') || cat.includes('dsa')) return '🗂️';
-  if (cat.includes('algo')) return '🧮';
-  if (cat.includes('sql') || cat.includes('db') || cat.includes('database')) return '🗄️';
-  if (cat.includes('sys') || cat.includes('design') || cat.includes('arch')) return '🏗️';
-  if (cat.includes('web') || cat.includes('front')) return '🌐';
-  return '📚';
-};
-
 function DashboardContent({ searchQuery }) {
   const [user, setUser] = useState(null);
   const [topics, setTopics] = useState([]);
