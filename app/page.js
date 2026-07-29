@@ -16,6 +16,18 @@ const getDisplayDifficulty = (difficulty) => {
   return 'Easy';
 };
 
+const getCategoryIcon = (categoryName) => {
+  const cat = String(categoryName || '').toLowerCase();
+  if (cat.includes('back')) return '⚙️';
+  if (cat.includes('lang') || cat.includes('code') || cat.includes('prog')) return '💻';
+  if (cat.includes('data') || cat.includes('struct') || cat.includes('dsa')) return '🗂️';
+  if (cat.includes('algo')) return '🧮';
+  if (cat.includes('sql') || cat.includes('db') || cat.includes('database')) return '🗄️';
+  if (cat.includes('sys') || cat.includes('design') || cat.includes('arch')) return '🏗️';
+  if (cat.includes('web') || cat.includes('front')) return '🌐';
+  return '📚';
+};
+
 function DashboardContent({ searchQuery }) {
   const [user, setUser] = useState(null);
   const [topics, setTopics] = useState([]);
@@ -2215,16 +2227,16 @@ function DashboardContent({ searchQuery }) {
                       onClick={() => setSelectedCategory(catGroup.categoryKey)}
                       style={{
                         display: 'flex',
-                        flexDirection: 'column',
+                        alignItems: 'center',
                         justifyContent: 'space-between',
                         border: '1px solid var(--card-border)',
                         borderRadius: '16px',
-                        padding: '24px',
+                        padding: '20px 22px',
                         backgroundColor: 'var(--card-bg)',
                         boxShadow: 'var(--card-shadow)',
                         cursor: 'pointer',
-                        transition: 'transform 0.2s ease, border-color 0.2s ease',
-                        minHeight: '160px'
+                        transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+                        gap: '16px'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = 'var(--link-color)';
@@ -2235,41 +2247,52 @@ function DashboardContent({ searchQuery }) {
                         e.currentTarget.style.transform = 'translateY(0)';
                       }}
                     >
-                      <div>
-                        {/* Category Header Badge & Meta */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                          <span style={{ 
-                            fontSize: '0.75rem', 
-                            fontWeight: '700', 
-                            letterSpacing: '0.05em',
-                            padding: '3px 8px', 
-                            backgroundColor: 'rgba(79, 70, 229, 0.08)', 
-                            color: '#4f46e5', 
-                            borderRadius: '6px', 
-                            textTransform: 'uppercase' 
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          width: '46px',
+                          height: '46px',
+                          borderRadius: '14px',
+                          backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.4rem',
+                          flexShrink: 0
+                        }}>
+                          {getCategoryIcon(catGroup.categoryName)}
+                        </div>
+                        <div style={{ minWidth: 0, flex: 1 }}>
+                          <h3 style={{ 
+                            fontSize: '1.15rem', 
+                            fontWeight: '800', 
+                            margin: 0, 
+                            color: 'var(--text-heading)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
                           }}>
-                            {catGroup.categoryName}
-                          </span>
-                          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+                            {catGroup.categoryKey}
+                          </h3>
+                          <span style={{ fontSize: '0.8rem', fontWeight: '500', color: 'var(--text-muted)' }}>
                             {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic' : 'Topics'} • {catGroup.totalQuestions} Qs
                           </span>
                         </div>
-
-                        <h3 style={{ fontSize: '1.35rem', fontWeight: '800', margin: '8px 0 6px 0', color: 'var(--text-heading)' }}>
-                          {catGroup.categoryKey}
-                        </h3>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-                          {catGroup.topics.length} learning {catGroup.topics.length === 1 ? 'module' : 'modules'} with {catGroup.totalQuestions} practice questions.
-                        </p>
                       </div>
 
-                      <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '14px', marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          {catGroup.totalQuestions} Questions Total
-                        </span>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          View Topics &rarr;
-                        </span>
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--btn-secondary-bg)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--link-color)',
+                        fontSize: '0.9rem',
+                        fontWeight: '700',
+                        flexShrink: 0
+                      }}>
+                        &rarr;
                       </div>
                     </div>
                   ))
