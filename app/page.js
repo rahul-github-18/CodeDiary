@@ -63,20 +63,8 @@ function DashboardContent({ searchQuery }) {
   const [submittingCode, setSubmittingCode] = useState(false);
   const [codeSuccess, setCodeSuccess] = useState('');
 
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [viewMode, setViewMode] = useState('categories'); // 'categories' | 'all'
-  const [expandedCategories, setExpandedCategories] = useState(new Set());
-
-  const toggleCategoryExpand = (catName) => {
-    setExpandedCategories(prev => {
-      const next = new Set(prev);
-      if (next.has(catName)) {
-        next.delete(catName);
-      } else {
-        next.add(catName);
-      }
-      return next;
-    });
-  };
 
   // Admin Dashboard Query States
   const [adminTab, setAdminTab] = useState('topics'); // 'topics' | 'queries' | 'submissions'
@@ -123,6 +111,13 @@ function DashboardContent({ searchQuery }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filter = searchParams.get('filter');
+
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) {
+      setSelectedCategory(cat);
+    }
+  }, [searchParams]);
 
   // Load user from localStorage
   useEffect(() => {
@@ -1380,6 +1375,13 @@ function DashboardContent({ searchQuery }) {
     return Array.from(map.values());
   }, [groupedTasks]);
 
+  const selectedCategoryTopics = useMemo(() => {
+    if (!selectedCategory) return [];
+    return groupedTasks.filter(t => 
+      (t.category || 'General').toLowerCase().trim() === selectedCategory.toLowerCase().trim()
+    );
+  }, [groupedTasks, selectedCategory]);
+
 
 
   if (!user) {
@@ -1988,59 +1990,33 @@ function DashboardContent({ searchQuery }) {
       {success && <div className="save-indicator" style={{ marginBottom: '12px' }}>{success}</div>}
 
       {filter === 'all' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-            <div>
-              <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-heading)', margin: 0 }}>
-                Curriculum Topics
-              </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
-                Browse curriculum topics grouped by category, select a topic to view its questions and track your progress.
-              </p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ display: 'inline-flex', padding: '3px', backgroundColor: 'var(--btn-secondary-bg)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
+        selectedCategory ? (
+          /* Category Detail View - Displays Topic Cards of the Selected Category */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                 <button
                   type="button"
-                  onClick={() => setViewMode('categories')}
-                  style={{
-                    padding: '6px 14px',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    borderRadius: '16px',
-                    border: 'none',
-                    backgroundColor: viewMode === 'categories' ? 'var(--link-color)' : 'transparent',
-                    color: viewMode === 'categories' ? '#fff' : 'var(--text-muted)',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
+                  onClick={() => setSelectedCategory(null)}
+                  className="btn btn-secondary"
+                  style={{ padding: '8px 16px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
-                  Category View
+                  &larr; Back to Categories
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('all')}
-                  style={{
-                    padding: '6px 14px',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    borderRadius: '16px',
-                    border: 'none',
-                    backgroundColor: viewMode === 'all' ? 'var(--link-color)' : 'transparent',
-                    color: viewMode === 'all' ? '#fff' : 'var(--text-muted)',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  All Topics View
-                </button>
+                <div>
+                  <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-heading)', margin: 0 }}>
+                    {selectedCategory}
+                  </h2>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
+                    {selectedCategoryTopics.length} {selectedCategoryTopics.length === 1 ? 'topic' : 'topics'} in {selectedCategory}
+                  </p>
+                </div>
               </div>
-
               {user?.role === 'admin' && (
                 <button 
                   className="btn btn-primary" 
                   onClick={() => {
-                    setNewTopic({ title: '', category: 'General', difficulty: 'Easy', estimatedTime: '1 hour' });
+                    setNewTopic({ title: '', category: selectedCategory, difficulty: 'Easy', estimatedTime: '1 hour' });
                     setActiveForm('createTopic');
                   }}
                   style={{ padding: '8px 18px', fontWeight: '600' }}
@@ -2049,141 +2025,12 @@ function DashboardContent({ searchQuery }) {
                 </button>
               )}
             </div>
-          </div>
 
-          <div className="todos-grid" style={{ marginTop: '12px' }}>
-            {viewMode === 'categories' ? (
-              categoryGroups.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics match search.</div>
+            <div className="todos-grid" style={{ marginTop: '12px' }}>
+              {selectedCategoryTopics.length === 0 ? (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics found in this category.</div>
               ) : (
-                categoryGroups.slice(0, visibleCurriculumCount).map((catGroup) => {
-                  const isExpanded = expandedCategories.has(catGroup.categoryName) || Boolean(searchQuery);
-
-                  return (
-                    <div 
-                      key={catGroup.categoryName}
-                      className="card"
-                      onClick={() => toggleCategoryExpand(catGroup.categoryName)}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        border: isExpanded ? '1px solid var(--link-color)' : '1px solid var(--card-border)',
-                        borderRadius: '16px',
-                        padding: '20px',
-                        backgroundColor: 'var(--card-bg)',
-                        boxShadow: 'var(--card-shadow)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        minHeight: '160px'
-                      }}
-                    >
-                      <div>
-                        {/* Category Header Badge & Meta */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                          <span style={{ 
-                            fontSize: '0.75rem', 
-                            fontWeight: '700', 
-                            letterSpacing: '0.05em',
-                            padding: '3px 8px', 
-                            backgroundColor: 'rgba(79, 70, 229, 0.08)', 
-                            color: '#4f46e5', 
-                            borderRadius: '6px', 
-                            textTransform: 'uppercase' 
-                          }}>
-                            {catGroup.categoryName}
-                          </span>
-                          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-                            {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic' : 'Topics'} • {catGroup.totalQuestions} Qs
-                          </span>
-                        </div>
-
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '8px 0 4px 0', color: 'var(--text-heading)' }}>
-                          {catGroup.categoryKey}
-                        </h3>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>
-                          {catGroup.topics.length} learning {catGroup.topics.length === 1 ? 'module' : 'modules'} with {catGroup.totalQuestions} practice questions.
-                        </p>
-
-                        {/* Topics inside Category Card (Visible when clicked / expanded) */}
-                        {isExpanded && (
-                          <div 
-                            style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px', borderTop: '1px solid var(--card-border)', paddingTop: '12px' }}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {catGroup.topics.map((topic) => (
-                              <div 
-                                key={topic.id}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.push(getTopicUrl(topic));
-                                }}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  padding: '10px 12px',
-                                  borderRadius: '8px',
-                                  backgroundColor: 'var(--btn-secondary-bg)',
-                                  border: '1px solid var(--card-border)',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease'
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.borderColor = 'var(--link-color)';
-                                  e.currentTarget.style.transform = 'translateX(2px)';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.borderColor = 'var(--card-border)';
-                                  e.currentTarget.style.transform = 'translateX(0)';
-                                }}
-                              >
-                                <div>
-                                  <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: 'var(--text-heading)' }}>
-                                    {topic.title}
-                                  </h4>
-                                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                    Questions: {topic.total_questions || 0}
-                                  </span>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ 
-                                    fontSize: '0.7rem', 
-                                    fontWeight: '600', 
-                                    padding: '2px 6px',
-                                    borderRadius: '4px',
-                                    color: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#d93025' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#b06000' : '#137333',
-                                    backgroundColor: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#fce8e6' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#feefc3' : '#e6f4ea'
-                                  }}>
-                                    {getDisplayDifficulty(topic.difficulty)}
-                                  </span>
-                                  <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '600' }}>
-                                    View &rarr;
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '10px', marginTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          {catGroup.totalQuestions} Questions Total
-                        </span>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          {isExpanded ? 'Hide Topics ↑' : `Explore ${catGroup.topics.length} ${catGroup.topics.length === 1 ? 'Topic' : 'Topics'} ↓`}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })
-              )
-            ) : (
-              groupedTasks.length === 0 ? (
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics match search.</div>
-              ) : (
-                groupedTasks.slice(0, visibleCurriculumCount).map((group) => {
+                selectedCategoryTopics.map((group) => {
                   const qTotal = group.total_questions || 0;
                   return (
                     <div 
@@ -2196,6 +2043,7 @@ function DashboardContent({ searchQuery }) {
                         justifyContent: 'space-between', 
                         cursor: 'pointer',
                         border: '1px solid var(--card-border)',
+                        borderRadius: '16px',
                         transition: 'transform 0.2s ease, border-color 0.2s ease',
                         minHeight: '160px',
                         padding: '20px'
@@ -2231,7 +2079,7 @@ function DashboardContent({ searchQuery }) {
                             <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
                               <button 
                                 className="btn btn-secondary" 
-                                disabled={groupedTasks.findIndex(x => x.id === group.id) === 0}
+                                disabled={selectedCategoryTopics.findIndex(x => x.id === group.id) === 0}
                                 onClick={() => handleMoveTopic(group.id, 'up')}
                                 style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 title="Move Up"
@@ -2240,7 +2088,7 @@ function DashboardContent({ searchQuery }) {
                               </button>
                               <button 
                                 className="btn btn-secondary" 
-                                disabled={groupedTasks.findIndex(x => x.id === group.id) === groupedTasks.length - 1}
+                                disabled={selectedCategoryTopics.findIndex(x => x.id === group.id) === selectedCategoryTopics.length - 1}
                                 onClick={() => handleMoveTopic(group.id, 'down')}
                                 style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 title="Move Down"
@@ -2260,40 +2108,260 @@ function DashboardContent({ searchQuery }) {
                     </div>
                   );
                 })
-              )
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Main Curriculum View - Displays Category Cards */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-heading)', margin: 0 }}>
+                  Curriculum Topics
+                </h2>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
+                  Browse curriculum categories. Click any category card to view its learning topics.
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'inline-flex', padding: '3px', backgroundColor: 'var(--btn-secondary-bg)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('categories')}
+                    style={{
+                      padding: '6px 14px',
+                      fontSize: '0.8rem',
+                      fontWeight: '600',
+                      borderRadius: '16px',
+                      border: 'none',
+                      backgroundColor: viewMode === 'categories' ? 'var(--link-color)' : 'transparent',
+                      color: viewMode === 'categories' ? '#fff' : 'var(--text-muted)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    Category View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('all')}
+                    style={{
+                      padding: '6px 14px',
+                      fontSize: '0.8rem',
+                      fontWeight: '600',
+                      borderRadius: '16px',
+                      border: 'none',
+                      backgroundColor: viewMode === 'all' ? 'var(--link-color)' : 'transparent',
+                      color: viewMode === 'all' ? '#fff' : 'var(--text-muted)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    All Topics View
+                  </button>
+                </div>
+
+                {user?.role === 'admin' && (
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => {
+                      setNewTopic({ title: '', category: 'General', difficulty: 'Easy', estimatedTime: '1 hour' });
+                      setActiveForm('createTopic');
+                    }}
+                    style={{ padding: '8px 18px', fontWeight: '600' }}
+                  >
+                    + Add Topic
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="todos-grid" style={{ marginTop: '12px' }}>
+              {viewMode === 'categories' ? (
+                categoryGroups.length === 0 ? (
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No categories match search.</div>
+                ) : (
+                  categoryGroups.slice(0, visibleCurriculumCount).map((catGroup) => (
+                    <div 
+                      key={catGroup.categoryName}
+                      className="card"
+                      onClick={() => setSelectedCategory(catGroup.categoryKey)}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        border: '1px solid var(--card-border)',
+                        borderRadius: '16px',
+                        padding: '24px',
+                        backgroundColor: 'var(--card-bg)',
+                        boxShadow: 'var(--card-shadow)',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease, border-color 0.2s ease',
+                        minHeight: '160px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--link-color)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--card-border)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <div>
+                        {/* Category Header Badge & Meta */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                          <span style={{ 
+                            fontSize: '0.75rem', 
+                            fontWeight: '700', 
+                            letterSpacing: '0.05em',
+                            padding: '3px 8px', 
+                            backgroundColor: 'rgba(79, 70, 229, 0.08)', 
+                            color: '#4f46e5', 
+                            borderRadius: '6px', 
+                            textTransform: 'uppercase' 
+                          }}>
+                            {catGroup.categoryName}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+                            {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic' : 'Topics'} • {catGroup.totalQuestions} Qs
+                          </span>
+                        </div>
+
+                        <h3 style={{ fontSize: '1.35rem', fontWeight: '800', margin: '8px 0 6px 0', color: 'var(--text-heading)' }}>
+                          {catGroup.categoryKey}
+                        </h3>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+                          {catGroup.topics.length} learning {catGroup.topics.length === 1 ? 'module' : 'modules'} with {catGroup.totalQuestions} practice questions.
+                        </p>
+                      </div>
+
+                      <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '14px', marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {catGroup.totalQuestions} Questions Total
+                        </span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          View Topics &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )
+              ) : (
+                groupedTasks.length === 0 ? (
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics match search.</div>
+                ) : (
+                  groupedTasks.slice(0, visibleCurriculumCount).map((group) => {
+                    const qTotal = group.total_questions || 0;
+                    return (
+                      <div 
+                        key={group.id} 
+                        className="card" 
+                        onClick={() => router.push(getTopicUrl(group))}
+                        style={{ 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          justifyContent: 'space-between', 
+                          cursor: 'pointer',
+                          border: '1px solid var(--card-border)',
+                          transition: 'transform 0.2s ease, border-color 0.2s ease',
+                          minHeight: '160px',
+                          padding: '20px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--link-color)';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--card-border)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '2px 6px', backgroundColor: 'var(--btn-secondary-bg)', borderRadius: '4px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                              {group.category}
+                            </span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: '500', color: getDisplayDifficulty(group.difficulty) === 'Hard' ? '#d93025' : getDisplayDifficulty(group.difficulty) === 'Medium' ? '#b06000' : '#137333' }}>
+                              {getDisplayDifficulty(group.difficulty)}
+                            </span>
+                          </div>
+                          <h4 className="card-title" style={{ fontSize: '1.15rem', fontWeight: '700', margin: '8px 0', color: 'var(--text-heading)' }}>
+                            {group.title}
+                          </h4>
+                        </div>
+                        <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '12px', marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                              Questions: {qTotal}
+                            </span>
+                            {user?.role === 'admin' && (
+                              <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+                                <button 
+                                  className="btn btn-secondary" 
+                                  disabled={groupedTasks.findIndex(x => x.id === group.id) === 0}
+                                  onClick={() => handleMoveTopic(group.id, 'up')}
+                                  style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                  title="Move Up"
+                                >
+                                  ↑
+                                </button>
+                                <button 
+                                  className="btn btn-secondary" 
+                                  disabled={groupedTasks.findIndex(x => x.id === group.id) === groupedTasks.length - 1}
+                                  onClick={() => handleMoveTopic(group.id, 'down')}
+                                  style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                  title="Move Down"
+                                >
+                                  ↓
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <span 
+                            style={{ fontSize: '0.75rem', color: 'var(--link-color)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                            onClick={() => router.push(getTopicUrl(group))}
+                          >
+                            View Questions &rarr;
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )
+              )}
+            </div>
+            {groupedTasks.length > visibleCurriculumCount && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => setVisibleCurriculumCount(prev => prev + 8)}
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    padding: '10px 24px', 
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    borderRadius: '30px',
+                    border: '1px solid var(--card-border)',
+                    backgroundColor: 'var(--card-bg)',
+                    boxShadow: 'var(--card-shadow)',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(1px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  <span>View More</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
             )}
           </div>
- 
-           {groupedTasks.length > visibleCurriculumCount && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
-              <button 
-                className="btn btn-secondary" 
-                onClick={() => setVisibleCurriculumCount(prev => prev + 8)}
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px', 
-                  padding: '10px 24px', 
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  borderRadius: '30px',
-                  border: '1px solid var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                  boxShadow: 'var(--card-shadow)',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(1px)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <span>View More</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
+        )
       ) : (
         /* Default Home Dashboard - explore curriculum and general progress */
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
