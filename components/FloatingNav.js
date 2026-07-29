@@ -11,6 +11,7 @@ export default function FloatingNav() {
     { label: 'Home', href: '/', isActive: pathname === '/' },
     { label: 'About', href: '/about', isActive: pathname === '/about' },
     { label: 'Share Code', href: '/share-code', isActive: pathname === '/share-code' },
+    { label: 'Code Editor', href: '/code-editor', isActive: pathname === '/code-editor' },
     { label: 'Login', href: '/login', isActive: pathname === '/login' },
     { label: 'Enroll', href: '/enroll', isActive: pathname === '/enroll' },
   ];
@@ -25,7 +26,7 @@ export default function FloatingNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={`px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 border ${
+            className={`px-3 py-1.5 rounded-full text-xs transition-all duration-200 border ${
               item.isActive
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-300 font-bold shadow-2xs'
                 : 'text-slate-600 border-transparent hover:text-emerald-700 hover:bg-emerald-50/80 hover:border-emerald-200/80 font-semibold'

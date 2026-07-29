@@ -11,6 +11,10 @@ export async function generateMetadata() {
     alternates: {
       canonical: `${siteUrl}/login`,
     },
+    robots: {
+      index: false,
+      follow: false,
+    },
     openGraph: generateOpenGraph({
       title: `Login & Register | ${SITE_NAME}`,
       description: 'Sign in or create an account on CodeDiary to track your daily coding progress, solve practice problems, and manage programming notes.',

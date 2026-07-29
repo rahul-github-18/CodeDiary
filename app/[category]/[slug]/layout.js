@@ -51,6 +51,13 @@ export async function generateMetadata({ params }) {
       robots: {
         index: true,
         follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
       },
     };
   } catch (error) {
@@ -82,12 +89,10 @@ export default async function ModuleLayout({ children, params }) {
   return (
     <>
       {schemas.length > 0 && (
-        <head>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
-          />
-        </head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
+        />
       )}
       {children}
     </>

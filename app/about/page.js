@@ -2,34 +2,40 @@ import React from 'react';
 import Link from 'next/link';
 import FloatingNav from '@/components/FloatingNav';
 import Footer from '@/components/Footer';
-import { getSiteUrl } from '@/lib/seo';
+import {
+  getSiteUrl,
+  SITE_NAME,
+  generateOrganizationSchema,
+  generateWebSiteSchema,
+  generateWebPageSchema,
+  generateBreadcrumbSchema,
+} from '@/lib/seo';
 
 const siteUrl = getSiteUrl();
 
 export const metadata = {
-  title: 'About CodeDiary | Developer Workspace for Learning Programming & Interview Preparation',
-  description: 'Learn about CodeDiary, a modern developer workspace for mastering Data Structures & Algorithms, Java, Spring Boot, SQL, coding interviews, programming notes, progress tracking, and code sharing.',
+  title: `About CodeDiary | DSA Learning Platform & Coding Interview Preparation`,
+  description: 'Learn about CodeDiary, a modern developer learning platform for mastering Data Structures & Algorithms (DSA), Java tutorials, SQL, System Design, and coding interview preparation.',
   keywords: [
     'CodeDiary',
+    'Code Diary',
+    'code diary',
+    'DSA learning platform',
+    'Java tutorials',
+    'Coding interview preparation',
+    'about CodeDiary',
     'developer workspace',
-    'DSA',
-    'Java',
-    'Spring Boot',
-    'SQL',
-    'coding interview preparation',
-    'programming notes',
-    'coding tracker',
-    'code snippets',
-    'learning platform'
+    'data structures and algorithms',
+    'system design tutorials',
   ],
   alternates: {
     canonical: `${siteUrl}/about`,
   },
   openGraph: {
-    title: 'About CodeDiary | Developer Workspace for Learning Programming & Interview Preparation',
-    description: 'Learn about CodeDiary, a modern developer workspace for mastering Data Structures & Algorithms, Java, Spring Boot, SQL, coding interviews, programming notes, progress tracking, and code sharing.',
+    title: `About CodeDiary | DSA Learning Platform & Coding Interview Preparation`,
+    description: 'Learn about CodeDiary, a modern developer learning platform for mastering Data Structures & Algorithms (DSA), Java tutorials, SQL, System Design, and coding interview preparation.',
     url: `${siteUrl}/about`,
-    siteName: 'CodeDiary',
+    siteName: SITE_NAME,
     locale: 'en_US',
     type: 'website',
     images: [
@@ -43,50 +49,31 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'About CodeDiary | Developer Workspace for Learning Programming & Interview Preparation',
-    description: 'Learn about CodeDiary, a modern developer workspace for mastering Data Structures & Algorithms, Java, Spring Boot, SQL, coding interviews, programming notes, progress tracking, and code sharing.',
+    title: `About CodeDiary | DSA Learning Platform & Coding Interview Preparation`,
+    description: 'Learn about CodeDiary, a modern developer learning platform for mastering Data Structures & Algorithms (DSA), Java tutorials, SQL, System Design, and coding interview preparation.',
     images: [`${siteUrl}/icon.png`],
+    creator: '@CodeDiary',
+    site: '@CodeDiary',
   },
 };
 
+const orgSchema = generateOrganizationSchema(siteUrl);
+const siteSchema = generateWebSiteSchema(siteUrl);
+const aboutPageSchema = generateWebPageSchema({
+  title: 'About CodeDiary',
+  description: 'Learn about CodeDiary, a modern developer learning platform for mastering Data Structures & Algorithms (DSA), Java tutorials, SQL, System Design, and coding interview preparation.',
+  url: `${siteUrl}/about`,
+  siteUrl,
+  pageType: 'AboutPage',
+});
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', item: '/' },
+  { name: 'About', item: '/about' },
+], siteUrl);
+
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': `${siteUrl}/#organization`,
-      name: 'CodeDiary',
-      url: siteUrl,
-      logo: `${siteUrl}/icon.png`,
-      sameAs: [
-        'https://www.linkedin.com/in/rahul-ranjan-6b2ab424a/',
-        'https://github.com'
-      ],
-      description: 'CodeDiary is a developer workspace built for learning programming, preparing for coding interviews, organizing notes, and tracking daily progress.'
-    },
-    {
-      '@type': 'WebSite',
-      '@id': `${siteUrl}/#website`,
-      url: siteUrl,
-      name: 'CodeDiary',
-      publisher: {
-        '@id': `${siteUrl}/#organization`
-      }
-    },
-    {
-      '@type': 'AboutPage',
-      '@id': `${siteUrl}/about/#webpage`,
-      url: `${siteUrl}/about`,
-      name: 'About CodeDiary',
-      isPartOf: {
-        '@id': `${siteUrl}/#website`
-      },
-      about: {
-        '@id': `${siteUrl}/#organization`
-      },
-      description: 'Learn about CodeDiary, a modern developer workspace for mastering Data Structures & Algorithms, Java, Spring Boot, SQL, coding interviews, programming notes, progress tracking, and code sharing.'
-    }
-  ]
+  '@graph': [orgSchema, siteSchema, aboutPageSchema, breadcrumbSchema],
 };
 
 export default function AboutPage() {
