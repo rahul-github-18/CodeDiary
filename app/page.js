@@ -1993,8 +1993,34 @@ function DashboardContent({ searchQuery }) {
         selectedCategory ? (
           /* Category Detail View - Displays Topic Cards of the Selected Category */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
+              <div>
+                {/* Breadcrumbs Navigation */}
+                <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                  <span 
+                    onClick={() => setSelectedCategory(null)} 
+                    style={{ cursor: 'pointer', color: 'var(--link-color)', fontWeight: '600' }}
+                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+                  >
+                    Curriculum
+                  </span>
+                  <span style={{ opacity: 0.5 }}>/</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-heading)' }}>
+                    {selectedCategory}
+                  </span>
+                </nav>
+
+                <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-heading)', margin: 0 }}>
+                  {selectedCategory}
+                </h2>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+                  {selectedCategoryTopics.length} {selectedCategoryTopics.length === 1 ? 'topic' : 'topics'} in {selectedCategory}
+                </p>
+              </div>
+
+              {/* Right Side Actions */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <button
                   type="button"
                   onClick={() => setSelectedCategory(null)}
@@ -2003,27 +2029,19 @@ function DashboardContent({ searchQuery }) {
                 >
                   &larr; Back to Categories
                 </button>
-                <div>
-                  <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-heading)', margin: 0 }}>
-                    {selectedCategory}
-                  </h2>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
-                    {selectedCategoryTopics.length} {selectedCategoryTopics.length === 1 ? 'topic' : 'topics'} in {selectedCategory}
-                  </p>
-                </div>
+                {user?.role === 'admin' && (
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => {
+                      setNewTopic({ title: '', category: selectedCategory, difficulty: 'Easy', estimatedTime: '1 hour' });
+                      setActiveForm('createTopic');
+                    }}
+                    style={{ padding: '8px 18px', fontWeight: '600' }}
+                  >
+                    + Add Topic
+                  </button>
+                )}
               </div>
-              {user?.role === 'admin' && (
-                <button 
-                  className="btn btn-primary" 
-                  onClick={() => {
-                    setNewTopic({ title: '', category: selectedCategory, difficulty: 'Easy', estimatedTime: '1 hour' });
-                    setActiveForm('createTopic');
-                  }}
-                  style={{ padding: '8px 18px', fontWeight: '600' }}
-                >
-                  + Add Topic
-                </button>
-              )}
             </div>
 
             <div className="todos-grid" style={{ marginTop: '12px' }}>
@@ -2114,12 +2132,21 @@ function DashboardContent({ searchQuery }) {
         ) : (
           /* Main Curriculum View - Displays Category Cards */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
               <div>
+                {/* Breadcrumbs Navigation */}
+                <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+                  <span>Curriculum</span>
+                  <span style={{ opacity: 0.5 }}>/</span>
+                  <span style={{ fontWeight: '600', color: 'var(--text-heading)' }}>
+                    Categories
+                  </span>
+                </nav>
+
                 <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-heading)', margin: 0 }}>
                   Curriculum Topics
                 </h2>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
                   Browse curriculum categories. Click any category card to view its learning topics.
                 </p>
               </div>
