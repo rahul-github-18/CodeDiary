@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Layout from '@/components/Layout';
 import { todoService, taskService, questionService } from '@/lib/api';
 import { generateTopicPDF } from '@/lib/pdfExport';
-import { getTopicUrl } from '@/lib/slug';
+import { getTopicUrl, findTopicBySlugs } from '@/lib/slug';
 
 const getDisplayDifficulty = (difficulty) => {
   if (!difficulty) return 'Easy';
@@ -77,29 +77,38 @@ function TodoDetailContent() {
     setLoading(true);
     setError('');
     try {
-      let fetchTopicPromise;
+      let topicDetail = null;
+
       if (categorySlug && topicSlug) {
-        fetchTopicPromise = todoService.getModuleBySlug(categorySlug, topicSlug);
+        try {
+          topicDetail = await todoService.getModuleBySlug(categorySlug, topicSlug);
+        } catch (apiErr) {
+          console.warn('getModuleBySlug API failed, attempting client fallback:', apiErr);
+          const allTodos = await todoService.getTodos();
+          const matched = findTopicBySlugs(allTodos, categorySlug, topicSlug);
+          if (matched && matched.id) {
+            topicDetail = await todoService.getTodo(matched.id);
+          } else {
+            throw apiErr;
+          }
+        }
       } else if (topicIdRaw) {
-        fetchTopicPromise = todoService.getTodo(parseInt(topicIdRaw, 10));
+        topicDetail = await todoService.getTodo(parseInt(topicIdRaw, 10));
       }
 
-      if (!fetchTopicPromise) {
+      if (!topicDetail) {
         setError('Could not retrieve topic details.');
         setLoading(false);
         return;
       }
 
-      const [topicDetail, tasks] = await Promise.all([
-        fetchTopicPromise,
-        taskService.getUserTasks()
-      ]);
+      const tasks = await taskService.getUserTasks();
       setTopic(topicDetail);
       setQuestions(topicDetail.questions || []);
       setUserTasks(tasks || []);
     } catch (err) {
       console.error(err);
-      setError('Could not retrieve topic details.');
+      setError(err.message || 'Could not retrieve topic details.');
     } finally {
       setLoading(false);
     }
