@@ -64,6 +64,19 @@ function DashboardContent({ searchQuery }) {
   const [codeSuccess, setCodeSuccess] = useState('');
 
   const [viewMode, setViewMode] = useState('categories'); // 'categories' | 'all'
+  const [expandedCategories, setExpandedCategories] = useState(new Set());
+
+  const toggleCategoryExpand = (catName) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(catName)) {
+        next.delete(catName);
+      } else {
+        next.add(catName);
+      }
+      return next;
+    });
+  };
 
   // Admin Dashboard Query States
   const [adminTab, setAdminTab] = useState('topics'); // 'topics' | 'queries' | 'submissions'
@@ -2043,104 +2056,128 @@ function DashboardContent({ searchQuery }) {
               categoryGroups.length === 0 ? (
                 <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics match search.</div>
               ) : (
-                categoryGroups.slice(0, visibleCurriculumCount).map((catGroup) => (
-                  <div 
-                    key={catGroup.categoryName}
-                    className="card"
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      border: '1px solid var(--card-border)',
-                      borderRadius: '16px',
-                      padding: '20px',
-                      backgroundColor: 'var(--card-bg)',
-                      boxShadow: 'var(--card-shadow)',
-                      transition: 'transform 0.2s ease, border-color 0.2s ease',
-                      minHeight: '180px'
-                    }}
-                  >
-                    <div>
-                      {/* Category Header Badge & Meta */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                        <span style={{ 
-                          fontSize: '0.75rem', 
-                          fontWeight: '700', 
-                          letterSpacing: '0.05em',
-                          padding: '3px 8px', 
-                          backgroundColor: 'rgba(79, 70, 229, 0.08)', 
-                          color: '#4f46e5', 
-                          borderRadius: '6px', 
-                          textTransform: 'uppercase' 
-                        }}>
-                          {catGroup.categoryName}
-                        </span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-                          {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic' : 'Topics'} • {catGroup.totalQuestions} Qs
-                        </span>
-                      </div>
+                categoryGroups.slice(0, visibleCurriculumCount).map((catGroup) => {
+                  const isExpanded = expandedCategories.has(catGroup.categoryName) || Boolean(searchQuery);
 
-                      {/* Topics inside Category Card */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-                        {catGroup.topics.map((topic) => (
+                  return (
+                    <div 
+                      key={catGroup.categoryName}
+                      className="card"
+                      onClick={() => toggleCategoryExpand(catGroup.categoryName)}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        border: isExpanded ? '1px solid var(--link-color)' : '1px solid var(--card-border)',
+                        borderRadius: '16px',
+                        padding: '20px',
+                        backgroundColor: 'var(--card-bg)',
+                        boxShadow: 'var(--card-shadow)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        minHeight: '160px'
+                      }}
+                    >
+                      <div>
+                        {/* Category Header Badge & Meta */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ 
+                            fontSize: '0.75rem', 
+                            fontWeight: '700', 
+                            letterSpacing: '0.05em',
+                            padding: '3px 8px', 
+                            backgroundColor: 'rgba(79, 70, 229, 0.08)', 
+                            color: '#4f46e5', 
+                            borderRadius: '6px', 
+                            textTransform: 'uppercase' 
+                          }}>
+                            {catGroup.categoryName}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+                            {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic' : 'Topics'} • {catGroup.totalQuestions} Qs
+                          </span>
+                        </div>
+
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '8px 0 4px 0', color: 'var(--text-heading)' }}>
+                          {catGroup.categoryKey}
+                        </h3>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 8px 0' }}>
+                          {catGroup.topics.length} learning {catGroup.topics.length === 1 ? 'module' : 'modules'} with {catGroup.totalQuestions} practice questions.
+                        </p>
+
+                        {/* Topics inside Category Card (Visible when clicked / expanded) */}
+                        {isExpanded && (
                           <div 
-                            key={topic.id}
-                            onClick={() => router.push(getTopicUrl(topic))}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              padding: '10px 12px',
-                              borderRadius: '8px',
-                              backgroundColor: 'var(--btn-secondary-bg)',
-                              border: '1px solid var(--card-border)',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.borderColor = 'var(--link-color)';
-                              e.currentTarget.style.transform = 'translateX(2px)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.borderColor = 'var(--card-border)';
-                              e.currentTarget.style.transform = 'translateX(0)';
-                            }}
+                            style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px', borderTop: '1px solid var(--card-border)', paddingTop: '12px' }}
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            <div>
-                              <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: 'var(--text-heading)' }}>
-                                {topic.title}
-                              </h4>
-                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                Questions: {topic.total_questions || 0}
-                              </span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ 
-                                fontSize: '0.7rem', 
-                                fontWeight: '600', 
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                color: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#d93025' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#b06000' : '#137333',
-                                backgroundColor: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#fce8e6' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#feefc3' : '#e6f4ea'
-                              }}>
-                                {getDisplayDifficulty(topic.difficulty)}
-                              </span>
-                              <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '600' }}>
-                                View &rarr;
-                              </span>
-                            </div>
+                            {catGroup.topics.map((topic) => (
+                              <div 
+                                key={topic.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.push(getTopicUrl(topic));
+                                }}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  padding: '10px 12px',
+                                  borderRadius: '8px',
+                                  backgroundColor: 'var(--btn-secondary-bg)',
+                                  border: '1px solid var(--card-border)',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.borderColor = 'var(--link-color)';
+                                  e.currentTarget.style.transform = 'translateX(2px)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.borderColor = 'var(--card-border)';
+                                  e.currentTarget.style.transform = 'translateX(0)';
+                                }}
+                              >
+                                <div>
+                                  <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: 'var(--text-heading)' }}>
+                                    {topic.title}
+                                  </h4>
+                                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                    Questions: {topic.total_questions || 0}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ 
+                                    fontSize: '0.7rem', 
+                                    fontWeight: '600', 
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    color: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#d93025' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#b06000' : '#137333',
+                                    backgroundColor: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#fce8e6' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#feefc3' : '#e6f4ea'
+                                  }}>
+                                    {getDisplayDifficulty(topic.difficulty)}
+                                  </span>
+                                  <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '600' }}>
+                                    View &rarr;
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
+                      </div>
+
+                      <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '10px', marginTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {catGroup.totalQuestions} Questions Total
+                        </span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {isExpanded ? 'Hide Topics ↑' : `Explore ${catGroup.topics.length} ${catGroup.topics.length === 1 ? 'Topic' : 'Topics'} ↓`}
+                        </span>
                       </div>
                     </div>
-
-                    <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '10px', marginTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        {catGroup.totalQuestions} Total Practice Questions
-                      </span>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )
             ) : (
               groupedTasks.length === 0 ? (
