@@ -434,6 +434,30 @@ function DashboardContent({ searchQuery }) {
     }
   };
 
+  const handleRenameCategory = async (oldCatName, newCatName) => {
+    setError('');
+    setSuccess('');
+    try {
+      const topicsInCat = topics.filter(t => 
+        (t.category || 'General').toLowerCase().trim() === oldCatName.toLowerCase().trim()
+      );
+      for (const t of topicsInCat) {
+        await todoService.updateTodo(t.id, {
+          title: t.title,
+          category: newCatName,
+          difficulty: t.difficulty,
+          estimatedTime: t.estimated_time || t.estimatedTime
+        });
+      }
+      setSelectedCategory(newCatName);
+      setSuccess(`Category renamed to "${newCatName}"!`);
+      loadDashboardData(user);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to rename category.');
+    }
+  };
+
   const handleMoveTopic = async (topicId, direction) => {
     setError('');
     setSuccess('');
@@ -2021,17 +2045,40 @@ function DashboardContent({ searchQuery }) {
 
               {/* Right Side Actions */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory(null)}
+                  className="btn btn-secondary"
+                  style={{ padding: '8px 16px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  &larr; Back to Categories
+                </button>
                 {user?.role === 'admin' && (
-                  <button 
-                    className="btn btn-primary" 
-                    onClick={() => {
-                      setNewTopic({ title: '', category: selectedCategory, difficulty: 'Easy', estimatedTime: '1 hour' });
-                      setActiveForm('createTopic');
-                    }}
-                    style={{ padding: '8px 18px', fontWeight: '600' }}
-                  >
-                    + Add Topic
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newCatName = window.prompt('Enter new category name:', selectedCategory);
+                        if (newCatName && newCatName.trim() && newCatName.trim() !== selectedCategory) {
+                          handleRenameCategory(selectedCategory, newCatName.trim());
+                        }
+                      }}
+                      className="btn btn-secondary"
+                      style={{ padding: '8px 14px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      ✏️ Edit Category
+                    </button>
+                    <button 
+                      className="btn btn-primary" 
+                      onClick={() => {
+                        setNewTopic({ title: '', category: selectedCategory, difficulty: 'Easy', estimatedTime: '1 hour' });
+                        setActiveForm('createTopic');
+                      }}
+                      style={{ padding: '8px 18px', fontWeight: '600' }}
+                    >
+                      + Add Topic
+                    </button>
+                  </>
                 )}
               </div>
             </div>
