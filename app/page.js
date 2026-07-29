@@ -2129,29 +2129,6 @@ function DashboardContent({ searchQuery }) {
                               >
                                 ↓
                               </button>
-                              <button 
-                                className="btn btn-secondary" 
-                                onClick={(e) => { 
-                                  e.stopPropagation(); 
-                                  setEditingTopic({ ...group }); 
-                                  setActiveForm('editTopic'); 
-                                }}
-                                style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                title="Edit Topic"
-                              >
-                                ✏️
-                              </button>
-                              <button 
-                                className="btn btn-secondary" 
-                                onClick={(e) => { 
-                                  e.stopPropagation(); 
-                                  handleDeleteTopic(group.id); 
-                                }}
-                                style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d93025' }}
-                                title="Delete Topic"
-                              >
-                                🗑️
-                              </button>
                             </div>
                           )}
                         </div>
