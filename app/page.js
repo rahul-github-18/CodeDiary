@@ -63,6 +63,8 @@ function DashboardContent({ searchQuery }) {
   const [submittingCode, setSubmittingCode] = useState(false);
   const [codeSuccess, setCodeSuccess] = useState('');
 
+  const [viewMode, setViewMode] = useState('categories'); // 'categories' | 'all'
+
   // Admin Dashboard Query States
   const [adminTab, setAdminTab] = useState('topics'); // 'topics' | 'queries' | 'submissions'
   const [adminQueries, setAdminQueries] = useState([]);
@@ -1341,6 +1343,30 @@ function DashboardContent({ searchQuery }) {
     return groups;
   }, [topics, userTasks, searchQuery]);
 
+  const categoryGroups = useMemo(() => {
+    const map = new Map();
+
+    groupedTasks.forEach(topic => {
+      const rawCat = topic.category ? topic.category.trim() : 'General';
+      const catDisplayName = rawCat.toUpperCase();
+
+      if (!map.has(catDisplayName)) {
+        map.set(catDisplayName, {
+          categoryKey: rawCat,
+          categoryName: catDisplayName,
+          topics: [],
+          totalQuestions: 0,
+        });
+      }
+
+      const group = map.get(catDisplayName);
+      group.topics.push(topic);
+      group.totalQuestions += (topic.total_questions || 0);
+    });
+
+    return Array.from(map.values());
+  }, [groupedTasks]);
+
 
 
   if (!user) {
@@ -1950,110 +1976,254 @@ function DashboardContent({ searchQuery }) {
 
       {filter === 'all' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: 'var(--text-heading)', margin: 0 }}>
                 Curriculum Topics
               </h2>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
-                Browse curriculum topics, select a topic to view its questions and track your progress.
+                Browse curriculum topics grouped by category, select a topic to view its questions and track your progress.
               </p>
             </div>
-            {user?.role === 'admin' && (
-              <button 
-                className="btn btn-primary" 
-                onClick={() => {
-                  setNewTopic({ title: '', category: 'General', difficulty: 'Easy', estimatedTime: '1 hour' });
-                  setActiveForm('createTopic');
-                }}
-                style={{ padding: '10px 20px', fontWeight: '600' }}
-              >
-                + Add Topic
-              </button>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'inline-flex', padding: '3px', backgroundColor: 'var(--btn-secondary-bg)', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('categories')}
+                  style={{
+                    padding: '6px 14px',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    borderRadius: '16px',
+                    border: 'none',
+                    backgroundColor: viewMode === 'categories' ? 'var(--link-color)' : 'transparent',
+                    color: viewMode === 'categories' ? '#fff' : 'var(--text-muted)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  Category View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('all')}
+                  style={{
+                    padding: '6px 14px',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    borderRadius: '16px',
+                    border: 'none',
+                    backgroundColor: viewMode === 'all' ? 'var(--link-color)' : 'transparent',
+                    color: viewMode === 'all' ? '#fff' : 'var(--text-muted)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  All Topics View
+                </button>
+              </div>
+
+              {user?.role === 'admin' && (
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => {
+                    setNewTopic({ title: '', category: 'General', difficulty: 'Easy', estimatedTime: '1 hour' });
+                    setActiveForm('createTopic');
+                  }}
+                  style={{ padding: '8px 18px', fontWeight: '600' }}
+                >
+                  + Add Topic
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="todos-grid" style={{ marginTop: '12px' }}>
-            {groupedTasks.length === 0 ? (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics match search.</div>
-            ) : (
-              groupedTasks.slice(0, visibleCurriculumCount).map((group) => {
-                const qTotal = group.total_questions || 0;
-                return (
+            {viewMode === 'categories' ? (
+              categoryGroups.length === 0 ? (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics match search.</div>
+              ) : (
+                categoryGroups.slice(0, visibleCurriculumCount).map((catGroup) => (
                   <div 
-                    key={group.id} 
-                    className="card" 
-                    onClick={() => router.push(getTopicUrl(group))}
-                    style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      justifyContent: 'space-between', 
-                      cursor: 'pointer',
+                    key={catGroup.categoryName}
+                    className="card"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
                       border: '1px solid var(--card-border)',
+                      borderRadius: '16px',
+                      padding: '20px',
+                      backgroundColor: 'var(--card-bg)',
+                      boxShadow: 'var(--card-shadow)',
                       transition: 'transform 0.2s ease, border-color 0.2s ease',
-                      minHeight: '160px',
-                      padding: '20px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--link-color)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'var(--card-border)';
-                      e.currentTarget.style.transform = 'translateY(0)';
+                      minHeight: '180px'
                     }}
                   >
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '2px 6px', backgroundColor: 'var(--btn-secondary-bg)', borderRadius: '4px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                          {group.category}
+                      {/* Category Header Badge & Meta */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <span style={{ 
+                          fontSize: '0.75rem', 
+                          fontWeight: '700', 
+                          letterSpacing: '0.05em',
+                          padding: '3px 8px', 
+                          backgroundColor: 'rgba(79, 70, 229, 0.08)', 
+                          color: '#4f46e5', 
+                          borderRadius: '6px', 
+                          textTransform: 'uppercase' 
+                        }}>
+                          {catGroup.categoryName}
                         </span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '500', color: getDisplayDifficulty(group.difficulty) === 'Hard' ? '#d93025' : getDisplayDifficulty(group.difficulty) === 'Medium' ? '#b06000' : '#137333' }}>
-                          {getDisplayDifficulty(group.difficulty)}
+                        <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+                          {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic' : 'Topics'} • {catGroup.totalQuestions} Qs
                         </span>
                       </div>
-                      <h4 className="card-title" style={{ fontSize: '1.15rem', fontWeight: '700', margin: '8px 0', color: 'var(--text-heading)' }}>
-                        {group.title}
-                      </h4>
-                    </div>
-                    <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '12px', marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          Questions: {qTotal}
-                        </span>
-                        {user?.role === 'admin' && (
-                          <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
-                            <button 
-                              className="btn btn-secondary" 
-                              disabled={groupedTasks.findIndex(x => x.id === group.id) === 0}
-                              onClick={() => handleMoveTopic(group.id, 'up')}
-                              style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                              title="Move Up"
-                            >
-                              ↑
-                            </button>
-                            <button 
-                              className="btn btn-secondary" 
-                              disabled={groupedTasks.findIndex(x => x.id === group.id) === groupedTasks.length - 1}
-                              onClick={() => handleMoveTopic(group.id, 'down')}
-                              style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                              title="Move Down"
-                            >
-                              ↓
-                            </button>
+
+                      {/* Topics inside Category Card */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                        {catGroup.topics.map((topic) => (
+                          <div 
+                            key={topic.id}
+                            onClick={() => router.push(getTopicUrl(topic))}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '10px 12px',
+                              borderRadius: '8px',
+                              backgroundColor: 'var(--btn-secondary-bg)',
+                              border: '1px solid var(--card-border)',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.borderColor = 'var(--link-color)';
+                              e.currentTarget.style.transform = 'translateX(2px)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.borderColor = 'var(--card-border)';
+                              e.currentTarget.style.transform = 'translateX(0)';
+                            }}
+                          >
+                            <div>
+                              <h4 style={{ fontSize: '1rem', fontWeight: '700', margin: 0, color: 'var(--text-heading)' }}>
+                                {topic.title}
+                              </h4>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                Questions: {topic.total_questions || 0}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                fontSize: '0.7rem', 
+                                fontWeight: '600', 
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                color: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#d93025' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#b06000' : '#137333',
+                                backgroundColor: getDisplayDifficulty(topic.difficulty) === 'Hard' ? '#fce8e6' : getDisplayDifficulty(topic.difficulty) === 'Medium' ? '#feefc3' : '#e6f4ea'
+                              }}>
+                                {getDisplayDifficulty(topic.difficulty)}
+                              </span>
+                              <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '600' }}>
+                                View &rarr;
+                              </span>
+                            </div>
                           </div>
-                        )}
+                        ))}
                       </div>
-                      <span 
-                        style={{ fontSize: '0.75rem', color: 'var(--link-color)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-                        onClick={() => router.push(getTopicUrl(group))}
-                      >
-                        View Questions &rarr;
+                    </div>
+
+                    <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '10px', marginTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        {catGroup.totalQuestions} Total Practice Questions
                       </span>
                     </div>
                   </div>
-                );
-              })
+                ))
+              )
+            ) : (
+              groupedTasks.length === 0 ? (
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No topics match search.</div>
+              ) : (
+                groupedTasks.slice(0, visibleCurriculumCount).map((group) => {
+                  const qTotal = group.total_questions || 0;
+                  return (
+                    <div 
+                      key={group.id} 
+                      className="card" 
+                      onClick={() => router.push(getTopicUrl(group))}
+                      style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        justifyContent: 'space-between', 
+                        cursor: 'pointer',
+                        border: '1px solid var(--card-border)',
+                        transition: 'transform 0.2s ease, border-color 0.2s ease',
+                        minHeight: '160px',
+                        padding: '20px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--link-color)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--card-border)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '600', padding: '2px 6px', backgroundColor: 'var(--btn-secondary-bg)', borderRadius: '4px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                            {group.category}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '500', color: getDisplayDifficulty(group.difficulty) === 'Hard' ? '#d93025' : getDisplayDifficulty(group.difficulty) === 'Medium' ? '#b06000' : '#137333' }}>
+                            {getDisplayDifficulty(group.difficulty)}
+                          </span>
+                        </div>
+                        <h4 className="card-title" style={{ fontSize: '1.15rem', fontWeight: '700', margin: '8px 0', color: 'var(--text-heading)' }}>
+                          {group.title}
+                        </h4>
+                      </div>
+                      <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '12px', marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            Questions: {qTotal}
+                          </span>
+                          {user?.role === 'admin' && (
+                            <div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+                              <button 
+                                className="btn btn-secondary" 
+                                disabled={groupedTasks.findIndex(x => x.id === group.id) === 0}
+                                onClick={() => handleMoveTopic(group.id, 'up')}
+                                style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Move Up"
+                              >
+                                ↑
+                              </button>
+                              <button 
+                                className="btn btn-secondary" 
+                                disabled={groupedTasks.findIndex(x => x.id === group.id) === groupedTasks.length - 1}
+                                onClick={() => handleMoveTopic(group.id, 'down')}
+                                style={{ padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1, minWidth: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                title="Move Down"
+                              >
+                                ↓
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <span 
+                          style={{ fontSize: '0.75rem', color: 'var(--link-color)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                          onClick={() => router.push(getTopicUrl(group))}
+                        >
+                          View Questions &rarr;
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )
             )}
           </div>
  
