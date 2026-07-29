@@ -2224,7 +2224,7 @@ function DashboardContent({ searchQuery }) {
                         boxShadow: 'var(--card-shadow)',
                         cursor: 'pointer',
                         transition: 'transform 0.2s ease, border-color 0.2s ease',
-                        minHeight: '160px'
+                        minHeight: '140px'
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.borderColor = 'var(--link-color)';
@@ -2236,36 +2236,14 @@ function DashboardContent({ searchQuery }) {
                       }}
                     >
                       <div>
-                        {/* Category Header Badge & Meta */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                          <span style={{ 
-                            fontSize: '0.75rem', 
-                            fontWeight: '700', 
-                            letterSpacing: '0.05em',
-                            padding: '3px 8px', 
-                            backgroundColor: 'rgba(79, 70, 229, 0.08)', 
-                            color: '#4f46e5', 
-                            borderRadius: '6px', 
-                            textTransform: 'uppercase' 
-                          }}>
-                            {catGroup.categoryName}
-                          </span>
-                          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-                            {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic' : 'Topics'} • {catGroup.totalQuestions} Qs
-                          </span>
-                        </div>
-
-                        <h3 style={{ fontSize: '1.35rem', fontWeight: '800', margin: '8px 0 6px 0', color: 'var(--text-heading)' }}>
+                        <h3 style={{ fontSize: '1.35rem', fontWeight: '800', margin: '4px 0 0 0', color: 'var(--text-heading)' }}>
                           {catGroup.categoryKey}
                         </h3>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
-                          {catGroup.topics.length} learning {catGroup.topics.length === 1 ? 'module' : 'modules'} with {catGroup.totalQuestions} practice questions.
-                        </p>
                       </div>
 
                       <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '14px', marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          {catGroup.totalQuestions} Questions Total
+                        <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+                          {catGroup.topics.length} {catGroup.topics.length === 1 ? 'Topic Total' : 'Topics Total'}
                         </span>
                         <span style={{ fontSize: '0.8rem', color: 'var(--link-color)', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           View Topics &rarr;
