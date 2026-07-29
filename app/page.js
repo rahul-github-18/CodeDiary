@@ -2045,40 +2045,17 @@ function DashboardContent({ searchQuery }) {
 
               {/* Right Side Actions */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategory(null)}
-                  className="btn btn-secondary"
-                  style={{ padding: '8px 16px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  &larr; Back to Categories
-                </button>
                 {user?.role === 'admin' && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newCatName = window.prompt('Enter new category name:', selectedCategory);
-                        if (newCatName && newCatName.trim() && newCatName.trim() !== selectedCategory) {
-                          handleRenameCategory(selectedCategory, newCatName.trim());
-                        }
-                      }}
-                      className="btn btn-secondary"
-                      style={{ padding: '8px 14px', fontSize: '0.85rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      ✏️ Edit Category
-                    </button>
-                    <button 
-                      className="btn btn-primary" 
-                      onClick={() => {
-                        setNewTopic({ title: '', category: selectedCategory, difficulty: 'Easy', estimatedTime: '1 hour' });
-                        setActiveForm('createTopic');
-                      }}
-                      style={{ padding: '8px 18px', fontWeight: '600' }}
-                    >
-                      + Add Topic
-                    </button>
-                  </>
+                  <button 
+                    className="btn btn-primary" 
+                    onClick={() => {
+                      setNewTopic({ title: '', category: selectedCategory, difficulty: 'Easy', estimatedTime: '1 hour' });
+                      setActiveForm('createTopic');
+                    }}
+                    style={{ padding: '8px 18px', fontWeight: '600' }}
+                  >
+                    + Add Topic
+                  </button>
                 )}
               </div>
             </div>
