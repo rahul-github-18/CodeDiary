@@ -6,6 +6,7 @@ import Layout from '@/components/Layout';
 import LandingView from '@/components/LandingView';
 import { todoService, userService, taskService, questionService, userQueryService, adminQueryService, adminSubmissionService, noteService } from '@/lib/api';
 import { getTopicUrl } from '@/lib/slug';
+import CertificateModal from '@/components/CertificateModal';
 
 const getDisplayDifficulty = (difficulty) => {
   if (!difficulty) return 'Easy';
@@ -23,6 +24,7 @@ function DashboardContent({ searchQuery }) {
   const [questionPage, setQuestionPage] = useState(0);
   const [visibleCurriculumCount, setVisibleCurriculumCount] = useState(8);
   const [visibleAdminCount, setVisibleAdminCount] = useState(8);
+  const [selectedCertificateTopic, setSelectedCertificateTopic] = useState(null);
   const [usersList, setUsersList] = useState([]);
   const [userTasks, setUserTasks] = useState([]);
   const [userStats, setUserStats] = useState({
@@ -2568,6 +2570,34 @@ function DashboardContent({ searchQuery }) {
                             </div>
                             <span style={{ fontSize: '0.7rem', fontWeight: '600', color: 'var(--text-muted)' }}>{progressPercent}%</span>
                           </div>
+
+                          {progressPercent === 100 && totalQs > 0 && (
+                            <button
+                              className="btn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCertificateTopic(topic);
+                              }}
+                              style={{
+                                marginTop: '12px',
+                                width: '100%',
+                                padding: '6px 10px',
+                                fontSize: '0.75rem',
+                                fontWeight: '700',
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '6px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '6px',
+                                boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+                              }}
+                            >
+                              🎓 Download Certificate
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
@@ -2579,6 +2609,12 @@ function DashboardContent({ searchQuery }) {
         </div>
       )}
       {renderModal()}
+      <CertificateModal
+        isOpen={!!selectedCertificateTopic}
+        onClose={() => setSelectedCertificateTopic(null)}
+        topic={selectedCertificateTopic}
+        user={user}
+      />
 
       {/* Floating Query Button (FAB) - only visible to students */}
       {user && user.role !== 'admin' && (

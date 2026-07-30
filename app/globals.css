@@ -4,31 +4,47 @@
 
 /* Reset and Theme Variables */
 :root {
-  --bg-color: #f1f5f9; /* slate-100 matching login page */
-  --ambient-glow-1: rgba(186, 230, 253, 0.55); /* sky-200 translucent */
-  --ambient-glow-2: rgba(199, 210, 254, 0.45); /* indigo-200 translucent */
+  --bg-color: #f1f5f9;
+  /* slate-100 matching login page */
+  --ambient-glow-1: rgba(186, 230, 253, 0.55);
+  /* sky-200 translucent */
+  --ambient-glow-2: rgba(199, 210, 254, 0.45);
+  /* indigo-200 translucent */
 
-  --text-color: #334155; /* slate-700 */
-  --text-heading: #0f172a; /* slate-900 */
-  --text-muted: #64748b; /* slate-500 */
+  --text-color: #334155;
+  /* slate-700 */
+  --text-heading: #0f172a;
+  /* slate-900 */
+  --text-muted: #64748b;
+  /* slate-500 */
 
-  --card-bg: rgba(255, 255, 255, 0.95); /* Crisp white backdrop blur */
-  --card-border: rgba(203, 213, 225, 0.8); /* slate-300/80 */
+  --card-bg: rgba(255, 255, 255, 0.95);
+  /* Crisp white backdrop blur */
+  --card-border: rgba(203, 213, 225, 0.8);
+  /* slate-300/80 */
   --card-shadow: 0 10px 25px -5px rgba(203, 213, 225, 0.4), 0 8px 10px -6px rgba(203, 213, 225, 0.2);
 
   --sidebar-bg: rgba(255, 255, 255, 0.92);
   --sidebar-border: rgba(203, 213, 225, 0.8);
-  --sidebar-text: #475569; /* slate-600 */
-  --sidebar-title: #0284c7; /* sky-600 */
-  --sidebar-hover-bg: rgba(241, 245, 249, 0.95); /* slate-100 */
-  --sidebar-hover-text: #0284c7; /* sky-600 */
+  --sidebar-text: #475569;
+  /* slate-600 */
+  --sidebar-title: #0284c7;
+  /* sky-600 */
+  --sidebar-hover-bg: rgba(241, 245, 249, 0.95);
+  /* slate-100 */
+  --sidebar-hover-text: #0284c7;
+  /* sky-600 */
 
-  --link-color: #0284c7; /* sky-600 */
+  --link-color: #0284c7;
+  /* sky-600 */
   --header-border: rgba(203, 213, 225, 0.8);
 
-  --input-bg: rgba(241, 245, 249, 0.85); /* slate-100/80 */
-  --input-border: #cbd5e1; /* slate-300 */
-  --input-text: #0f172a; /* slate-900 */
+  --input-bg: rgba(241, 245, 249, 0.85);
+  /* slate-100/80 */
+  --input-border: #cbd5e1;
+  /* slate-300 */
+  --input-text: #0f172a;
+  /* slate-900 */
 
   --hover-bg: rgba(241, 245, 249, 0.95);
   --list-item-bg: rgba(255, 255, 255, 0.95);
@@ -52,28 +68,36 @@ body.dark-theme {
   --ambient-glow-2: rgba(99, 102, 241, 0.12);
 
   background: radial-gradient(circle at 15% 15%, rgba(14, 165, 233, 0.08) 0%, transparent 45%),
-              radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
-              linear-gradient(135deg, #0b0f19 0%, #0f172a 45%, #181c35 100%);
+    radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+    linear-gradient(135deg, #0b0f19 0%, #0f172a 45%, #181c35 100%);
   background-attachment: fixed;
-  --text-color: #cbd5e1; /* slate-300 */
-  --card-bg: rgba(15, 23, 42, 0.65); /* slate-900 transparent */
-  --card-border: rgba(51, 65, 85, 0.5); /* slate-700 transparent */
+  --text-color: #cbd5e1;
+  /* slate-300 */
+  --card-bg: rgba(15, 23, 42, 0.65);
+  /* slate-900 transparent */
+  --card-border: rgba(51, 65, 85, 0.5);
+  /* slate-700 transparent */
   --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
   --sidebar-bg: rgba(15, 23, 42, 0.85);
   --sidebar-border: rgba(51, 65, 85, 0.4);
-  --sidebar-text: #94a3b8; /* slate-400 */
-  --sidebar-title: #38bdf8; /* sky-400 */
+  --sidebar-text: #94a3b8;
+  /* slate-400 */
+  --sidebar-title: #38bdf8;
+  /* sky-400 */
   --sidebar-hover-bg: rgba(56, 189, 248, 0.08);
   --sidebar-hover-text: #38bdf8;
   --link-color: #38bdf8;
   --header-border: rgba(51, 65, 85, 0.4);
   --input-bg: rgba(15, 23, 42, 0.6);
   --input-border: rgba(51, 65, 85, 0.6);
-  --input-text: #f8fafc; /* slate-50 */
-  --text-muted: #94a3b8; /* slate-400 */
+  --input-text: #f8fafc;
+  /* slate-50 */
+  --text-muted: #94a3b8;
+  /* slate-400 */
   --text-heading: #ffffff;
   --hover-bg: rgba(51, 65, 85, 0.35);
-  --list-item-bg: rgba(30, 41, 59, 0.4); /* slate-800 transparent */
+  --list-item-bg: rgba(30, 41, 59, 0.4);
+  /* slate-800 transparent */
   --btn-secondary-bg: rgba(30, 41, 59, 0.6);
   --btn-secondary-text: #cbd5e1;
   --btn-secondary-border: rgba(51, 65, 85, 0.5);
@@ -179,7 +203,8 @@ body::after {
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sidebar-link:hover, .sidebar-link.active {
+.sidebar-link:hover,
+.sidebar-link.active {
   background-color: var(--sidebar-hover-bg);
   color: var(--sidebar-hover-text);
   font-weight: 600;
@@ -738,9 +763,11 @@ body.dark-theme .card:hover {
     grid-template-columns: 1fr;
     height: auto;
   }
+
   .notes-textarea {
     height: 250px;
   }
+
   .monaco-wrapper {
     height: 400px;
   }
@@ -750,9 +777,11 @@ body.dark-theme .card:hover {
   .desktop-nav {
     display: none !important;
   }
+
   .hide-on-mobile {
     display: none !important;
   }
+
   .notification-dropdown {
     position: fixed !important;
     top: 150px !important;
@@ -763,10 +792,12 @@ body.dark-theme .card:hover {
     max-width: calc(100vw - 32px) !important;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35) !important;
   }
+
   .app-container {
     flex-direction: row;
     position: relative;
   }
+
   .sidebar {
     display: flex !important;
     position: fixed;
@@ -782,31 +813,39 @@ body.dark-theme .card:hover {
     border-right: 1px solid var(--sidebar-border);
     border-bottom: none;
   }
+
   .sidebar.open {
     transform: translateX(0);
   }
+
   .sidebar-close-btn {
     display: block !important;
   }
+
   .hamburger-btn {
     display: flex !important;
   }
+
   .sidebar-backdrop {
     display: block !important;
   }
+
   .main-content {
     padding: 16px;
     width: 100%;
   }
+
   .modal-box {
     width: 95%;
     height: 90vh;
   }
+
   .modal-editor-grid.split {
     grid-template-columns: 1fr;
     overflow-y: auto;
     height: auto;
   }
+
   .modal-body {
     padding: 16px;
   }
@@ -814,9 +853,12 @@ body.dark-theme .card:hover {
 
 /* Skeleton Loader Animation & Classes */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -954,4 +996,3 @@ body.dark-theme .card:hover {
   border-radius: 8px;
   cursor: pointer;
 }
-

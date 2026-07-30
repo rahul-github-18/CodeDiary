@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Layout from '@/components/Layout';
 import { todoService, taskService, questionService } from '@/lib/api';
 import { generateTopicPDF } from '@/lib/pdfExport';
+import CertificateModal from '@/components/CertificateModal';
 import { getTopicUrl, findTopicBySlugs } from '@/lib/slug';
 
 const getDisplayDifficulty = (difficulty) => {
@@ -51,6 +52,7 @@ function TodoDetailContent() {
   const [expandedQuestionId, setExpandedQuestionId] = useState(null);
   const [questionFilter, setQuestionFilter] = useState('all');
   const [questionPage, setQuestionPage] = useState(0);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   // Excel upload states
   const [questionUploadMode, setQuestionUploadMode] = useState('manual');
@@ -227,6 +229,20 @@ function TodoDetailContent() {
       }
       const freshTasks = await taskService.getUserTasks();
       setUserTasks(freshTasks || []);
+
+      const isCompletingNow = !existingTask || existingTask.status !== 'Completed';
+      if (isCompletingNow) {
+        const currentlyCompletedIds = new Set(
+          (freshTasks || [])
+            .filter(t => t.item_type === 'question' && t.status === 'Completed')
+            .map(t => t.item_id)
+        );
+        const topicQuestionIds = (questions || []).map(q => q.id);
+        const allCompleted = topicQuestionIds.length > 0 && topicQuestionIds.every(id => currentlyCompletedIds.has(id));
+        if (allCompleted) {
+          setShowCertificateModal(true);
+        }
+      }
     } catch (err) {
       setUserTasks(backupTasks);
       setError('Failed to update question completion.');
@@ -527,6 +543,27 @@ function TodoDetailContent() {
                   {userTasks.some(t => t.item_type === 'topic' && t.item_id === topicId) ? '✓ Selected' : '+ Select Topic'}
                 </button>
               )}
+              {topicQs.length > 0 && completedQs.length === topicQs.length && (
+                <button
+                  className="btn"
+                  style={{
+                    padding: '6px 14px',
+                    fontSize: '0.8rem',
+                    fontWeight: '700',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+                  }}
+                  onClick={() => setShowCertificateModal(true)}
+                >
+                  🎓 Download Certificate
+                </button>
+              )}
               <button
                 className="btn btn-secondary"
                 style={{ padding: '6px 14px', fontSize: '0.8rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -541,6 +578,52 @@ function TodoDetailContent() {
               </button>
             </div>
           </div>
+
+          {/* Celebratory Banner on 100% Completion */}
+          {topicQs.length > 0 && completedQs.length === topicQs.length && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%)',
+              border: '1.5px solid #10b981',
+              borderRadius: '12px',
+              padding: '16px 20px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '2rem' }}>🎓</span>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-heading)' }}>
+                    Congratulations! Course Completed!
+                  </h4>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    You have successfully completed all {topicQs.length} questions in this topic. Claim your official certificate now.
+                  </p>
+                </div>
+              </div>
+              <button
+                className="btn btn-primary"
+                onClick={() => setShowCertificateModal(true)}
+                style={{
+                  padding: '8px 18px',
+                  fontSize: '0.85rem',
+                  fontWeight: '700',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                🎓 Download Certificate
+              </button>
+            </div>
+          )}
 
           {/* KPI Cards Row */}
           <div style={{ display: 'flex', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -1278,6 +1361,13 @@ function TodoDetailContent() {
           </div>
         </div>
       )}
+
+      <CertificateModal
+        isOpen={showCertificateModal}
+        onClose={() => setShowCertificateModal(false)}
+        topic={topic}
+        user={user}
+      />
 
     </div>
   );
