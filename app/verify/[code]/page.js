@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Layout from '@/components/Layout';
+import CertificatePreview from '@/components/CertificatePreview';
 import { certificateService } from '@/lib/api';
 import { generateCertificatePDF } from '@/lib/certificateExport';
 
@@ -60,159 +61,103 @@ export default function VerifyCertificatePage() {
   return (
     <Layout>
       <div style={{
-        maxWidth: '720px',
-        margin: '30px auto',
+        maxWidth: '920px',
+        margin: '20px auto 40px auto',
         padding: '0 16px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center'
       }}>
-        <div style={{
-          width: '100%',
-          backgroundColor: 'var(--card-bg, #ffffff)',
-          border: '1px solid var(--card-border, #e2e8f0)',
-          borderRadius: '16px',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
-        }}>
-          {/* Top Banner */}
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted, #64748b)', fontSize: '1.1rem' }}>
+            Verifying certificate authenticity...
+          </div>
+        ) : error || !cert ? (
           <div style={{
-            backgroundColor: '#16213E',
-            color: '#FAFAF7',
-            padding: '24px',
+            width: '100%',
+            maxWidth: '520px',
             textAlign: 'center',
-            borderBottom: '3px solid #C59D2A'
+            padding: '32px 24px',
+            backgroundColor: 'var(--card-bg, #ffffff)',
+            border: '1px solid var(--card-border, #e2e8f0)',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
           }}>
-            <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800', letterSpacing: '1px' }}>
-              CodeDiary
-            </h2>
-            <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#C59D2A', fontWeight: '600' }}>
-              OFFICIAL CERTIFICATE VERIFICATION SYSTEM
+            <div style={{
+              padding: '16px',
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fecaca',
+              borderRadius: '8px',
+              color: '#dc2626',
+              fontSize: '0.95rem',
+              fontWeight: '600',
+              marginBottom: '16px'
+            }}>
+              {error || 'Certificate record not found.'}
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
+              Searched Verification Code: <strong>{code}</strong>
             </p>
           </div>
-
-          {/* Body */}
-          <div style={{ padding: '32px 24px' }}>
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted, #64748b)' }}>
-                Verifying certificate authenticity...
-              </div>
-            ) : error || !cert ? (
-              <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                <div style={{
-                  padding: '16px',
-                  backgroundColor: '#fef2f2',
-                  border: '1px solid #fecaca',
-                  borderRadius: '10px',
-                  color: '#dc2626',
-                  fontSize: '0.95rem',
-                  fontWeight: '600',
-                  marginBottom: '20px'
-                }}>
-                  {error || 'Certificate not found.'}
-                </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted, #64748b)' }}>
-                  Verification Code searched: <strong>{code}</strong>
-                </p>
-              </div>
-            ) : (
-              <div>
-                {/* Verified Badge */}
-                <div style={{
+        ) : (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+            {/* Top Verified Header Bar */}
+            <div style={{
+              width: '100%',
+              backgroundColor: 'var(--card-bg, #ffffff)',
+              border: '1px solid var(--card-border, #e2e8f0)',
+              borderRadius: '12px',
+              padding: '16px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              flexWrap: 'wrap',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{
+                  padding: '6px 14px',
                   backgroundColor: '#ecfdf5',
-                  border: '1.5px solid #10b981',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  textAlign: 'center',
-                  marginBottom: '28px'
+                  border: '1px solid #10b981',
+                  borderRadius: '6px',
+                  color: '#059669',
+                  fontSize: '0.85rem',
+                  fontWeight: '800',
+                  letterSpacing: '0.5px'
                 }}>
-                  <span style={{
-                    display: 'inline-block',
-                    fontSize: '0.9rem',
-                    fontWeight: '800',
-                    color: '#059669',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase'
-                  }}>
-                    ✓ OFFICIALLY VERIFIED CERTIFICATE
-                  </span>
-                  <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#047857' }}>
-                    This certificate is authentic and registered in the CodeDiary certification database.
-                  </p>
-                </div>
-
-                {/* Details Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '28px' }}>
-                  <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
-                      Student Name
-                    </span>
-                    <h3 style={{ margin: '4px 0 0 0', fontSize: '1.3rem', fontWeight: '800', color: 'var(--text-heading, #16213E)' }}>
-                      {cert.recipient_name}
-                    </h3>
-                  </div>
-
-                  <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
-                      Course / Topic
-                    </span>
-                    <h3 style={{ margin: '4px 0 0 0', fontSize: '1.2rem', fontWeight: '800', color: '#2563EB' }}>
-                      {cert.topic_title}
-                    </h3>
-                  </div>
-
-                  <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
-                      Category & Difficulty
-                    </span>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-heading, #0f172a)' }}>
-                      {cert.category || 'General'} ({cert.difficulty || 'Medium'})
-                    </p>
-                  </div>
-
-                  <div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
-                      Date of Issue
-                    </span>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-heading, #0f172a)' }}>
-                      {cert.issue_date || new Date(cert.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <div style={{ gridColumn: '1 / -1' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
-                      Certificate ID / Serial Number
-                    </span>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '1.05rem', fontFamily: 'monospace', fontWeight: '700', color: '#2563EB' }}>
-                      {cert.certificate_no}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Download PDF Button */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button
-                    onClick={handleDownloadPDF}
-                    disabled={downloading}
-                    style={{
-                      padding: '12px 28px',
-                      fontSize: '0.95rem',
-                      fontWeight: '700',
-                      backgroundColor: '#10b981',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '8px',
-                      cursor: downloading ? 'not-allowed' : 'pointer',
-                      boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.3)'
-                    }}
-                  >
-                    {downloading ? 'Generating PDF...' : 'Download Certificate (PDF)'}
-                  </button>
-                </div>
+                  ✓ OFFICIALLY VERIFIED CERTIFICATE
+                </span>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted, #64748b)' }}>
+                  ID: <strong style={{ fontFamily: 'monospace', color: 'var(--text-heading, #0f172a)' }}>{cert.certificate_no}</strong>
+                </span>
               </div>
-            )}
+
+              <button
+                onClick={handleDownloadPDF}
+                disabled={downloading}
+                style={{
+                  padding: '10px 22px',
+                  fontSize: '0.85rem',
+                  fontWeight: '700',
+                  backgroundColor: '#10b981',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: downloading ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+                }}
+              >
+                {downloading ? 'Downloading...' : 'Download Certificate (PDF)'}
+              </button>
+            </div>
+
+            {/* Visual Certificate Rendering */}
+            <div style={{ width: '100%', overflowX: 'auto', padding: '4px 0' }}>
+              <CertificatePreview cert={cert} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );
