@@ -189,3 +189,23 @@ CREATE INDEX IF NOT EXISTS idx_login_history_user_id ON login_history(user_id);
 ALTER TABLE todos ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 ALTER TABLE questions ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
+-- 12. Create certificates table
+CREATE TABLE IF NOT EXISTS certificates (
+  id SERIAL PRIMARY KEY,
+  certificate_no VARCHAR(255) UNIQUE NOT NULL,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  topic_id INTEGER REFERENCES todos(id) ON DELETE CASCADE,
+  recipient_name VARCHAR(255) NOT NULL,
+  topic_title VARCHAR(255) NOT NULL,
+  category VARCHAR(255) DEFAULT 'General',
+  difficulty VARCHAR(50) DEFAULT 'Easy',
+  lessons_count INTEGER DEFAULT 18,
+  issue_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT unique_user_topic_certificate UNIQUE (user_id, topic_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_certificates_certificate_no ON certificates(certificate_no);
+CREATE INDEX IF NOT EXISTS idx_certificates_user_topic ON certificates(user_id, topic_id);
+
+
