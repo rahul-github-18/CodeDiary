@@ -41,6 +41,8 @@ export default function CertificateModal({
         courseTitle: topic.title,
         category: topic.category,
         difficulty: topic.difficulty,
+        lessonsCount: topic.lessons_count || topic.total_questions || 18,
+        problemsCount: topic.problems_count || (topic.total_questions ? topic.total_questions * 8 : 120),
         topicId: topic.id
       });
 
