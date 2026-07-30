@@ -549,19 +549,16 @@ function TodoDetailContent() {
                   style={{
                     padding: '6px 14px',
                     fontSize: '0.8rem',
-                    fontWeight: '700',
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    fontWeight: '600',
+                    backgroundColor: '#10b981',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+                    cursor: 'pointer'
                   }}
                   onClick={() => setShowCertificateModal(true)}
                 >
-                  🎓 Download Certificate
+                  Download Certificate
                 </button>
               )}
               <button
@@ -579,12 +576,12 @@ function TodoDetailContent() {
             </div>
           </div>
 
-          {/* Celebratory Banner on 100% Completion */}
+          {/* Banner on 100% Completion */}
           {topicQs.length > 0 && completedQs.length === topicQs.length && (
             <div style={{
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(59, 130, 246, 0.12) 100%)',
-              border: '1.5px solid #10b981',
-              borderRadius: '12px',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid #10b981',
+              borderRadius: '8px',
               padding: '16px 20px',
               marginBottom: '20px',
               display: 'flex',
@@ -593,34 +590,29 @@ function TodoDetailContent() {
               gap: '16px',
               flexWrap: 'wrap'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '2rem' }}>🎓</span>
-                <div>
-                  <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-heading)' }}>
-                    Congratulations! Course Completed!
-                  </h4>
-                  <p style={{ margin: '2px 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                    You have successfully completed all {topicQs.length} questions in this topic. Claim your official certificate now.
-                  </p>
-                </div>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '700', color: 'var(--text-heading)' }}>
+                  Congratulations! Course Completed!
+                </h4>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  You have completed all {topicQs.length} questions in this topic. You can now download your certificate.
+                </p>
               </div>
               <button
                 className="btn btn-primary"
                 onClick={() => setShowCertificateModal(true)}
                 style={{
-                  padding: '8px 18px',
+                  padding: '8px 16px',
                   fontSize: '0.85rem',
-                  fontWeight: '700',
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  fontWeight: '600',
+                  backgroundColor: '#10b981',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
+                  borderRadius: '6px',
+                  cursor: 'pointer'
                 }}
               >
-                🎓 Download Certificate
+                Download Certificate
               </button>
             </div>
           )}

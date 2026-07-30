@@ -2583,19 +2583,15 @@ function DashboardContent({ searchQuery }) {
                                 width: '100%',
                                 padding: '6px 10px',
                                 fontSize: '0.75rem',
-                                fontWeight: '700',
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                fontWeight: '600',
+                                backgroundColor: '#10b981',
                                 color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '6px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '6px',
-                                boxShadow: '0 2px 4px rgba(16, 185, 129, 0.2)'
+                                cursor: 'pointer'
                               }}
                             >
-                              🎓 Download Certificate
+                              Download Certificate
                             </button>
                           )}
                         </div>
