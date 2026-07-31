@@ -1,14 +1,47 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 export default function PWAContainer() {
   const [isOffline, setIsOffline] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+
+  const verifyOnlineStatus = useCallback(async () => {
+    if (typeof window !== 'undefined' && navigator.onLine) {
+      setIsOffline(false);
+      return true;
+    }
+
+    // Double-check using a lightweight fetch ping to prevent false positives in Chrome
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+      const res = await fetch(`/favicon.png?_ping=${Date.now()}`, {
+        method: 'HEAD',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (res.ok || res.status < 500) {
+        setIsOffline(false);
+        return true;
+      }
+    } catch {
+      // Fetch failed - user is truly offline
+    }
+
+    setIsOffline(true);
+    return false;
+  }, []);
 
   useEffect(() => {
     // 1. Service Worker Registration
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
+      navigator.serviceWorker
+        .register('/sw.js')
         .then((reg) => {
           console.log('Service Worker registered successfully:', reg.scope);
         })
@@ -17,17 +50,21 @@ export default function PWAContainer() {
         });
     }
 
-    // 2. Online/Offline Listeners
+    // 2. Initial Online Check
+    verifyOnlineStatus();
+
+    // 3. Online/Offline Listeners
     const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
+    const handleOffline = () => {
+      verifyOnlineStatus();
+    };
 
     if (typeof window !== 'undefined') {
-      setIsOffline(!navigator.onLine);
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
     }
 
-    // 3. PWA Installation Event
+    // 4. PWA Installation Event
     const handleBeforeInstallPrompt = (e) => {
       e.preventDefault();
       window.deferredPrompt = e;
@@ -48,30 +85,52 @@ export default function PWAContainer() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [verifyOnlineStatus]);
+
+  const handleRetry = async () => {
+    setIsChecking(true);
+    const online = await verifyOnlineStatus();
+    if (online) {
+      window.location.reload();
+    } else {
+      setIsChecking(false);
+    }
+  };
 
   if (isOffline) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#0f172a',
-        color: '#f8fafc',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 99999,
-        fontFamily: 'sans-serif',
-        padding: '24px',
-        textAlign: 'center'
-      }}>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: '#0f172a',
+          color: '#f8fafc',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          fontFamily: 'sans-serif',
+          padding: '24px',
+          textAlign: 'center',
+        }}
+      >
         {/* Offline Graphic */}
         <div style={{ marginBottom: '24px' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#d93025" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#d93025"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="1" y1="1" x2="23" y2="23"></line>
             <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.5"></path>
             <path d="M5 12.5a10.94 10.94 0 0 1 5.17-2.39"></path>
@@ -81,25 +140,36 @@ export default function PWAContainer() {
             <line x1="12" y1="20" x2="12.01" y2="20"></line>
           </svg>
         </div>
-        <h2 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 12px 0' }}>No Internet Connection</h2>
-        <p style={{ fontSize: '0.95rem', color: '#94a3b8', maxWidth: '400px', margin: '0 0 24px 0', lineHeight: '1.5' }}>
+        <h2 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 12px 0' }}>
+          No Internet Connection
+        </h2>
+        <p
+          style={{
+            fontSize: '0.95rem',
+            color: '#94a3b8',
+            maxWidth: '400px',
+            margin: '0 0 24px 0',
+            lineHeight: '1.5',
+          }}
+        >
           CodeDiary requires an active internet connection to securely fetch and update your live curriculum progress. Please check your connection and try again.
         </p>
-        <button 
-          onClick={() => window.location.reload()}
+        <button
+          onClick={handleRetry}
+          disabled={isChecking}
           style={{
             padding: '12px 24px',
             fontSize: '0.95rem',
             fontWeight: '600',
-            backgroundColor: '#1a73e8',
+            backgroundColor: isChecking ? '#64748b' : '#1a73e8',
             color: '#ffffff',
             border: 'none',
             borderRadius: '6px',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s ease'
+            cursor: isChecking ? 'not-allowed' : 'pointer',
+            transition: 'background-color 0.2s ease',
           }}
         >
-          Retry Connection
+          {isChecking ? 'Checking Connection...' : 'Retry Connection'}
         </button>
       </div>
     );
@@ -107,3 +177,4 @@ export default function PWAContainer() {
 
   return null;
 }
+
