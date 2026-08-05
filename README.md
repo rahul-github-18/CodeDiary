@@ -1,187 +1,196 @@
-# Code Diary
+<div align="center">
 
-A comprehensive, full-stack learning management platform, code editor playground, and curriculum tracker designed for students and educators. Built with Next.js 14, React 18, Supabase (PostgreSQL), and Tailwind CSS.
+# 📝 Code Diary
 
-## Overview
+**An All-in-One Fullstack Learning Management Platform, Interactive Code Playground, & Curriculum Tracker.**
 
-Code Diary is designed to streamline coding education by combining curriculum topic tracking, in-browser code execution, interactive problem sets, note-taking, student progress analytics, automated certificate generation, and an instructor management portal into a unified Web and Progressive Web App (PWA).
-
----
-
-## Key Features
-
-### Learning Management & Curriculum Tracking
-- **Structured Categories**: Browse learning modules categorized by subject (Data Structures, Algorithms, Web Development, SQL, etc.).
-- **Topic Progress Tracking**: Track completed topics, view progress percentages, and estimate completion times for each module.
-- **Problem Sets & Solutions**: Access detailed questions with code solutions, step-by-step explanations, and downloadable study notes.
-- **Resource Exports**: Export notes and curriculum guides directly to PDF format or download data reports as Excel datasheets.
-
-### In-Browser Code Playground & Snippet Sharing
-- **Monaco Editor Integration**: Embedded VS Code-powered editor supporting syntax highlighting, theme switching, and auto-formatting.
-- **Multi-Language Support**: Write and test code in Java, JavaScript, Python, C++, C, HTML/CSS, and SQL.
-- **Code Sharing**: Generate unique public links for code snippets (`/share-code/[id]`) to share code with peers or instructors.
-
-### Student Analytics & Gamification
-- **Streak Tracker**: Tracks daily consecutive user logins and activity.
-- **Activity Dashboard**: Displays weekly activity metrics and completion percentages.
-- **Personalized Recommendations**: Suggests next topics to study based on completed modules and difficulty levels.
-
-### Certification & Verification
-- **Course Certificates**: Automatically generates completion certificates upon module completion.
-- **Certificate Verification Modal**: Allows digital verification of certificate IDs (`certificate_no`).
-- **PDF Export**: Download high-resolution completion certificates as PDF documents.
-
-### Student Helpdesk & Code Reviews
-- **Query Ticket System**: Students can send direct questions to admins and receive threaded responses.
-- **Code Submission & Evaluation**: Students submit code answers for instructor evaluation and feedback.
-- **Notification System**: Real-time unread badges for admin replies and updates.
-
-### Admin Management Portal
-- **Content Management**: Create, update, reorder, and delete categories, topics, questions, code examples, and notes.
-- **User Account Administration**: Review user accounts, configure role permissions (View, Edit, Delete), and approve registration requests.
-- **Ticketing & Code Review Console**: Manage student inquiries and code submissions in real time.
-- **Platform Analytics**: Monitor overall platform metrics, total registered users, completed topics, and active notes.
-
-### Security, Auth & PWA Support
-- **Role-Based Access Control (RBAC)**: Enforced roles (`admin` vs `user`) with fine-grained capability checks.
-- **Email Verification**: User registration with 10-minute OTP verification via Nodemailer SMTP.
-- **Progressive Web App (PWA)**: Installable application support with service worker caching for offline access.
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-kodediary.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://kodediary.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js_14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Monaco Editor](https://img.shields.io/badge/Monaco_Editor-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](https://microsoft.github.io/monaco-editor/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 ---
 
-## Tech Stack
+### 🔗 Live Application: [kodediary.vercel.app](https://kodediary.vercel.app)
 
-| Component | Technology | Description |
-| --- | --- | --- |
-| **Framework** | Next.js 14 (App Router) | Server and Client Side Rendering |
-| **Frontend UI** | React 18 & Tailwind CSS | Dynamic component UI with custom styling |
-| **Code Editor** | Monaco Editor (`@monaco-editor/react`) | In-browser code editing environment |
-| **Database** | Supabase (PostgreSQL) | Managed PostgreSQL relational database |
-| **PDF Export** | jsPDF | Client-side PDF generation for notes & certificates |
-| **Excel Export** | SheetJS (XLSX) | Datasheet spreadsheet export capabilities |
-| **Email Service** | Nodemailer | SMTP email delivery for OTP verification |
-| **HTTP Client** | Axios | API requests and asynchronous data fetching |
+</div>
 
 ---
 
-## Project Structure
+## 🌟 Overview
+
+**Code Diary** is a state-of-the-art learning platform built for students, developers, and educators. It combines curriculum tracking, multi-language in-browser code execution, interactive problem sets, real-time analytics, automated PDF certificate generation, and an instructor management console into a unified Web and Progressive Web App (PWA).
+
+---
+
+## ✨ Key Features
+
+### 📚 Learning Management & Curriculum Tracking
+- 🏷️ **Structured Categories**: Browse modules across Data Structures, Algorithms, Web Development, SQL, and more.
+- 📈 **Progress Tracking**: Real-time topic completion percentages, time estimations, and visual progress bars.
+- 🎯 **Problem Sets & Solutions**: Detailed coding challenges with solution code, step-by-step explanations, and notes.
+- 📥 **Export Resources**: Export study notes directly to PDF format or download learning progress reports as Excel datasheets.
+
+### 💻 In-Browser Code Playground
+- ⚡ **VS Code-Powered Monaco Editor**: Embedded editor with syntax highlighting, auto-formatting, themes, and line numbers.
+- 🌐 **Multi-Language Execution**: Write and run code in Java, JavaScript, Python, C++, C, HTML/CSS, and SQL.
+- 🔗 **Code Snippet Sharing**: Instantly generate public shareable links (`/share-code/[id]`) for peer reviews or showcase.
+
+### 📊 Analytics & Gamification
+- 🔥 **Streak Tracker**: Monitor consecutive daily coding activity to build consistent learning habits.
+- 📉 **Activity Dashboard**: Comprehensive weekly metrics, completion breakdowns, and user activity history.
+- 💡 **Personalized Recommendations**: Smart suggestions for next topics based on user progress and target skill level.
+
+### 📜 Automated Certifications
+- 🎓 **Course Completion Certificates**: Dynamic generation of verified completion certificates upon completing modules.
+- 🔍 **Certificate Verification Modal**: Digital certificate validation system via unique `certificate_no` tracking.
+- 📄 **High-Res PDF Export**: One-click PDF document generation for certificates and portfolio achievements.
+
+### 💬 Student Helpdesk & Reviews
+- 🎟️ **Support Ticket System**: Direct threaded Q&A communication between students and instructors.
+- 📥 **Submission Evaluation**: Submit code solutions for grading, code review, and personalized feedback.
+- 🔔 **Real-Time Notifications**: Unread badges and instant notifications for ticket replies.
+
+### ⚡ Admin Portal & Management
+- 🛠️ **Content Editor**: Full CRUD suite to add, reorder, update, or remove categories, topics, and problem sets.
+- 👥 **User Administration**: Account permissions management (`View`, `Edit`, `Delete`) and registration approval.
+- 📊 **Platform Analytics**: High-level platform statistics tracking active learners, completed topics, and system usage.
+
+### 🔒 Security, Authentication & PWA
+- 🛡️ **Role-Based Access Control (RBAC)**: Enforces strict permissions between standard users and platform administrators.
+- 🔑 **OTP Email Verification**: Secure registration powered by 10-minute email verification codes.
+- 📱 **Progressive Web App (PWA)**: Installable app experience with offline capability and service worker caching.
+
+---
+
+## 🛠️ Tools & Tech Stack
+
+| Domain | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Framework** | ![Next.js](https://img.shields.io/badge/Next.js_14-000000?style=flat-square&logo=nextdotjs&logoColor=white) | Fullstack React framework with App Router |
+| **Frontend UI** | ![React](https://img.shields.io/badge/React_18-61DAFB?style=flat-square&logo=react&logoColor=black) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white) | Dynamic UI components & custom glassmorphic styling |
+| **Code Editor** | ![Monaco Editor](https://img.shields.io/badge/Monaco-007ACC?style=flat-square&logo=visualstudiocode&logoColor=white) | In-browser VS Code editing engine |
+| **Database** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white) | PostgreSQL relational database & real-time client |
+| **Deployment** | ![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white) | Production edge hosting & deployment |
+| **PDF Generation** | ![jsPDF](https://img.shields.io/badge/jsPDF-red?style=flat-square) | Client-side export for notes & certificate documents |
+| **Excel Export** | ![SheetJS](https://img.shields.io/badge/SheetJS_XLSX-green?style=flat-square) | Excel spreadsheet datasheet exports |
+| **Email Service** | ![Nodemailer](https://img.shields.io/badge/Nodemailer-blue?style=flat-square) | SMTP email verification & OTP service |
+
+---
+
+## 📂 Project Structure
 
 ```
-coding-tracker/
-├── app/                      # Next.js App Router routes & pages
-│   ├── [category]/[slug]/    # Dynamic topic & problem view pages
-│   ├── about/                # About page
-│   ├── admin/                # Admin portal layout and management views
-│   ├── api/                  # API endpoints (Auth, Admin, User, Topics, Questions)
-│   ├── code-editor/          # Code playground view
-│   ├── enroll/               # Registration & OTP verification page
-│   ├── login/                # User login page
-│   ├── share-code/           # Shared code snippet viewer
-│   ├── todo/                 # Task and topic checklist view
-│   ├── verify/               # Certificate verification view
-│   ├── globals.css           # Global stylesheet & Tailwind directives
-│   └── page.js               # Main Dashboard / Landing View
-├── components/               # Reusable UI Components
-│   ├── CertificateModal.js   # Certificate modal & PDF view
-│   ├── CertificatePreview.js # Certificate render preview
-│   ├── FloatingNav.js        # Dynamic floating navigation menu
-│   ├── Footer.js             # Application footer
-│   ├── LandingView.js        # Hero landing page for guest users
-│   ├── Layout.js             # Main dashboard layout wrapper with navigation
-│   ├── PWAContainer.js       # PWA service worker container & prompt
-│   └── Sidebar.js            # Category navigation sidebar
-├── lib/                      # Helper modules & backend services
-│   ├── api.js                # Frontend API client service calls
-│   ├── cache.js              # In-memory API cache helper
-│   ├── certificateExport.js  # Certificate generation logic
-│   ├── certificateStore.js   # Client certificate persistence
-│   ├── email.js              # Nodemailer transport configuration
-│   ├── pdfExport.js          # jsPDF topic document generator
-│   ├── seo.js                # Dynamic meta tags & SEO helper
-│   ├── slug.js               # URL slug parsing & generator
-│   └── supabase.js           # Supabase client initializer
-├── public/                   # Static assets & PWA manifest/service worker
-│   └── sw.js                 # Service worker script
-├── package.json              # Project dependencies & scripts
-├── supabase_schema.sql       # Database table definitions & seed data
-└── tailwind.config.js        # Tailwind CSS configuration
+code-diary/
+├── 📁 app/                      # Next.js App Router & API Endpoints
+│   ├── 📁 [category]/[slug]/    # Dynamic curriculum topic & problem pages
+│   ├── 📁 about/                # Platform info page
+│   ├── 📁 admin/                # Admin management dashboard & tools
+│   ├── 📁 api/                  # REST API routes (Auth, Admin, Topics, Users)
+│   ├── 📁 code-editor/          # Monaco code editor playground
+│   ├── 📁 enroll/               # Registration & OTP email verification
+│   ├── 📁 login/                # Authentication page
+│   ├── 📁 share-code/           # Public snippet view page
+│   ├── 📁 todo/                 # Learning checklist & task manager
+│   ├── 📁 verify/               # Certificate verification portal
+│   ├── 📄 globals.css           # Global CSS styles & Tailwind imports
+│   └── 📄 page.js               # Main Landing / Learning Dashboard
+├── 📁 components/               # UI Components
+│   ├── 📄 CertificateModal.js   # Interactive certificate viewer
+│   ├── 📄 CertificatePreview.js # PDF layout previewer
+│   ├── 📄 FloatingNav.js        # Dynamic floating header navigation
+│   ├── 📄 Footer.js             # Application footer section
+│   ├── 📄 LandingView.js        # Public landing view for guest visitors
+│   ├── 📄 Layout.js             # Authenticated dashboard wrapper layout
+│   ├── 📄 PWAContainer.js       # PWA offline worker & install prompts
+│   └── 📄 Sidebar.js            # Category & topic navigation menu
+├── 📁 lib/                      # Services & Helper Utilities
+│   ├── 📄 api.js                # Frontend API client module
+│   ├── 📄 cache.js              # In-memory response cache
+│   ├── 📄 certificateExport.js  # Certificate PDF generator logic
+│   ├── 📄 email.js              # SMTP Nodemailer configuration
+│   ├── 📄 pdfExport.js          # Topic PDF notes generator
+│   └── 📄 supabase.js           # Supabase client initialization
+├── 📁 public/                   # Static assets & service worker scripts
+├── 📄 supabase_schema.sql       # Database schema & initial setup SQL
+├── 📄 tailwind.config.js        # Tailwind styling options
+└── 📄 package.json              # Dependencies and scripts
 ```
 
 ---
 
-## Getting Started
+## 🚀 Quick Start Guide
 
-### Prerequisites
+### 📋 Prerequisites
 
-Ensure you have the following installed on your local environment:
-- **Node.js**: `v18.x` or higher
-- **npm** or **yarn**
-- A **Supabase** project instance (or PostgreSQL database)
+Ensure you have the following installed on your development machine:
+- 🟢 **Node.js**: `v18.x` or higher
+- 📦 **npm** / **yarn** / **pnpm**
+- ⚡ A **Supabase** project instance (or PostgreSQL database)
 
 ---
 
-### Installation
+### 💻 Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/rahul-github-18/Coding-Tracker.git
    cd coding-tracker
    ```
 
-2. **Install dependencies**:
+2. **Install project dependencies**:
    ```bash
    npm install
    ```
 
 ---
 
-### Environment Configuration
+### ⚙️ Environment Configuration
 
-Create a `.env.local` file in the project root directory and supply your environment variables:
+Create a `.env.local` file in the project root folder and populate it with your environment parameters:
 
 ```env
-# Supabase Configuration
+# Supabase Database Settings
 NEXT_PUBLIC_SUPABASE_URL=https://your-supabase-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 
-# SMTP Configuration (Optional - for Email OTP Verification)
+# SMTP Credentials (Optional - For OTP Email Authentication)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
+SMTP_USER=your-email@example.com
 SMTP_PASS=your-app-password
-SMTP_FROM="Code Diary" <your-email@gmail.com>
+SMTP_FROM="Code Diary" <your-email@example.com>
 ```
 
 ---
 
-### Database Setup
+### 🗄️ Database Setup
 
-1. Log into your **Supabase Dashboard** and open the **SQL Editor**.
-2. Copy the contents of `supabase_schema.sql` and execute the query.
-3. This migration script will create the following tables and seed default users:
-   - `users` & `otp_codes`
-   - `todos` (Curriculum Topics)
-   - `questions`, `code_examples`, and `notes`
-   - `user_tasks`, `user_queries`, and `user_submissions`
-   - `shared_codes`
-   - `login_history`
-   - `certificates`
+1. Navigate to your **Supabase Dashboard** and open the **SQL Editor**.
+2. Open `supabase_schema.sql` from this repository, copy its contents, and execute the SQL query.
+3. This script sets up all required database tables and relational constraints:
+   - `users`, `otp_codes`, `todos`
+   - `questions`, `code_examples`, `notes`
+   - `user_tasks`, `user_queries`, `user_submissions`
+   - `certificates`, `shared_codes`, `login_history`
 
 ---
 
-### Running Development Server
+### 🖥️ Running Development Server
 
-Start the Next.js development server:
+Run the development server locally:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your web browser to view the application.
+Visit [http://localhost:3000](http://localhost:3000) in your browser to test the platform.
 
-To test building for production:
-
+For production builds:
 ```bash
 npm run build
 npm run start
@@ -189,37 +198,45 @@ npm run start
 
 ---
 
-## Application Architecture & Routes
+## 🗺️ Application Routes
 
-| Route Path | Description | Access Level |
-| --- | --- | --- |
-| `/` | Main dashboard displaying courses, progress, and analytics | Public / Authenticated |
-| `/[category]/[slug]` | Detailed topic page with questions, notes, and code samples | Public / Authenticated |
-| `/code-editor` | Interactive Monaco code editor playground | Public / Authenticated |
-| `/share-code` | Shared code snippet view | Public |
-| `/login` | User authentication page | Guest |
-| `/enroll` | User signup and email OTP verification page | Guest |
-| `/todo` | Student task & topic checklist page | Authenticated |
-| `/admin` | Administration portal for content & user management | Admin |
-| `/about` | About page detailing platform objectives | Public |
+| Route | Icon | Description | Access Level |
+| :--- | :---: | :--- | :--- |
+| `/` | 🏠 | Main Dashboard displaying courses, progress & activity | Public / User |
+| `/[category]/[slug]` | 📖 | Specific topic page with questions, code samples & notes | Public / User |
+| `/code-editor` | 💻 | Multi-language Monaco code editor playground | Public / User |
+| `/share-code` | 🔗 | Public code snippet view page | Public |
+| `/login` | 🔑 | User login authentication | Guest |
+| `/enroll` | 📝 | User registration & email OTP verification | Guest |
+| `/todo` | ✅ | Student task checklist & topic progress tracker | Authenticated |
+| `/admin` | 🛡️ | Instructor management portal for content & users | Admin |
+| `/about` | ℹ️ | About Code Diary and platform mission | Public |
+
+---
+
+## 🗄️ Database Architecture
+
+The application database is powered by Supabase (PostgreSQL) and consists of the following core models:
+
+- 👤 **`users`**: Manages user profiles, role permissions (`admin` / `user`), login streaks, and activity dates.
+- 🔢 **`otp_codes`**: Manages temporary 6-digit email verification codes.
+- 📘 **`todos`**: Stores curriculum topics, categories, difficulties, and target completion times.
+- ❓ **`questions`**: Topic problem sets containing explanations and solution code snippets.
+- 💻 **`code_examples`**: Pre-configured code samples organized by language and subject.
+- 📝 **`notes`**: Topic documentation and study notes.
+- ✅ **`user_tasks`**: Individual student topic progress tracking (`Pending`, `In Progress`, `Completed`).
+- 💬 **`user_queries`**: Helpdesk ticket records between students and admins.
+- 📤 **`user_submissions`**: Student code submissions awaiting admin feedback.
+- 📜 **`certificates`**: Issued course certificates with unique verification identifiers.
+- 🔗 **`shared_codes`**: Public code snippet storage for shared links.
+- 📊 **`login_history`**: Audit logs capturing user timestamps, IP addresses, and browsers.
 
 ---
 
-## Database Schema
+## 📄 License
 
-The core database tables managed by Supabase include:
+Distributed under the MIT License. See `LICENSE` for more information.
 
-- **`users`**: User profile, credentials, role (`admin` / `user`), permissions (`can_view`, `can_edit`, `can_delete`), streak counter, and last activity date.
-- **`otp_codes`**: Temporary 6-digit email verification codes with expiration timestamps.
-- **`todos`**: Curriculum topics containing metadata (category, difficulty, estimated time, sort order).
-- **`questions`**: Topic problem sets with descriptions, answer solutions, sample code, and explanations.
-- **`code_examples`**: Code snippets organized by programming language and topic.
-- **`notes`**: Topic-specific textual guides and documentation.
-- **`user_tasks`**: Tracks individual user progress per topic (Status: Pending, In Progress, Completed).
-- **`user_queries`**: Helpdesk ticket records between users and admins.
-- **`user_submissions`**: Student code submissions for admin review.
-- **`certificates`**: Issued course completion certificates with unique certificate numbers.
-- **`shared_codes`**: Snippet repository for public code sharing.
-- **`login_history`**: Audit logs capturing user login timestamps, IP addresses, and user agents.
-
----
+<div align="center">
+  <sub>Built with ❤️ for learners worldwide • Powered by <b>Code Diary</b></sub>
+</div>
