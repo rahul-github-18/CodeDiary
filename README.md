@@ -2,27 +2,6 @@
 
 A comprehensive, full-stack learning management platform, code editor playground, and curriculum tracker designed for students and educators. Built with Next.js 14, React 18, Supabase (PostgreSQL), and Tailwind CSS.
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Environment Configuration](#environment-configuration)
-  - [Database Setup](#database-setup)
-  - [Running Development Server](#running-development-server)
-- [Application Architecture & Routes](#application-architecture--routes)
-- [Database Schema](#database-schema)
-- [Default User Credentials](#default-user-credentials)
-- [License](#license)
-
----
-
 ## Overview
 
 Code Diary is designed to streamline coding education by combining curriculum topic tracking, in-browser code execution, interactive problem sets, note-taking, student progress analytics, automated certificate generation, and an instructor management portal into a unified Web and Progressive Web App (PWA).
