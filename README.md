@@ -1,4 +1,4 @@
-# Coding Tracker Fullstack
+# Code Diary
 
 A comprehensive, full-stack learning management platform, code editor playground, and curriculum tracker designed for students and educators. Built with Next.js 14, React 18, Supabase (PostgreSQL), and Tailwind CSS.
 
@@ -25,7 +25,7 @@ A comprehensive, full-stack learning management platform, code editor playground
 
 ## Overview
 
-Coding Tracker is designed to streamline coding education by combining curriculum topic tracking, in-browser code execution, interactive problem sets, note-taking, student progress analytics, automated certificate generation, and an instructor management portal into a unified Web and Progressive Web App (PWA).
+Code Diary is designed to streamline coding education by combining curriculum topic tracking, in-browser code execution, interactive problem sets, note-taking, student progress analytics, automated certificate generation, and an instructor management portal into a unified Web and Progressive Web App (PWA).
 
 ---
 
@@ -171,7 +171,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
-SMTP_FROM="Coding Tracker" <your-email@gmail.com>
+SMTP_FROM="Code Diary" <your-email@gmail.com>
 ```
 
 ---
@@ -244,21 +244,3 @@ The core database tables managed by Supabase include:
 - **`login_history`**: Audit logs capturing user login timestamps, IP addresses, and user agents.
 
 ---
-
-## Default User Credentials
-
-The database migration seeds initial default user accounts for testing:
-
-| Username | Password | Role | Permissions |
-| --- | --- | --- | --- |
-| `admin` | `admin@123` | Administrator | Full Access (View, Edit, Delete) |
-| `rahul` | `admin@123` | Administrator | Full Access (View, Edit, Delete) |
-| `user` | `1234` | Standard User | View Only |
-
-> **Note**: In a production deployment, change default admin passwords immediately via the Admin Panel or SQL editor.
-
----
-
-## License
-
-This project is open-source and available under the [MIT License](LICENSE).
