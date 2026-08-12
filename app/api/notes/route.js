@@ -39,7 +39,7 @@ export async function GET(req) {
     } else {
       dbQuery = dbQuery.is('topic_id', null);
     }
-    const { data: notes, error } = await dbQuery.order('id', { ascending: true });
+    const { data: notes, error } = await dbQuery.order('id', { ascending: false });
     console.timeEnd('Supabase: Fetch Notes');
 
     if (error) throw error;

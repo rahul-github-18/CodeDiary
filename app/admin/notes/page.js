@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/Layout';
 import { noteService } from '@/lib/api';
+import { generateAdminNotesPDF } from '@/lib/pdfExport';
 
 function AdminNotesContent() {
   const [user, setUser] = useState(null);
@@ -18,6 +19,7 @@ function AdminNotesContent() {
   const [selectedNote, setSelectedNote] = useState(null);
   const [noteForm, setNoteForm] = useState({ title: '', content: '' });
   const [saving, setSaving] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const router = useRouter();
 
@@ -118,10 +120,61 @@ function AdminNotesContent() {
     }
   };
 
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleDownloadAllPDF = async () => {
+    if (filteredNotes.length === 0) return;
+    setError('');
+    setSuccess('');
+    try {
+      setDownloadingPdf(true);
+      const pdfTitle = searchQuery ? `Private Admin Notes (Search: "${searchQuery}")` : 'Private Admin Notes';
+      const doc = await generateAdminNotesPDF(filteredNotes, pdfTitle);
+      if (doc) {
+        doc.save('Admin_Notes.pdf');
+        setSuccess('Admin notes exported to PDF successfully!');
+      } else {
+        setError('Failed to generate PDF export.');
+      }
+    } catch (err) {
+      console.error('Failed to export PDF:', err);
+      setError('Failed to export notes PDF.');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
+  const handleDownloadSinglePDF = async (note) => {
+    setError('');
+    setSuccess('');
+    try {
+      setDownloadingPdf(true);
+      const doc = await generateAdminNotesPDF([note], note.title);
+      if (doc) {
+        const safeTitle = note.title.replace(/[^a-zA-Z0-9_-]/g, '_');
+        doc.save(`${safeTitle}_Note.pdf`);
+        setSuccess(`Exported "${note.title}" to PDF successfully!`);
+      } else {
+        setError('Failed to generate PDF for note.');
+      }
+    } catch (err) {
+      console.error('Failed to export note PDF:', err);
+      setError('Failed to export note PDF.');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
+  // Ensure latest added notes are displayed first (descending by created_at or id)
+  const filteredNotes = notes
+    .filter(note => 
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.content.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (a.created_at && b.created_at) {
+        return new Date(b.created_at) - new Date(a.created_at);
+      }
+      return Number(b.id) - Number(a.id);
+    });
 
   if (!user) {
     return (
@@ -143,13 +196,29 @@ function AdminNotesContent() {
             Manage private topics, quick reminders, and developer logs visible only to administrators.
           </p>
         </div>
-        <button 
-          className="btn btn-primary" 
-          onClick={handleOpenCreateModal}
-          style={{ padding: '10px 20px', fontWeight: '600' }}
-        >
-          + Add Private Note
-        </button>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button 
+            className="btn btn-secondary"
+            onClick={handleDownloadAllPDF}
+            disabled={downloadingPdf || filteredNotes.length === 0}
+            style={{ padding: '10px 16px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}
+            title="Download all private notes as PDF"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            {downloadingPdf ? 'Exporting...' : 'Download PDF'}
+          </button>
+          <button 
+            className="btn btn-primary" 
+            onClick={handleOpenCreateModal}
+            style={{ padding: '10px 20px', fontWeight: '600' }}
+          >
+            + Add Private Note
+          </button>
+        </div>
       </div>
 
       {error && <div className="login-error">{error}</div>}
@@ -232,7 +301,21 @@ function AdminNotesContent() {
                 </p>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px', borderTop: '1px solid var(--card-border)', paddingTop: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '16px', borderTop: '1px solid var(--card-border)', paddingTop: '12px' }}>
+                <button 
+                  className="btn btn-secondary" 
+                  onClick={() => handleDownloadSinglePDF(note)}
+                  disabled={downloadingPdf}
+                  title="Download this note as PDF"
+                  style={{ padding: '6px 10px', fontSize: '0.75rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  PDF
+                </button>
                 <button 
                   className="btn btn-secondary" 
                   onClick={() => handleOpenEditModal(note)}
